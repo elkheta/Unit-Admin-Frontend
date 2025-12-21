@@ -65,7 +65,7 @@
 import { computed } from 'vue';
 import { Package, User } from 'lucide-vue-next';
 import { BaseCard, BaseButton, IconBadge } from '../ui';
-import GroupItem from './GroupItem.vue';
+import { GroupItem } from './index.js';
 
 const props = defineProps({
   unit: {

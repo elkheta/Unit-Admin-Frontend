@@ -23,7 +23,7 @@
 
 <script setup>
 import { UnitCard } from '../units';
-import RemindersSection from './RemindersSection.vue';
+import { RemindersSection } from './index.js';
 
 const props = defineProps({
   units: {

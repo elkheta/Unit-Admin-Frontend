@@ -23,7 +23,7 @@
 <script setup>
 import { CheckCircle2 } from 'lucide-vue-next';
 import { BaseCard, EmptyState } from '../ui';
-import ReminderItem from './ReminderItem.vue';
+import { ReminderItem } from './index.js';
 
 defineProps({
   reminders: {

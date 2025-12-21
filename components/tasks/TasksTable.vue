@@ -31,7 +31,7 @@
 </template>
 
 <script setup>
-import TaskRow from './TaskRow.vue';
+import { TaskRow } from './index.js';
 
 defineProps({
   tasks: {

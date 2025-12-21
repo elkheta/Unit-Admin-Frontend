@@ -10,4 +10,5 @@ export { default as UnitStudentListView } from './UnitStudentListView.vue';
 export { default as UnitSettingsView } from './UnitSettingsView.vue';
 export { default as UnitMessagesView } from './UnitMessagesView.vue';
 export { default as UnitsListView } from './UnitsListView.vue';
+export { default as UnitOverviewCard } from './UnitOverviewCard.vue';
 

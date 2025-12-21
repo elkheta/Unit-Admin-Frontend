@@ -52,7 +52,7 @@
 import { ref, computed } from 'vue';
 import { Search, RefreshCw, Package } from 'lucide-vue-next';
 import { BaseInput, BaseButton } from '../ui';
-import UnitOverviewCard from './UnitOverviewCard.vue';
+import { UnitOverviewCard } from './index.js';
 
 const props = defineProps({
   units: {
@@ -60,6 +60,7 @@ const props = defineProps({
     default: () => [
       {
         id: 2,
+        slug: 's3-rania',
         name: 'S3 - Rania',
         active: 120,
         outside: 15,
@@ -72,6 +73,7 @@ const props = defineProps({
       },
       {
         id: 3,
+        slug: 'senior-two-alia',
         name: 'Senior Two - Alia',
         active: 45,
         outside: 0,
@@ -84,6 +86,7 @@ const props = defineProps({
       },
       {
         id: 104,
+        slug: 'junior-two-ahmed-hassan',
         name: 'Junior Two - Ahmed Hassan',
         active: 200,
         outside: 12,

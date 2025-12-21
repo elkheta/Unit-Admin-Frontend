@@ -113,7 +113,7 @@
 import { ref } from 'vue';
 import { PlusCircle, Tag, Edit3, Trash2 } from 'lucide-vue-next';
 import { BaseButton, BaseModal, Badge, IconBadge } from '../ui';
-import LabelModal from './LabelModal.vue';
+import { LabelModal } from './index.js';
 
 defineProps({
   labels: {

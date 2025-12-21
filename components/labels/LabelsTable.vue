@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import LabelRow from './LabelRow.vue';
+import { LabelRow } from './index.js';
 
 defineProps({
   labels: {

@@ -3,6 +3,7 @@ import SignInPage from '../pages/auth/SignInPage.vue';
 import RegisterPage from '../pages/auth/RegisterPage.vue';
 import MainPage from '../pages/MainPage.vue';
 import UnitsListPage from '../pages/UnitsListPage.vue';
+import UnitSettingsPage from '../pages/UnitSettingsPage.vue';
 import LabelsPage from '../pages/LabelsPage.vue';
 
 const routes = [
@@ -30,6 +31,12 @@ const routes = [
     path: '/dashboard/units',
     name: 'UnitsList',
     component: UnitsListPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/dashboard/units/:slug/settings',
+    name: 'UnitSettings',
+    component: UnitSettingsPage,
     meta: { requiresAuth: true }
   },
   {

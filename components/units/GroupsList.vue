@@ -13,8 +13,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import GroupsListHeader from './GroupsListHeader.vue';
-import GroupItem from './GroupItem.vue';
+import { GroupsListHeader, GroupItem } from './index.js';
 
 const props = defineProps({
   groups: {

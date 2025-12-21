@@ -18,6 +18,7 @@ const router = useRouter();
 const units = ref([
   {
     id: 2,
+    slug: 's3-rania',
     name: 'S3 - Rania',
     active: 120,
     outside: 15,
@@ -30,6 +31,7 @@ const units = ref([
   },
   {
     id: 3,
+    slug: 'senior-two-alia',
     name: 'Senior Two - Alia',
     active: 45,
     outside: 0,
@@ -42,6 +44,7 @@ const units = ref([
   },
   {
     id: 104,
+    slug: 'junior-two-ahmed-hassan',
     name: 'Junior Two - Ahmed Hassan',
     active: 200,
     outside: 12,
@@ -63,9 +66,7 @@ const handleViewStudents = (unit) => {
 
 const handleUnitSettings = (unit) => {
   // Navigate to unit settings for this unit
-  // This would typically navigate to a route like /dashboard/units/:id/settings
-  console.log('Unit settings for unit:', unit);
-  // router.push(`/dashboard/units/${unit.id}/settings`);
+  router.push(`/dashboard/units/${unit.slug}/settings`);
 };
 
 const handleSync = () => {
