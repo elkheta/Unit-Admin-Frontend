@@ -29,14 +29,14 @@ const dividerClasses = computed(() => {
       lg: 'mx-4'
     };
     return `h-8 w-px bg-${props.color} ${spacing[props.spacing]}`;
-  } else {
+  } 
     const spacing = {
       sm: 'my-1',
       md: 'my-2',
       lg: 'my-4'
     };
     return `w-full h-px bg-${props.color} ${spacing[props.spacing]}`;
-  }
+  
 });
 
 const dividerStyle = computed(() => {

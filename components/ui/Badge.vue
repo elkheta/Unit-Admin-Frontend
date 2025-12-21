@@ -1,6 +1,6 @@
 <template>
   <span :class="badgeClasses">
-    <component v-if="icon" :is="icon" :size="iconSize" class="mr-1" />
+    <component :is="icon" v-if="icon" :size="iconSize" class="mr-1" />
     <slot>{{ text }}</slot>
   </span>
 </template>

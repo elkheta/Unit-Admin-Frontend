@@ -25,7 +25,7 @@
         </div>
 
         <!-- Form -->
-        <form @submit.prevent="handleSubmit" class="space-y-5">
+        <form class="space-y-5" @submit.prevent="handleSubmit">
           <!-- Phone Input -->
           <BaseInput
             v-model="phone"
@@ -38,7 +38,7 @@
             label-class="text-gray-300"
             input-class="bg-white/5 text-white placeholder-gray-400 focus:ring-cyan-400 border-white/10"
             error-dir="rtl"
-            @update:modelValue="phoneError = ''"
+            @update:model-value="phoneError = ''"
           />
 
           <!-- Password Input -->
@@ -52,13 +52,13 @@
             label-class="text-gray-300"
             input-class="bg-white/5 text-white placeholder-gray-400 focus:ring-cyan-400 border-white/10"
             error-dir="rtl"
-            @update:modelValue="passwordError = ''"
+            @update:model-value="passwordError = ''"
           >
             <template #suffix>
               <button
                 type="button"
-                @click="showPassword = !showPassword"
                 class="text-gray-400 hover:text-gray-200 transition-colors"
+                @click="showPassword = !showPassword"
               >
                 <EyeOff v-if="showPassword" class="h-5 w-5" />
                 <Eye v-else class="h-5 w-5" />
@@ -92,9 +92,8 @@
 <script setup>
 import { ref } from 'vue';
 import { Phone, Lock, LogIn, GraduationCap, Eye, EyeOff } from 'lucide-vue-next';
-import { login } from '../utils/auth.js';
-import BaseInput from './ui/BaseInput.vue';
-import BaseButton from './ui/BaseButton.vue';
+import { login } from '../../utils/auth.js';
+import { BaseInput, BaseButton } from '../ui';
 
 const emit = defineEmits(['signIn']);
 
@@ -123,7 +122,7 @@ const handleSubmit = async () => {
         passwordError.value = result.error;
       }
     }
-  } catch (error) {
+  } catch {
     passwordError.value = 'حدث خطأ أثناء تسجيل الدخول';
   } finally {
     isLoading.value = false;

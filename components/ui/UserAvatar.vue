@@ -1,6 +1,6 @@
 <template>
   <div :class="avatarClasses">
-    <component v-if="icon" :is="icon" :size="size" />
+    <component :is="icon" v-if="icon" :size="size" />
     <span v-else-if="initials" class="text-sm font-semibold">{{ initials }}</span>
     <slot v-else />
   </div>

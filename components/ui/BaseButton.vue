@@ -6,7 +6,7 @@
     @click="$emit('click', $event)"
   >
     <div v-if="loading" class="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
-    <component v-else-if="icon" :is="icon" class="w-5 h-5" />
+    <component :is="icon" v-else-if="icon" class="w-5 h-5" />
     <span v-if="!loading && icon && $slots.default" class="ml-2">
       <slot />
     </span>

@@ -11,8 +11,8 @@
             <h3 v-if="title" class="font-bold text-lg text-gray-900">{{ title }}</h3>
             <slot v-else name="header" />
             <button
-              @click="handleClose"
               class="p-1.5 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-600 transition-colors"
+              @click="handleClose"
             >
               <X :size="20" />
             </button>
@@ -32,7 +32,7 @@
 <script setup>
 import { X } from 'lucide-vue-next';
 
-const props = defineProps({
+defineProps({
   isOpen: {
     type: Boolean,
     required: true

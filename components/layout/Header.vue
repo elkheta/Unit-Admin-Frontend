@@ -26,8 +26,8 @@
       <BaseButton 
         variant="danger" 
         :icon="LogOut" 
-        @click="handleLogout"
         size="md"
+        @click="handleLogout"
       >
         Logout
       </BaseButton>
@@ -37,10 +37,7 @@
 
 <script setup>
 import { LogOut, User, Layout } from 'lucide-vue-next';
-import BaseButton from './ui/BaseButton.vue';
-import UserProfile from './ui/UserProfile.vue';
-import Divider from './ui/Divider.vue';
-import IconBadge from './ui/IconBadge.vue';
+import { BaseButton, UserProfile, Divider, IconBadge } from '../ui';
 
 defineProps({
   activeTabLabel: {

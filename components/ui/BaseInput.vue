@@ -10,11 +10,11 @@
       <input
         :type="type"
         :value="modelValue"
-        @input="$emit('update:modelValue', $event.target.value)"
         :placeholder="placeholder"
         :disabled="disabled"
         :class="computedInputClasses"
         :dir="dir"
+        @input="$emit('update:modelValue', $event.target.value)"
       />
       <div v-if="$slots.suffix" class="absolute inset-y-0 right-0 pr-4 flex items-center">
         <slot name="suffix" />

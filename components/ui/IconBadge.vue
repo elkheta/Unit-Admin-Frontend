@@ -1,6 +1,6 @@
 <template>
   <div :class="badgeClasses">
-    <component v-if="icon" :is="icon" :size="size" :stroke-width="strokeWidth" :class="iconClasses" />
+    <component :is="icon" v-if="icon" :size="size" :stroke-width="strokeWidth" :class="iconClasses" />
     <slot v-else />
   </div>
 </template>
