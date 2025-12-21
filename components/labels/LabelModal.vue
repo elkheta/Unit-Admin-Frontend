@@ -17,11 +17,11 @@
             v-model="localLabel.category"
             class="w-full appearance-none border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
           >
-            <option value="" disabled>Select Category</option>
-            <option value="Status">Status</option>
-            <option value="Behavior">Behavior</option>
-            <option value="Academic">Academic</option>
-            <option value="General">General</option>
+            <option value="">Select Category</option>
+            <option value="status">Status</option>
+            <option value="behavior">Behavior</option>
+            <option value="academic">Academic</option>
+            <option value="general">General</option>
           </select>
           <ChevronDown :size="14" class="absolute right-3 top-3 text-gray-400 pointer-events-none" />
         </div>
@@ -42,7 +42,6 @@
           Cancel
         </BaseButton>
         <BaseButton 
-          :disabled="!localLabel.name || !localLabel.category" 
           variant="primary"
           size="md" 
           @click="handleSave"
