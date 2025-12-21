@@ -11,11 +11,11 @@
     </div>
 
     <!-- Filter Row -->
-    <div class="flex items-center gap-3 flex-wrap">
+    <div class="flex items-center gap-3 flex-wrap relative">
       <!-- Sort/View Toggle -->
-      <button
+      <button ref="sortButtonRef"
         class="w-10 h-10 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 transition-colors flex items-center justify-center"
-        :title="sortAscending ? 'Sort Descending' : 'Sort Ascending'" @click="handleSortToggle">
+        :title="'Sort Students'" @click="handleSortClick">
         <Eye :size="18" class="text-gray-600" />
       </button>
 
@@ -30,74 +30,135 @@
         @update:model-value="$emit('filter-subject', $event)" />
 
       <!-- Filter Icons - Positioned right after dropdowns -->
-      <button
+      <button ref="diamondsButtonRef"
         class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors flex items-center justify-center"
-        :class="{ 'bg-blue-50 border-blue-200': activeFilter === 'diamonds' }"
-        title="Filter by Diamond Points"
-        @click="$emit('filter-diamonds')"
-      >
-        <DiamondIcon :size="18" color="#60a5fa" :stroke-width="2" />
+        :class="{ 'bg-blue-50 border-blue-200': activeFilter === 'diamonds' }" title="Filter by Diamond Points"
+        @click="handleFilterClick('diamonds', $event)">
+        <DiamondIcon :size="18" color="#60a5fa" />
       </button>
-      <button
+      <button ref="progressButtonRef"
         class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors flex items-center justify-center"
-        :class="{ 'bg-green-50 border-green-200': activeFilter === 'progress' }"
-        title="Filter by Progress"
-        @click="$emit('filter-progress')"
-      >
+        :class="{ 'bg-green-50 border-green-200': activeFilter === 'progress' }" title="Filter by Progress"
+        @click="handleFilterClick('progress', $event)">
         <BarChart3 :size="18" class="text-green-600" :stroke-width="2" fill="none" />
       </button>
-      <button
+      <button ref="lessonsButtonRef"
         class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors flex items-center justify-center"
-        :class="{ 'bg-purple-50 border-purple-200': activeFilter === 'lessons' }"
-        title="Filter by Accumulated Lessons"
-        @click="$emit('filter-lessons')"
-      >
+        :class="{ 'bg-purple-50 border-purple-200': activeFilter === 'lessons' }" title="Filter by Accumulated Lessons"
+        @click="handleFilterClick('lessons', $event)">
         <BookOpen :size="18" class="text-purple-600" :stroke-width="2" fill="none" />
       </button>
-      <button
+      <button ref="lastSeenButtonRef"
         class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors flex items-center justify-center"
-        :class="{ 'bg-purple-50 border-purple-200': activeFilter === 'last-seen' }"
-        title="Filter by Last Seen Time"
-        @click="$emit('filter-last-seen')"
-      >
+        :class="{ 'bg-purple-50 border-purple-200': activeFilter === 'last-seen' }" title="Filter by Last Seen Time"
+        @click="handleFilterClick('last-seen', $event)">
         <Monitor :size="18" class="text-purple-600" :stroke-width="2" fill="none" />
       </button>
     </div>
+
+    <!-- Sort Modal -->
+    <SortStudentsModal :is-open="isSortModalOpen" :current-sort-options="currentSortOptions"
+      @close="isSortModalOpen = false" @apply-sort="handleApplySort" />
+
+    <!-- Filter Modals -->
+    <FilterModal v-for="filterType in ['diamonds', 'progress', 'lessons', 'last-seen']" :key="filterType"
+      :is-open="openFilterModal === filterType" :filter-type="filterType" :current-filter="currentFilters[filterType]"
+      :position="filterButtonPositions[filterType]" @close="openFilterModal = null"
+      @apply-filter="(data) => handleApplyFilter(filterType, data)" />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import { Search, Eye, BarChart3, BookOpen, Monitor } from 'lucide-vue-next';
 import { BaseInput, BaseSelect } from '../../ui';
-import DiamondIcon from '../../ui/DiamondIcon.vue';
+import { DiamondIcon } from '../../ui';
+import SortStudentsModal from './SortStudentsModal.vue';
+import FilterModal from './FilterModal.vue';
 
-defineProps({
+const props = defineProps({
   activeFilter: {
     type: String,
     default: ''
+  },
+  currentSortOptions: {
+    type: Object,
+    default: () => ({
+      progress: null,
+      diamonds: null,
+      lastSeen: null,
+      dateAdded: 'newest-first',
+      expirationDate: null
+    })
+  },
+  currentFilters: {
+    type: Object,
+    default: () => ({
+      diamonds: null,
+      progress: null,
+      lessons: null,
+      'last-seen': null
+    })
   }
 });
 
 const emit = defineEmits([
   'search',
-  'sort-toggle',
+  'apply-sort',
   'filter-group',
   'filter-subject',
-  'filter-diamonds',
-  'filter-progress',
-  'filter-lessons',
-  'filter-last-seen'
+  'apply-filter'
 ]);
 
 const searchQuery = ref('');
 const selectedGroup = ref('');
 const selectedSubject = ref('');
-const sortAscending = ref(true);
+const isSortModalOpen = ref(false);
+const openFilterModal = ref(null);
 
-const handleSortToggle = () => {
-  sortAscending.value = !sortAscending.value;
-  emit('sort-toggle', sortAscending.value);
+// Refs for filter button positions
+const sortButtonRef = ref(null);
+const diamondsButtonRef = ref(null);
+const progressButtonRef = ref(null);
+const lessonsButtonRef = ref(null);
+const lastSeenButtonRef = ref(null);
+
+const filterButtonPositions = reactive({
+  diamonds: { top: 0, left: 0 },
+  progress: { top: 0, left: 0 },
+  lessons: { top: 0, left: 0 },
+  'last-seen': { top: 0, left: 0 }
+});
+
+const handleSortClick = () => {
+  isSortModalOpen.value = true;
+};
+
+const handleFilterClick = (filterType, event) => {
+  const buttonRef = {
+    diamonds: diamondsButtonRef,
+    progress: progressButtonRef,
+    lessons: lessonsButtonRef,
+    'last-seen': lastSeenButtonRef
+  }[filterType];
+
+  if (buttonRef?.value) {
+    const rect = buttonRef.value.getBoundingClientRect();
+    filterButtonPositions[filterType] = {
+      top: rect.bottom + 8,
+      left: rect.left
+    };
+  }
+
+  openFilterModal.value = filterType;
+};
+
+const handleApplySort = (sortOptions) => {
+  emit('apply-sort', sortOptions);
+};
+
+const handleApplyFilter = (filterType, filterData) => {
+  emit('apply-filter', { filterType, filterData });
 };
 
 const groupOptions = [

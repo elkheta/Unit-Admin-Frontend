@@ -6,4 +6,7 @@ export { default as StudentScoreBadge } from './StudentScoreBadge.vue';
 export { default as StudentStatusBadge } from './StudentStatusBadge.vue';
 export { default as StudentPerformanceBadge } from './StudentPerformanceBadge.vue';
 export { default as PaginationControls } from './PaginationControls.vue';
+export { default as SortStudentsModal } from './SortStudentsModal.vue';
+export { default as FilterModal } from './FilterModal.vue';
+export { default as ActiveFiltersDisplay } from './ActiveFiltersDisplay.vue';
 

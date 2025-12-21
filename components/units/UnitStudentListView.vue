@@ -6,14 +6,20 @@
     <!-- Search and Filters -->
     <StudentListFilters
       :active-filter="activeFilter"
+      :current-sort-options="sortOptions"
+      :current-filters="filters"
       @search="handleSearch"
-      @sort-toggle="handleSortToggle"
+      @apply-sort="handleApplySort"
       @filter-group="handleFilterGroup"
       @filter-subject="handleFilterSubject"
-      @filter-diamonds="handleFilterDiamonds"
-      @filter-progress="handleFilterProgress"
-      @filter-lessons="handleFilterLessons"
-      @filter-last-seen="handleFilterLastSeen"
+      @apply-filter="handleApplyFilter"
+    />
+
+    <!-- Active Filters Display -->
+    <ActiveFiltersDisplay
+      :filters="filters"
+      @remove-filter="handleRemoveFilter"
+      @clear-all-filters="handleClearAllFilters"
     />
 
     <!-- Student Count -->
@@ -67,7 +73,8 @@ import {
   StudentListHeader,
   StudentListFilters,
   StudentCountDisplay,
-  PaginationControls
+  PaginationControls,
+  ActiveFiltersDisplay
 } from './students';
 
 const props = defineProps({
@@ -88,9 +95,32 @@ const selectedGroup = ref('');
 const selectedSubject = ref('');
 const currentPage = ref(1);
 const pageSize = ref(10);
-const sortOrder = ref('asc'); // 'asc' or 'desc'
-const sortBy = ref('name'); // 'name', 'progress', 'diamonds', 'lessons', 'last-seen'
-const activeFilter = ref(''); // 'diamonds', 'progress', 'lessons', 'last-seen'
+
+// Sorting options
+const sortOptions = ref({
+  progress: null,
+  diamonds: null,
+  lastSeen: null,
+  dateAdded: 'newest-first', // Default
+  expirationDate: null
+});
+
+// Filter options
+const filters = ref({
+  diamonds: null,
+  progress: null,
+  lessons: null,
+  'last-seen': null
+});
+
+const activeFilter = computed(() => {
+  // Return the first active filter type for UI highlighting
+  if (filters.value.diamonds) return 'diamonds';
+  if (filters.value.progress) return 'progress';
+  if (filters.value.lessons) return 'lessons';
+  if (filters.value['last-seen']) return 'last-seen';
+  return '';
+});
 
 // Sample data - in a real app, this would come from an API
 const sampleStudents = [
@@ -104,7 +134,10 @@ const sampleStudents = [
     lastActive: '1 day',
     status: 'Active',
     group: 'group-a',
-    performance: 'Good'
+    performance: 'Good',
+    dateAdded: '2024-01-15',
+    expirationDate: '2024-12-31',
+    accumulatedLessons: 120
   },
   {
     id: 2,
@@ -116,7 +149,10 @@ const sampleStudents = [
     lastActive: '2 days',
     status: 'Active',
     group: 'group-b',
-    performance: 'At Risk'
+    performance: 'At Risk',
+    dateAdded: '2024-02-20',
+    expirationDate: '2025-01-15',
+    accumulatedLessons: 95
   },
   {
     id: 3,
@@ -128,7 +164,10 @@ const sampleStudents = [
     lastActive: '1 hour',
     status: 'Active',
     group: 'group-a',
-    performance: 'Excellent'
+    performance: 'Excellent',
+    dateAdded: '2024-03-10',
+    expirationDate: '2025-02-28',
+    accumulatedLessons: 180
   },
   {
     id: 4,
@@ -140,7 +179,10 @@ const sampleStudents = [
     lastActive: '3 hours',
     status: 'Active',
     group: 'group-b',
-    performance: 'Good'
+    performance: 'Good',
+    dateAdded: '2024-01-25',
+    expirationDate: '2024-11-30',
+    accumulatedLessons: 150
   },
   {
     id: 5,
@@ -152,7 +194,10 @@ const sampleStudents = [
     lastActive: '10 days',
     status: 'Inactive',
     group: 'outside',
-    performance: 'At Risk'
+    performance: 'At Risk',
+    dateAdded: '2023-12-01',
+    expirationDate: '2024-10-15',
+    accumulatedLessons: 45
   },
   {
     id: 6,
@@ -164,7 +209,10 @@ const sampleStudents = [
     lastActive: '5 hours',
     status: 'Active',
     group: 'group-a',
-    performance: 'Good'
+    performance: 'Good',
+    dateAdded: '2024-02-05',
+    expirationDate: '2025-01-20',
+    accumulatedLessons: 135
   },
   {
     id: 7,
@@ -176,7 +224,10 @@ const sampleStudents = [
     lastActive: '2 hours',
     status: 'Active',
     group: 'group-b',
-    performance: 'Excellent'
+    performance: 'Excellent',
+    dateAdded: '2024-03-15',
+    expirationDate: '2025-03-01',
+    accumulatedLessons: 165
   },
   {
     id: 8,
@@ -188,7 +239,10 @@ const sampleStudents = [
     lastActive: '1 day',
     status: 'Active',
     group: 'group-a',
-    performance: 'Good'
+    performance: 'Good',
+    dateAdded: '2024-01-10',
+    expirationDate: '2024-12-20',
+    accumulatedLessons: 100
   },
   {
     id: 9,
@@ -200,7 +254,10 @@ const sampleStudents = [
     lastActive: '30 minutes',
     status: 'Active',
     group: 'group-b',
-    performance: 'Excellent'
+    performance: 'Excellent',
+    dateAdded: '2024-04-01',
+    expirationDate: '2025-03-15',
+    accumulatedLessons: 200
   },
   {
     id: 10,
@@ -212,7 +269,10 @@ const sampleStudents = [
     lastActive: '5 days',
     status: 'Active',
     group: 'group-a',
-    performance: 'At Risk'
+    performance: 'At Risk',
+    dateAdded: '2023-11-20',
+    expirationDate: '2024-09-30',
+    accumulatedLessons: 60
   },
   {
     id: 11,
@@ -224,7 +284,10 @@ const sampleStudents = [
     lastActive: '4 hours',
     status: 'Active',
     group: 'group-b',
-    performance: 'Excellent'
+    performance: 'Excellent',
+    dateAdded: '2024-02-28',
+    expirationDate: '2025-02-10',
+    accumulatedLessons: 170
   },
   {
     id: 12,
@@ -236,7 +299,10 @@ const sampleStudents = [
     lastActive: '3 days',
     status: 'Active',
     group: 'group-a',
-    performance: 'Good'
+    performance: 'Good',
+    dateAdded: '2024-01-20',
+    expirationDate: '2024-12-10',
+    accumulatedLessons: 110
   },
   {
     id: 13,
@@ -248,7 +314,10 @@ const sampleStudents = [
     lastActive: '1 hour',
     status: 'Active',
     group: 'group-b',
-    performance: 'Excellent'
+    performance: 'Excellent',
+    dateAdded: '2024-03-20',
+    expirationDate: '2025-02-28',
+    accumulatedLessons: 190
   },
   {
     id: 14,
@@ -260,7 +329,10 @@ const sampleStudents = [
     lastActive: '7 days',
     status: 'Inactive',
     group: 'outside',
-    performance: 'At Risk'
+    performance: 'At Risk',
+    dateAdded: '2023-10-15',
+    expirationDate: '2024-08-20',
+    accumulatedLessons: 50
   },
   {
     id: 15,
@@ -272,7 +344,10 @@ const sampleStudents = [
     lastActive: '6 hours',
     status: 'Active',
     group: 'group-a',
-    performance: 'Good'
+    performance: 'Good',
+    dateAdded: '2024-02-15',
+    expirationDate: '2025-01-05',
+    accumulatedLessons: 140
   }
 ];
 
@@ -293,6 +368,20 @@ const parseLastActive = (lastActive) => {
     return parseFloat(lastActive) / (24 * 60);
   }
   return 0;
+};
+
+// Helper to check if a value matches a filter
+const matchesFilter = (value, filter) => {
+  if (!filter) return true;
+  
+  if (filter.type === 'more-than') {
+    return value > filter.value;
+  } else if (filter.type === 'less-than') {
+    return value < filter.value;
+  } else if (filter.type === 'between') {
+    return value >= filter.min && value <= filter.max;
+  }
+  return true;
 };
 
 // Filtered and sorted students
@@ -318,48 +407,74 @@ const filteredStudents = computed(() => {
   //   result = result.filter(student => student.subjects?.includes(selectedSubject.value));
   // }
 
-  // Additional filters - apply only if a filter is active
-  if (activeFilter.value === 'diamonds') {
-    // Filter students with diamond points (show only those with diamonds)
-    result = result.filter(student => student.diamondPoints > 0);
-  } else if (activeFilter.value === 'progress') {
-    // Filter students with progress (show only those with progress > 0)
-    result = result.filter(student => student.averageProgress > 0);
-  } else if (activeFilter.value === 'lessons') {
-    // Filter by accumulated lessons (placeholder - would need lessons data)
-    // For now, show all students as we don't have lessons data
-    result = result;
-  } else if (activeFilter.value === 'last-seen') {
-    // Filter students seen in the last 7 days
-    result = result.filter(student => parseLastActive(student.lastActive) <= 7);
+  // Apply filters
+  if (filters.value.diamonds) {
+    result = result.filter(student => matchesFilter(student.diamondPoints, filters.value.diamonds));
+  }
+  if (filters.value.progress) {
+    result = result.filter(student => matchesFilter(student.averageProgress, filters.value.progress));
+  }
+  if (filters.value.lessons) {
+    result = result.filter(student => matchesFilter(student.accumulatedLessons || 0, filters.value.lessons));
+  }
+  if (filters.value['last-seen']) {
+    const filter = filters.value['last-seen'];
+    result = result.filter(student => {
+      const days = parseLastActive(student.lastActive);
+      return matchesFilter(days, filter);
+    });
   }
 
-  // Sorting
+  // Multi-criteria sorting
   result.sort((a, b) => {
-    let comparison = 0;
-    
-    switch (sortBy.value) {
-      case 'name':
-        comparison = a.name.localeCompare(b.name);
-        break;
-      case 'progress':
-        comparison = a.averageProgress - b.averageProgress;
-        break;
-      case 'diamonds':
-        comparison = a.diamondPoints - b.diamondPoints;
-        break;
-      case 'lessons':
-        // Placeholder - would need lessons data
-        comparison = 0;
-        break;
-      case 'last-seen':
-        comparison = parseLastActive(a.lastActive) - parseLastActive(b.lastActive);
-        break;
-      default:
-        comparison = 0;
+    // Priority 1: Progress
+    if (sortOptions.value.progress) {
+      const comparison = a.averageProgress - b.averageProgress;
+      if (comparison !== 0) {
+        return sortOptions.value.progress === 'high-to-low' ? -comparison : comparison;
+      }
     }
     
-    return sortOrder.value === 'asc' ? comparison : -comparison;
+    // Priority 2: Diamonds
+    if (sortOptions.value.diamonds) {
+      const comparison = a.diamondPoints - b.diamondPoints;
+      if (comparison !== 0) {
+        return sortOptions.value.diamonds === 'high-to-low' ? -comparison : comparison;
+      }
+    }
+    
+    // Priority 3: Last Seen
+    if (sortOptions.value.lastSeen) {
+      const aDays = parseLastActive(a.lastActive);
+      const bDays = parseLastActive(b.lastActive);
+      const comparison = aDays - bDays;
+      if (comparison !== 0) {
+        return sortOptions.value.lastSeen === 'most-recent' ? comparison : -comparison;
+      }
+    }
+    
+    // Priority 4: Date Added
+    if (sortOptions.value.dateAdded) {
+      const aDate = new Date(a.dateAdded || 0);
+      const bDate = new Date(b.dateAdded || 0);
+      const comparison = aDate - bDate;
+      if (comparison !== 0) {
+        return sortOptions.value.dateAdded === 'newest-first' ? -comparison : comparison;
+      }
+    }
+    
+    // Priority 5: Expiration Date
+    if (sortOptions.value.expirationDate) {
+      const aDate = new Date(a.expirationDate || 0);
+      const bDate = new Date(b.expirationDate || 0);
+      const comparison = aDate - bDate;
+      if (comparison !== 0) {
+        return sortOptions.value.expirationDate === 'newest-expired' ? -comparison : comparison;
+      }
+    }
+    
+    // Default: sort by name
+    return a.name.localeCompare(b.name);
   });
 
   return result;
@@ -378,8 +493,8 @@ const handleSearch = (query) => {
   currentPage.value = 1;
 };
 
-const handleSortToggle = (ascending) => {
-  sortOrder.value = ascending ? 'asc' : 'desc';
+const handleApplySort = (newSortOptions) => {
+  sortOptions.value = { ...newSortOptions };
   currentPage.value = 1;
 };
 
@@ -393,52 +508,27 @@ const handleFilterSubject = (subject) => {
   currentPage.value = 1;
 };
 
-// Filter handlers - toggle filters on/off
-const handleFilterDiamonds = () => {
-  // Toggle diamonds filter
-  if (activeFilter.value === 'diamonds') {
-    activeFilter.value = '';
-    sortBy.value = 'name'; // Reset to default sort
+const handleApplyFilter = ({ filterType, filterData }) => {
+  if (filterData && (filterData.value !== null || filterData.min !== null)) {
+    filters.value[filterType] = filterData;
   } else {
-    activeFilter.value = 'diamonds';
-    sortBy.value = 'diamonds'; // Sort by diamonds when filtering
+    filters.value[filterType] = null;
   }
   currentPage.value = 1;
 };
 
-const handleFilterProgress = () => {
-  // Toggle progress filter
-  if (activeFilter.value === 'progress') {
-    activeFilter.value = '';
-    sortBy.value = 'name'; // Reset to default sort
-  } else {
-    activeFilter.value = 'progress';
-    sortBy.value = 'progress'; // Sort by progress when filtering
-  }
+const handleRemoveFilter = (filterType) => {
+  filters.value[filterType] = null;
   currentPage.value = 1;
 };
 
-const handleFilterLessons = () => {
-  // Toggle lessons filter
-  if (activeFilter.value === 'lessons') {
-    activeFilter.value = '';
-    sortBy.value = 'name'; // Reset to default sort
-  } else {
-    activeFilter.value = 'lessons';
-    sortBy.value = 'lessons'; // Sort by lessons when filtering
-  }
-  currentPage.value = 1;
-};
-
-const handleFilterLastSeen = () => {
-  // Toggle last seen filter
-  if (activeFilter.value === 'last-seen') {
-    activeFilter.value = '';
-    sortBy.value = 'name'; // Reset to default sort
-  } else {
-    activeFilter.value = 'last-seen';
-    sortBy.value = 'last-seen'; // Sort by last seen when filtering
-  }
+const handleClearAllFilters = () => {
+  filters.value = {
+    diamonds: null,
+    progress: null,
+    lessons: null,
+    'last-seen': null
+  };
   currentPage.value = 1;
 };
 
