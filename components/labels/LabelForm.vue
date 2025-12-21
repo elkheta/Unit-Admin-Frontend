@@ -6,23 +6,13 @@
       placeholder="e.g. VIP, Urgent" 
       @update:model-value="$emit('update:label', { ...label, name: $event })" 
     />
-    <div>
-      <label class="block text-sm font-medium text-gray-700 mb-1">Linked Category</label>
-      <div class="relative">
-        <select 
-          :value="label.category"
-          class="w-full appearance-none border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-          @change="$emit('update:label', { ...label, category: $event.target.value })"
-        >
-          <option value="">Select Category</option>
-          <option value="status">Status</option>
-          <option value="behavior">Behavior</option>
-          <option value="academic">Academic</option>
-          <option value="general">General</option>
-        </select>
-        <ChevronDown :size="14" class="absolute right-3 top-3 text-gray-400 pointer-events-none" />
-      </div>
-    </div>
+    <BaseSelect
+      :model-value="label.category"
+      label="Linked Category"
+      placeholder="Select Category"
+      :options="categoryOptions"
+      @update:model-value="$emit('update:label', { ...label, category: $event })"
+    />
     <div>
       <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
       <textarea 
@@ -36,8 +26,14 @@
 </template>
 
 <script setup>
-import { ChevronDown } from 'lucide-vue-next';
-import { BaseInput } from '../ui';
+import { BaseInput, BaseSelect } from '../ui';
+
+const categoryOptions = [
+  { value: 'status', label: 'Status' },
+  { value: 'behavior', label: 'Behavior' },
+  { value: 'academic', label: 'Academic' },
+  { value: 'general', label: 'General' }
+];
 
 defineProps({
   label: {

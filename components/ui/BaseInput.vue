@@ -87,11 +87,11 @@ const props = defineProps({
 defineEmits(['update:modelValue']);
 
 const computedInputClasses = computed(() => {
-  const base = 'w-full rounded-xl text-sm focus:outline-none focus:ring-2 transition-all';
+  const base = 'w-full rounded-xl text-sm focus:outline-none focus:ring-2 transition-all border';
   const padding = props.icon ? 'pl-12 pr-4' : 'px-4';
-  const errorState = props.error ? 'border-red-500' : 'border-white/10';
+  const errorState = props.error ? 'border-red-500' : 'border-gray-300';
   const disabledState = props.disabled ? 'opacity-50 cursor-not-allowed' : '';
   
-  return `${base} ${padding} py-3.5 ${errorState} ${disabledState} ${props.inputClass}`;
+  return `${base} ${padding} py-3.5 ${errorState} bg-white ${disabledState} ${props.inputClass}`;
 });
 </script>
