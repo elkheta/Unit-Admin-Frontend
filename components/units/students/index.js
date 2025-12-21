@@ -9,4 +9,6 @@ export { default as PaginationControls } from './PaginationControls.vue';
 export { default as SortStudentsModal } from './SortStudentsModal.vue';
 export { default as FilterModal } from './FilterModal.vue';
 export { default as ActiveFiltersDisplay } from './ActiveFiltersDisplay.vue';
+export { default as StudentProfileSidebar } from './StudentProfileSidebar.vue';
+export * from './schedule';
 

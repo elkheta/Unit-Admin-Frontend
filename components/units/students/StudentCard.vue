@@ -12,7 +12,12 @@
 
       <!-- Student Name and Phone -->
       <div class="flex-shrink-0 min-w-[180px]">
-        <h3 class="text-base font-bold text-gray-900 mb-1">{{ student.name }}</h3>
+        <h3
+          class="text-base font-bold text-gray-900 mb-1 hover:text-blue-600 transition-colors cursor-pointer"
+          @click.stop="$emit('name-click', student)"
+        >
+          {{ student.name }}
+        </h3>
         <p class="text-sm text-gray-500">{{ student.phone }}</p>
       </div>
 
@@ -87,7 +92,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['group-change', 'whatsapp-click', 'progress-click', 'score-click', 'notes-click']);
+const emit = defineEmits(['group-change', 'whatsapp-click', 'progress-click', 'score-click', 'notes-click', 'name-click']);
 
 const selectedGroup = ref(props.student.group);
 

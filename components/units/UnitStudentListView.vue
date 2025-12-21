@@ -31,16 +31,17 @@
 
     <!-- Students List -->
     <div v-if="filteredStudents.length > 0" class="space-y-2">
-      <StudentCard
-        v-for="student in paginatedStudents"
-        :key="student.id"
-        :student="student"
-        @group-change="handleGroupChange"
-        @whatsapp-click="handleWhatsAppClick"
-        @progress-click="handleProgressClick"
-        @score-click="handleScoreClick"
-        @notes-click="handleNotesClick"
-      />
+            <StudentCard
+              v-for="student in paginatedStudents"
+              :key="student.id"
+              :student="student"
+              @group-change="handleGroupChange"
+              @whatsapp-click="handleWhatsAppClick"
+              @progress-click="handleProgressClick"
+              @score-click="handleScoreClick"
+              @notes-click="handleNotesClick"
+              @name-click="handleStudentNameClick"
+            />
     </div>
 
     <!-- Empty State -->
@@ -62,6 +63,25 @@
       :total="filteredStudents.length"
       @page-change="handlePageChange"
     />
+
+    <!-- Student Profile Sidebar -->
+    <StudentProfileSidebar
+      :is-open="isProfileSidebarOpen"
+      :student="selectedStudent"
+      :parent="selectedStudent?.parent"
+      :orders="selectedStudent?.orders || []"
+      :educational-sections="[]"
+      :labels="[]"
+      @close="handleCloseSidebar"
+      @save="handleSaveProfile"
+    />
+
+    <!-- Student Schedule Sidebar -->
+    <StudentScheduleSidebar
+      :is-open="isScheduleSidebarOpen"
+      :student="selectedStudentForSchedule"
+      @close="handleCloseScheduleSidebar"
+    />
   </div>
 </template>
 
@@ -74,8 +94,10 @@ import {
   StudentListFilters,
   StudentCountDisplay,
   PaginationControls,
-  ActiveFiltersDisplay
+  ActiveFiltersDisplay,
+  StudentScheduleSidebar
 } from './students';
+import StudentProfileSidebar from './students/StudentProfileSidebar.vue';
 
 const props = defineProps({
   selectedUnit: {
@@ -95,6 +117,10 @@ const selectedGroup = ref('');
 const selectedSubject = ref('');
 const currentPage = ref(1);
 const pageSize = ref(10);
+const isProfileSidebarOpen = ref(false);
+const selectedStudent = ref(null);
+const isScheduleSidebarOpen = ref(false);
+const selectedStudentForSchedule = ref(null);
 
 // Sorting options
 const sortOptions = ref({
@@ -115,10 +141,18 @@ const filters = ref({
 
 const activeFilter = computed(() => {
   // Return the first active filter type for UI highlighting
-  if (filters.value.diamonds) return 'diamonds';
-  if (filters.value.progress) return 'progress';
-  if (filters.value.lessons) return 'lessons';
-  if (filters.value['last-seen']) return 'last-seen';
+  if (filters.value.diamonds) {
+    return 'diamonds';
+  }
+  if (filters.value.progress) {
+    return 'progress';
+  }
+  if (filters.value.lessons) {
+    return 'lessons';
+  }
+  if (filters.value['last-seen']) {
+    return 'last-seen';
+  }
   return '';
 });
 
@@ -137,12 +171,126 @@ const sampleStudents = [
     performance: 'Good',
     dateAdded: '2024-01-15',
     expirationDate: '2024-12-31',
-    accumulatedLessons: 120
+    accumulatedLessons: 120,
+    orders: [
+      {
+        id: 1,
+        productName: 'Grade 9 Complete',
+        price: '179 EGP',
+        status: 'Active',
+        paidAt: 'Sep 5, 2025',
+        expires: 'Jan 5, 2026',
+        timeLeft: '1 month left'
+      }
+    ],
+    schedule: [
+      {
+        date: '2024-12-08',
+        dailyProgress: 78,
+        subjects: [
+          {
+            id: 1,
+            subjectName: 'الرياضيات',
+            partName: 'الجبر',
+            progress: 85,
+            exercises: [
+              { id: 1, title: 'واجب الحصة الأولى', duration: 180, date: '26 August', score: 1 },
+              { id: 2, title: 'اختبار الحصة الأولى', duration: 97, date: '26 August', score: 100 }
+            ],
+            videos: [
+              { id: 1, title: 'شرح - ج - موقع وطننا العربي', duration: 3, completed: true }
+            ]
+          },
+          {
+            id: 2,
+            subjectName: 'الفيزياء',
+            partName: 'الحركة',
+            progress: 72,
+            exercises: [
+              { id: 3, title: 'اختبار الحصة الأولى', duration: 97, date: '26 August', score: 100 },
+              { id: 4, title: 'اختبار الحصة الأولى', duration: 45, date: '26 August', score: 96 },
+              { id: 5, title: 'اختبار الحصة الأولى', duration: 1, date: '26 August', score: 100 },
+              { id: 6, title: 'اختبار الحصة الأولى', duration: 97, date: '26 August', score: 90 },
+              { id: 7, title: 'اختبار الحصة الأولى', duration: 97, date: '26 August', score: 90 }
+            ],
+            videos: [
+              { id: 2, title: 'شرح - ج - موقع وطننا العربي', duration: 3, completed: true },
+              { id: 3, title: 'أهم أسئلة الكتب الخارجية', duration: 33, completed: true }
+            ]
+          },
+          {
+            id: 3,
+            subjectName: 'اللغة العربية',
+            partName: 'النحو',
+            progress: 90,
+            exercises: [],
+            videos: []
+          }
+        ]
+      },
+      {
+        date: '2024-12-09',
+        dailyProgress: 65,
+        subjects: [
+          {
+            id: 4,
+            subjectName: 'الكيمياء',
+            partName: 'التفاعلات',
+            progress: 45,
+            exercises: [],
+            videos: []
+          },
+          {
+            id: 5,
+            subjectName: 'اللغة الإنجليزية',
+            partName: 'القراءة',
+            progress: 80,
+            exercises: [],
+            videos: []
+          },
+          {
+            id: 6,
+            subjectName: 'التاريخ',
+            partName: 'العصر الإسلامي',
+            progress: 70,
+            exercises: [],
+            videos: []
+          }
+        ]
+      },
+      {
+        date: '2024-12-11',
+        dailyProgress: 55,
+        subjects: [
+          {
+            id: 7,
+            subjectName: 'الفيزياء',
+            partName: 'الكهرباء',
+            progress: 60,
+            exercises: [],
+            videos: []
+          },
+          {
+            id: 8,
+            subjectName: 'اللغة الفرنسية',
+            partName: 'المحادثة',
+            progress: 50,
+            exercises: [],
+            videos: []
+          }
+        ]
+      },
+      {
+        date: '2024-12-14',
+        dailyProgress: 0,
+        isHoliday: true
+      }
+    ]
   },
   {
     id: 2,
     name: 'Dina Sayed',
-    phone: '+201555444334',
+    phone: '+201456789012',
     averageProgress: 68,
     score: 4,
     diamondPoints: 28,
@@ -152,7 +300,35 @@ const sampleStudents = [
     performance: 'At Risk',
     dateAdded: '2024-02-20',
     expirationDate: '2025-01-15',
-    accumulatedLessons: 95
+    accumulatedLessons: 95,
+    daysToExpire: 39,
+    email: 'dina.sayed@example.com',
+    governorate: 'cairo',
+    hobbies: ['Reading', 'Music'],
+    weakestSubjects: ['Mathematics'],
+    preferredSubjects: ['English', 'Science'],
+    labels: ['VIP', 'New'],
+    educationalSection: 'الأول الثانوى لغات',
+    secondLanguage: 'French',
+    religionLanguage: 'التربية الدينية الإسلامية',
+    lastSeenTimestamp: '11/24/2025, 11:51:23 AM',
+    parent: {
+      id: 1,
+      name: 'Dina Sayed',
+      phone: '+201456789012',
+      notes: ''
+    },
+    orders: [
+      {
+        id: 1,
+        productName: 'S3 - Arabic Bundle',
+        price: '250 EGP',
+        status: 'Active',
+        paidAt: 'Oct 10, 2024',
+        expires: 'Feb 10, 2025',
+        timeLeft: '2 months left'
+      }
+    ]
   },
   {
     id: 3,
@@ -167,7 +343,44 @@ const sampleStudents = [
     performance: 'Excellent',
     dateAdded: '2024-03-10',
     expirationDate: '2025-02-28',
-    accumulatedLessons: 180
+    accumulatedLessons: 180,
+    daysToExpire: 60,
+    email: 'mohamed.ali@example.com',
+    governorate: 'alexandria',
+    hobbies: ['Sports', 'Programming'],
+    weakestSubjects: [],
+    preferredSubjects: ['Mathematics', 'Physics', 'Chemistry'],
+    labels: ['Excellent'],
+    educationalSection: 'الثالث الثانوى علمي علوم',
+    secondLanguage: 'English',
+    religionLanguage: 'التربية الدينية الإسلامية',
+    lastSeenTimestamp: '12/13/2024, 14:30:45 PM',
+    parent: {
+      id: 3,
+      name: 'Ali Mohamed',
+      phone: '+201555444335',
+      notes: ''
+    },
+    orders: [
+      {
+        id: 1,
+        productName: 'Complete Science Package',
+        price: '320 EGP',
+        status: 'Active',
+        paidAt: 'Nov 1, 2024',
+        expires: 'Mar 1, 2025',
+        timeLeft: '3 months left'
+      },
+      {
+        id: 2,
+        productName: 'Math Advanced',
+        price: '150 EGP',
+        status: 'Active',
+        paidAt: 'Dec 15, 2024',
+        expires: 'Jun 15, 2025',
+        timeLeft: '5 months left'
+      }
+    ]
   },
   {
     id: 4,
@@ -182,7 +395,35 @@ const sampleStudents = [
     performance: 'Good',
     dateAdded: '2024-01-25',
     expirationDate: '2024-11-30',
-    accumulatedLessons: 150
+    accumulatedLessons: 150,
+    daysToExpire: 15,
+    email: 'sara.ahmed@example.com',
+    governorate: 'giza',
+    hobbies: ['Reading', 'Art'],
+    weakestSubjects: ['Physics'],
+    preferredSubjects: ['English', 'Biology'],
+    labels: ['New'],
+    educationalSection: 'الثاني الثانوى عام',
+    secondLanguage: 'French',
+    religionLanguage: 'التربية الدينية الإسلامية',
+    lastSeenTimestamp: '12/13/2024, 10:15:30 AM',
+    parent: {
+      id: 4,
+      name: 'Ahmed Sayed',
+      phone: '+201555444336',
+      notes: ''
+    },
+    orders: [
+      {
+        id: 1,
+        productName: 'English Language Course',
+        price: '200 EGP',
+        status: 'Active',
+        paidAt: 'Aug 20, 2024',
+        expires: 'Dec 20, 2024',
+        timeLeft: 'Expired'
+      }
+    ]
   },
   {
     id: 5,
@@ -197,7 +438,25 @@ const sampleStudents = [
     performance: 'At Risk',
     dateAdded: '2023-12-01',
     expirationDate: '2024-10-15',
-    accumulatedLessons: 45
+    accumulatedLessons: 45,
+    daysToExpire: 0,
+    email: 'omar.khaled@example.com',
+    governorate: 'sharqia',
+    hobbies: [],
+    weakestSubjects: ['Mathematics', 'English'],
+    preferredSubjects: [],
+    labels: ['Warning'],
+    educationalSection: 'الأول الثانوى عام',
+    secondLanguage: 'English',
+    religionLanguage: 'التربية الدينية الإسلامية',
+    lastSeenTimestamp: '12/03/2024, 08:20:10 AM',
+    parent: {
+      id: 5,
+      name: 'Khaled Ibrahim',
+      phone: '+201555444337',
+      notes: 'Needs extra support'
+    },
+    orders: []
   },
   {
     id: 6,
@@ -212,7 +471,35 @@ const sampleStudents = [
     performance: 'Good',
     dateAdded: '2024-02-05',
     expirationDate: '2025-01-20',
-    accumulatedLessons: 135
+    accumulatedLessons: 135,
+    daysToExpire: 38,
+    email: 'fatma.mahmoud@example.com',
+    governorate: 'dakahlia',
+    hobbies: ['Music', 'Dancing'],
+    weakestSubjects: ['Chemistry'],
+    preferredSubjects: ['Biology', 'Arabic'],
+    labels: [],
+    educationalSection: 'الثاني الثانوى علمي',
+    secondLanguage: 'French',
+    religionLanguage: 'التربية الدينية الإسلامية',
+    lastSeenTimestamp: '12/13/2024, 07:45:20 AM',
+    parent: {
+      id: 6,
+      name: 'Mahmoud Hassan',
+      phone: '+201555444338',
+      notes: ''
+    },
+    orders: [
+      {
+        id: 1,
+        productName: 'Biology Course',
+        price: '180 EGP',
+        status: 'Active',
+        paidAt: 'Sep 12, 2024',
+        expires: 'Jan 12, 2025',
+        timeLeft: '2 weeks left'
+      }
+    ]
   },
   {
     id: 7,
@@ -227,7 +514,35 @@ const sampleStudents = [
     performance: 'Excellent',
     dateAdded: '2024-03-15',
     expirationDate: '2025-03-01',
-    accumulatedLessons: 165
+    accumulatedLessons: 165,
+    daysToExpire: 78,
+    email: 'youssef.ibrahim@example.com',
+    governorate: 'cairo',
+    hobbies: ['Sports', 'Gaming'],
+    weakestSubjects: [],
+    preferredSubjects: ['Mathematics', 'Physics'],
+    labels: ['Excellent', 'VIP'],
+    educationalSection: 'الثالث الثانوى علمي رياضة',
+    secondLanguage: 'English',
+    religionLanguage: 'التربية الدينية الإسلامية',
+    lastSeenTimestamp: '12/13/2024, 13:20:15 PM',
+    parent: {
+      id: 7,
+      name: 'Ibrahim Youssef',
+      phone: '+201555444339',
+      notes: ''
+    },
+    orders: [
+      {
+        id: 1,
+        productName: 'Physics Advanced',
+        price: '220 EGP',
+        status: 'Active',
+        paidAt: 'Oct 5, 2024',
+        expires: 'Apr 5, 2025',
+        timeLeft: '4 months left'
+      }
+    ]
   },
   {
     id: 8,
@@ -242,7 +557,35 @@ const sampleStudents = [
     performance: 'Good',
     dateAdded: '2024-01-10',
     expirationDate: '2024-12-20',
-    accumulatedLessons: 100
+    accumulatedLessons: 100,
+    daysToExpire: 7,
+    email: 'nour.eldin@example.com',
+    governorate: 'beheira',
+    hobbies: ['Reading'],
+    weakestSubjects: ['Mathematics', 'Physics'],
+    preferredSubjects: ['Arabic'],
+    labels: [],
+    educationalSection: 'الأول الثانوى عام',
+    secondLanguage: 'English',
+    religionLanguage: 'التربية الدينية الإسلامية',
+    lastSeenTimestamp: '12/12/2024, 16:30:00 PM',
+    parent: {
+      id: 8,
+      name: 'El-Din Nour',
+      phone: '+201555444340',
+      notes: ''
+    },
+    orders: [
+      {
+        id: 1,
+        productName: 'Chemistry Basics',
+        price: '160 EGP',
+        status: 'Active',
+        paidAt: 'Jul 8, 2024',
+        expires: 'Nov 8, 2024',
+        timeLeft: 'Expired'
+      }
+    ]
   },
   {
     id: 9,
@@ -257,7 +600,44 @@ const sampleStudents = [
     performance: 'Excellent',
     dateAdded: '2024-04-01',
     expirationDate: '2025-03-15',
-    accumulatedLessons: 200
+    accumulatedLessons: 200,
+    daysToExpire: 92,
+    email: 'mariam.farid@example.com',
+    governorate: 'cairo',
+    hobbies: ['Reading', 'Writing', 'Art'],
+    weakestSubjects: [],
+    preferredSubjects: ['Mathematics', 'Physics', 'Chemistry', 'Biology'],
+    labels: ['Excellent', 'VIP'],
+    educationalSection: 'الثالث الثانوى علمي علوم',
+    secondLanguage: 'French',
+    religionLanguage: 'التربية الدينية الإسلامية',
+    lastSeenTimestamp: '12/13/2024, 15:45:30 PM',
+    parent: {
+      id: 9,
+      name: 'Farid Mariam',
+      phone: '+201555444341',
+      notes: 'Very engaged parent'
+    },
+    orders: [
+      {
+        id: 1,
+        productName: 'Premium Package',
+        price: '450 EGP',
+        status: 'Active',
+        paidAt: 'Nov 20, 2024',
+        expires: 'May 20, 2025',
+        timeLeft: '6 months left'
+      },
+      {
+        id: 2,
+        productName: 'Math Special',
+        price: '180 EGP',
+        status: 'Active',
+        paidAt: 'Dec 1, 2024',
+        expires: 'Jun 1, 2025',
+        timeLeft: '6 months left'
+      }
+    ]
   },
   {
     id: 10,
@@ -272,7 +652,25 @@ const sampleStudents = [
     performance: 'At Risk',
     dateAdded: '2023-11-20',
     expirationDate: '2024-09-30',
-    accumulatedLessons: 60
+    accumulatedLessons: 60,
+    daysToExpire: 0,
+    email: 'khaled.samir@example.com',
+    governorate: 'monufia',
+    hobbies: [],
+    weakestSubjects: ['Mathematics', 'English', 'Science'],
+    preferredSubjects: [],
+    labels: ['Warning'],
+    educationalSection: 'الأول الثانوى عام',
+    secondLanguage: 'English',
+    religionLanguage: 'التربية الدينية الإسلامية',
+    lastSeenTimestamp: '12/08/2024, 09:10:00 AM',
+    parent: {
+      id: 10,
+      name: 'Samir Khaled',
+      phone: '+201555444342',
+      notes: 'Needs follow-up'
+    },
+    orders: []
   },
   {
     id: 11,
@@ -287,7 +685,35 @@ const sampleStudents = [
     performance: 'Excellent',
     dateAdded: '2024-02-28',
     expirationDate: '2025-02-10',
-    accumulatedLessons: 170
+    accumulatedLessons: 170,
+    daysToExpire: 58,
+    email: 'layla.mohamed@example.com',
+    governorate: 'giza',
+    hobbies: ['Photography', 'Art'],
+    weakestSubjects: [],
+    preferredSubjects: ['English', 'History'],
+    labels: ['Excellent'],
+    educationalSection: 'الثاني الثانوى لغات',
+    secondLanguage: 'French',
+    religionLanguage: 'التربية الدينية الإسلامية',
+    lastSeenTimestamp: '12/13/2024, 11:30:00 AM',
+    parent: {
+      id: 11,
+      name: 'Mohamed Layla',
+      phone: '+201555444343',
+      notes: ''
+    },
+    orders: [
+      {
+        id: 1,
+        productName: 'Arabic Literature',
+        price: '140 EGP',
+        status: 'Active',
+        paidAt: 'Sep 15, 2024',
+        expires: 'Jan 15, 2025',
+        timeLeft: '1 month left'
+      }
+    ]
   },
   {
     id: 12,
@@ -302,7 +728,35 @@ const sampleStudents = [
     performance: 'Good',
     dateAdded: '2024-01-20',
     expirationDate: '2024-12-10',
-    accumulatedLessons: 110
+    accumulatedLessons: 110,
+    daysToExpire: 0,
+    email: 'hassan.mostafa@example.com',
+    governorate: 'qalyubia',
+    hobbies: ['Sports'],
+    weakestSubjects: ['English'],
+    preferredSubjects: ['Mathematics'],
+    labels: [],
+    educationalSection: 'الأول الثانوى عام',
+    secondLanguage: 'English',
+    religionLanguage: 'التربية الدينية الإسلامية',
+    lastSeenTimestamp: '12/10/2024, 14:20:00 PM',
+    parent: {
+      id: 12,
+      name: 'Mostafa Hassan',
+      phone: '+201555444344',
+      notes: ''
+    },
+    orders: [
+      {
+        id: 1,
+        productName: 'History Course',
+        price: '120 EGP',
+        status: 'Active',
+        paidAt: 'Aug 25, 2024',
+        expires: 'Dec 25, 2024',
+        timeLeft: 'Expired'
+      }
+    ]
   },
   {
     id: 13,
@@ -317,7 +771,35 @@ const sampleStudents = [
     performance: 'Excellent',
     dateAdded: '2024-03-20',
     expirationDate: '2025-02-28',
-    accumulatedLessons: 190
+    accumulatedLessons: 190,
+    daysToExpire: 76,
+    email: 'zeinab.ali@example.com',
+    governorate: 'cairo',
+    hobbies: ['Reading', 'Music', 'Writing'],
+    weakestSubjects: [],
+    preferredSubjects: ['Mathematics', 'Physics', 'Chemistry'],
+    labels: ['Excellent', 'VIP'],
+    educationalSection: 'الثالث الثانوى علمي علوم',
+    secondLanguage: 'English',
+    religionLanguage: 'التربية الدينية الإسلامية',
+    lastSeenTimestamp: '12/13/2024, 14:50:00 PM',
+    parent: {
+      id: 13,
+      name: 'Ali Zeinab',
+      phone: '+201555444345',
+      notes: ''
+    },
+    orders: [
+      {
+        id: 1,
+        productName: 'Complete Bundle',
+        price: '380 EGP',
+        status: 'Active',
+        paidAt: 'Oct 1, 2024',
+        expires: 'Apr 1, 2025',
+        timeLeft: '4 months left'
+      }
+    ]
   },
   {
     id: 14,
@@ -332,7 +814,25 @@ const sampleStudents = [
     performance: 'At Risk',
     dateAdded: '2023-10-15',
     expirationDate: '2024-08-20',
-    accumulatedLessons: 50
+    accumulatedLessons: 50,
+    daysToExpire: 0,
+    email: 'tamer.hosny@example.com',
+    governorate: 'gharbia',
+    hobbies: [],
+    weakestSubjects: ['Mathematics', 'English', 'Science', 'Arabic'],
+    preferredSubjects: [],
+    labels: ['Warning'],
+    educationalSection: 'الأول الثانوى عام',
+    secondLanguage: 'English',
+    religionLanguage: 'التربية الدينية الإسلامية',
+    lastSeenTimestamp: '12/06/2024, 10:00:00 AM',
+    parent: {
+      id: 14,
+      name: 'Hosny Tamer',
+      phone: '+201555444346',
+      notes: 'Student needs intervention'
+    },
+    orders: []
   },
   {
     id: 15,
@@ -347,7 +847,35 @@ const sampleStudents = [
     performance: 'Good',
     dateAdded: '2024-02-15',
     expirationDate: '2025-01-05',
-    accumulatedLessons: 140
+    accumulatedLessons: 140,
+    daysToExpire: 23,
+    email: 'rania.kamel@example.com',
+    governorate: 'kafr-elsheikh',
+    hobbies: ['Cooking', 'Reading'],
+    weakestSubjects: ['Physics'],
+    preferredSubjects: ['Biology', 'Chemistry'],
+    labels: ['New'],
+    educationalSection: 'الثاني الثانوى علمي',
+    secondLanguage: 'French',
+    religionLanguage: 'التربية الدينية الإسلامية',
+    lastSeenTimestamp: '12/13/2024, 09:15:00 AM',
+    parent: {
+      id: 15,
+      name: 'Kamel Rania',
+      phone: '+201555444347',
+      notes: ''
+    },
+    orders: [
+      {
+        id: 1,
+        productName: 'Geography Course',
+        price: '130 EGP',
+        status: 'Active',
+        paidAt: 'Sep 10, 2024',
+        expires: 'Jan 10, 2025',
+        timeLeft: '2 weeks left'
+      }
+    ]
   }
 ];
 
@@ -553,10 +1081,8 @@ const handleWhatsAppClick = (student) => {
 };
 
 const handleProgressClick = (student) => {
-  // Navigate to student progress details or show modal
-  // In a real app, this would navigate to a detailed progress page
-  // eslint-disable-next-line no-console
-  console.log('Progress clicked for:', student.name);
+  selectedStudentForSchedule.value = student;
+  isScheduleSidebarOpen.value = true;
 };
 
 const handleScoreClick = (student) => {
@@ -571,6 +1097,38 @@ const handleNotesClick = (student) => {
   // In a real app, this would open a notes modal or navigate to notes page
   // eslint-disable-next-line no-console
   console.log('Notes clicked for:', student.name);
+};
+
+const handleStudentNameClick = (student) => {
+  // eslint-disable-next-line no-console
+  console.log('Student name clicked:', student.name);
+  selectedStudent.value = student;
+  isProfileSidebarOpen.value = true;
+  // eslint-disable-next-line no-console
+  console.log('Sidebar should be open:', isProfileSidebarOpen.value);
+};
+
+const handleCloseSidebar = () => {
+  isProfileSidebarOpen.value = false;
+  selectedStudent.value = null;
+};
+
+const handleCloseScheduleSidebar = () => {
+  isScheduleSidebarOpen.value = false;
+  selectedStudentForSchedule.value = null;
+};
+
+const handleSaveProfile = (data) => {
+  // Save profile changes
+  if (selectedStudent.value) {
+    // Update student data
+    const student = students.value.find(s => s.id === selectedStudent.value.id);
+    if (student) {
+      student.specialNotes = data.specialNotes;
+    }
+  }
+  // eslint-disable-next-line no-console
+  console.log('Profile saved:', data);
 };
 </script>
 

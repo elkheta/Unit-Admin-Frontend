@@ -21,7 +21,7 @@ defineProps({
     default: ''
   },
   icon: {
-    type: Object,
+    type: Function,
     default: null
   },
   initials: {
