@@ -7,6 +7,7 @@ export { default as GroupItem } from './GroupItem.vue';
 export { default as UnitStats } from './UnitStats.vue';
 export { default as UnitActionButton } from './UnitActionButton.vue';
 export { default as UnitStudentListView } from './UnitStudentListView.vue';
+export * from './students';
 export { default as UnitSettingsView } from './UnitSettingsView.vue';
 export { default as UnitMessagesView } from './UnitMessagesView.vue';
 export { default as UnitsListView } from './UnitsListView.vue';

@@ -59,9 +59,7 @@ const units = ref([
 
 const handleViewStudents = (unit) => {
   // Navigate to student list view for this unit
-  // This would typically navigate to a route like /dashboard/units/:id/students
-  console.log('View students for unit:', unit);
-  // router.push(`/dashboard/units/${unit.id}/students`);
+  router.push(`/dashboard/units/${unit.slug}/students`);
 };
 
 const handleUnitSettings = (unit) => {
@@ -71,6 +69,7 @@ const handleUnitSettings = (unit) => {
 
 const handleSync = () => {
   // Handle data synchronization with backend
+  // eslint-disable-next-line no-console
   console.log('Syncing data...');
   // In a real app, this would call an API to sync data
 };

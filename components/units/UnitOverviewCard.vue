@@ -89,7 +89,7 @@ const props = defineProps({
 defineEmits(['view-students', 'unit-settings']);
 
 const capacityPercentage = computed(() => {
-  if (!props.unit.maxCapacity || props.unit.maxCapacity === 0) return 0;
+  if (!props.unit.maxCapacity || props.unit.maxCapacity === 0) {return 0;}
   return Math.min((props.unit.currentCapacity / props.unit.maxCapacity) * 100, 100);
 });
 

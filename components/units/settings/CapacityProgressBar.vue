@@ -24,7 +24,7 @@ const props = defineProps({
 });
 
 const capacityPercentage = computed(() => {
-  if (!props.maxCapacity || props.maxCapacity === 0) return 0;
+  if (!props.maxCapacity || props.maxCapacity === 0) {return 0;}
   return Math.min((props.currentCapacity / props.maxCapacity) * 100, 100);
 });
 </script>

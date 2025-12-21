@@ -1,10 +1,12 @@
 <template>
     <BaseCard title="Upcoming Actions & Reminders" padding="lg" class="mt-2">
-        <EmptyState v-if="reminders.length === 0" :icon="CheckCircle2" title="No Pending Reminders"
+        <EmptyState
+v-if="reminders.length === 0" :icon="CheckCircle2" title="No Pending Reminders"
             message="You're all caught up!" variant="success" />
 
         <div v-else class="space-y-3">
-            <div v-for="reminder in reminders" :key="reminder.id"
+            <div
+v-for="reminder in reminders" :key="reminder.id"
                 class="flex items-start gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
                 <div class="flex-1">
                     <div class="flex items-center gap-2 mb-1">
@@ -16,15 +18,18 @@
                     </div>
                     <p class="text-sm text-gray-700 mb-2">{{ reminder.description }}</p>
                     <div class="flex items-center gap-3">
-                        <Badge :text="reminder.statusIndicator"
+                        <Badge
+:text="reminder.statusIndicator"
                             :variant="reminder.statusIndicator === 'Overdue' ? 'danger' : reminder.statusIndicator === 'Due Soon' ? 'warning' : 'primary'" />
                         <span class="text-xs text-gray-500">Due: {{ reminder.dueDate }}</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <BaseButton variant="success" size="sm" :icon="CheckCircle2" custom-class="p-2 !text-white"
+                    <BaseButton
+variant="success" size="sm" :icon="CheckCircle2" custom-class="p-2 !text-white"
                         title="Complete" @click="$emit('complete', reminder.id)" />
-                    <BaseButton variant="danger" size="sm" :icon="X" custom-class="p-2 !text-white" title="Dismiss"
+                    <BaseButton
+variant="danger" size="sm" :icon="X" custom-class="p-2 !text-white" title="Dismiss"
                         @click="$emit('dismiss', reminder.id)" />
                 </div>
             </div>

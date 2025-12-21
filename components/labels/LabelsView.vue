@@ -168,7 +168,7 @@ const handleSave = (labelData) => {
 };
 
 const capitalizeCategory = (category) => {
-  if (!category) return '';
+  if (!category) {return '';}
   return category.charAt(0).toUpperCase() + category.slice(1);
 };
 </script>

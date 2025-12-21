@@ -6,7 +6,8 @@
             <div
                 class="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse">
             </div>
-            <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"
+            <div
+class="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"
                 :style="{ animationDelay: '1s' }"></div>
         </div>
 
@@ -30,20 +31,24 @@
 
                 <!-- Form -->
                 <form class="space-y-5" @submit.prevent="handleSubmit">
-                    <BaseInput v-model="name" label="Full Name" placeholder="Enter your name"
+                    <BaseInput
+v-model="name" label="Full Name" placeholder="Enter your name"
                         label-class="text-gray-300"
                         input-class="bg-white/5 text-white placeholder-gray-400 focus:ring-cyan-400 border-white/10" />
 
-                    <BaseInput v-model="phone" type="tel" label="Phone Number" :icon="Phone" placeholder="01xxxxxxxxx"
+                    <BaseInput
+v-model="phone" type="tel" label="Phone Number" :icon="Phone" placeholder="01xxxxxxxxx"
                         label-class="text-gray-300"
                         input-class="bg-white/5 text-white placeholder-gray-400 focus:ring-cyan-400 border-white/10"
                         dir="ltr" />
 
-                    <BaseInput v-model="password" :type="showPassword ? 'text' : 'password'" label="Password"
+                    <BaseInput
+v-model="password" :type="showPassword ? 'text' : 'password'" label="Password"
                         :icon="Lock" placeholder="••••••••" label-class="text-gray-300"
                         input-class="bg-white/5 text-white placeholder-gray-400 focus:ring-cyan-400 border-white/10">
                         <template #suffix>
-                            <button type="button" class="text-gray-400 hover:text-gray-200 transition-colors"
+                            <button
+type="button" class="text-gray-400 hover:text-gray-200 transition-colors"
                                 @click="showPassword = !showPassword">
                                 <EyeOff v-if="showPassword" class="h-5 w-5" />
                                 <Eye v-else class="h-5 w-5" />
@@ -51,7 +56,8 @@
                         </template>
                     </BaseInput>
 
-                    <BaseButton type="submit" :loading="isLoading" variant="primary" size="lg"
+                    <BaseButton
+type="submit" :loading="isLoading" variant="primary" size="lg"
                         custom-class="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 shadow-lg hover:shadow-cyan-500/25 transform hover:scale-[1.02] active:scale-[0.98]">
                         Register
                     </BaseButton>

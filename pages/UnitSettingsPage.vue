@@ -9,11 +9,13 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { UnitSettingsView } from '../components/units';
+import { useUnitData } from '../composables/useUnitData';
 
 const route = useRoute();
 const router = useRouter();
 
 const unit = ref(null);
+const { setUnitData } = useUnitData();
 
 // Sample units data - in a real app, this would come from an API
 const unitsData = {
@@ -67,6 +69,8 @@ onMounted(() => {
   const unitSlug = route.params.slug;
   // In a real app, fetch unit data from API using slug
   unit.value = unitsData[unitSlug] || unitsData['s3-rania'];
+  // Set unit data for sidebar to use
+  setUnitData(unit.value);
 });
 
 const handleBackToUnit = () => {

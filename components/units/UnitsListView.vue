@@ -17,8 +17,8 @@
         variant="primary" 
         :icon="RefreshCw" 
         size="md"
-        @click="handleSync"
         :loading="isSyncing"
+        @click="handleSync"
       >
         Sync Data
       </BaseButton>

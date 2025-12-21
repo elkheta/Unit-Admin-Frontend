@@ -4,6 +4,7 @@ import RegisterPage from '../pages/auth/RegisterPage.vue';
 import MainPage from '../pages/MainPage.vue';
 import UnitsListPage from '../pages/UnitsListPage.vue';
 import UnitSettingsPage from '../pages/UnitSettingsPage.vue';
+import UnitStudentListPage from '../pages/UnitStudentListPage.vue';
 import LabelsPage from '../pages/LabelsPage.vue';
 
 const routes = [
@@ -31,6 +32,12 @@ const routes = [
     path: '/dashboard/units',
     name: 'UnitsList',
     component: UnitsListPage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/dashboard/units/:slug/students',
+    name: 'UnitStudentList',
+    component: UnitStudentListPage,
     meta: { requiresAuth: true }
   },
   {

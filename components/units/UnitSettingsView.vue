@@ -43,21 +43,39 @@ const props = defineProps({
 
 const emit = defineEmits(['back-to-unit']);
 
-// Computed unit data with defaults
-const unitData = computed(() => ({
-  id: props.selectedUnit?.id || 2,
-  name: props.selectedUnit?.name || 'S3 - Rania',
-  adminName: props.selectedUnit?.adminName || 'Rania Farid',
-  supervisors: props.selectedUnit?.supervisors || ['Mona Ali', 'Sara Mahmoud'],
-  currentCapacity: props.selectedUnit?.currentCapacity || 90,
-  maxCapacity: props.selectedUnit?.maxCapacity || 150,
-  totalGroups: props.selectedUnit?.totalGroups || 2,
-  educationalSections: props.selectedUnit?.educationalSections || ['الأول الثانوي عام', 'الثالث الثانوي علمي علوم عام'],
-  products: props.selectedUnit?.products || [
+// Default unit data values
+const defaultUnitData = {
+  id: 2,
+  name: 'S3 - Rania',
+  adminName: 'Rania Farid',
+  supervisors: ['Mona Ali', 'Sara Mahmoud'],
+  currentCapacity: 90,
+  maxCapacity: 150,
+  totalGroups: 2,
+  educationalSections: ['الأول الثانوي عام', 'الثالث الثانوي علمي علوم عام'],
+  products: [
     { name: 's1- ar - bundle', status: 'Active' },
     { name: 's3- ar - single - arabic', status: 'Active' }
   ]
-}));
+};
+
+// Helper function to get unit data with defaults
+const getUnitDataWithDefaults = (selectedUnit) => {
+  if (!selectedUnit) {
+    return { ...defaultUnitData };
+  }
+  
+  return {
+    ...defaultUnitData,
+    ...selectedUnit,
+    supervisors: selectedUnit.supervisors ?? defaultUnitData.supervisors,
+    educationalSections: selectedUnit.educationalSections ?? defaultUnitData.educationalSections,
+    products: selectedUnit.products ?? defaultUnitData.products
+  };
+};
+
+// Computed unit data with defaults
+const unitData = computed(() => getUnitDataWithDefaults(props.selectedUnit));
 
 const handleBackToUnit = () => {
   emit('back-to-unit');

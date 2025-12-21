@@ -18,7 +18,6 @@
 </template>
 
 <script setup>
-import { FormLabel } from '../../ui';
 import { CapacityProgressBar, CapacityInfo } from './index.js';
 
 defineProps({
