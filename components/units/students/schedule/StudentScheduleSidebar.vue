@@ -18,48 +18,45 @@
       >
         <!-- Header -->
         <div class="flex-shrink-0 px-6 py-4 border-b border-gray-200 bg-white">
-          <div class="flex items-center justify-between mb-2">
-            <div class="flex items-center gap-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4 flex-1">
               <button
                 class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 @click="handleClose"
               >
                 <X :size="20" class="text-gray-500" />
               </button>
-              <div>
-                <h2 class="text-xl font-bold text-gray-900">{{ student?.name || 'Student Schedule' }}</h2>
-                <div class="flex items-center gap-2 mt-1">
-                  <Calendar :size="16" class="text-gray-500" />
-                  <p class="text-sm text-gray-500">Student Schedule</p>
-                </div>
+              <BaseButton
+                variant="primary"
+                size="sm"
+                :icon="Edit"
+                @click="handleEditSchedule"
+              >
+                Edit Schedule
+              </BaseButton>
+              <div class="flex-1">
+                <h2 class="text-xl font-bold text-gray-900 text-right">{{ student?.name || 'Student Schedule' }} - جدول الطالب</h2>
               </div>
             </div>
-            <BaseButton
-              variant="primary"
-              size="sm"
-              :icon="Edit"
-              @click="handleEditSchedule"
-            >
-              Edit Schedule
-            </BaseButton>
+            <Calendar :size="20" class="text-gray-500 ml-4" />
           </div>
         </div>
 
         <!-- Week Navigation -->
-        <div class="flex-shrink-0 px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <div class="flex-shrink-0 px-6 py-4 border-b border-gray-200 bg-white">
           <div class="flex items-center justify-between">
             <button
-              class="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+              class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               @click="handlePreviousWeek"
             >
               <ChevronLeft :size="20" class="text-gray-600" />
             </button>
             <div class="flex flex-col items-center">
-              <span class="text-sm font-medium text-gray-700">{{ weekLabel }}</span>
-              <span class="text-xs text-gray-500 mt-1">{{ weekDateRange }}</span>
+              <span class="text-sm font-medium text-gray-700">{{ weekLabelArabic }}</span>
+              <span class="text-xs text-gray-500 mt-1">{{ weekDateRangeArabic }}</span>
             </div>
             <button
-              class="p-2 hover:bg-gray-200 rounded-lg transition-colors"
+              class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               @click="handleNextWeek"
             >
               <ChevronRight :size="20" class="text-gray-600" />
@@ -101,6 +98,7 @@ import { BaseButton } from '../../../ui';
 import ScheduleDayCard from './ScheduleDayCard.vue';
 import WeeklySummarySection from './WeeklySummarySection.vue';
 import SubjectPartDetailsSidebar from './SubjectPartDetailsSidebar.vue';
+import { generateStudentSchedule } from './sampleScheduleData.js';
 
 const props = defineProps({
   isOpen: {
@@ -136,15 +134,13 @@ const getWeekDates = (offset = 0) => {
   for (let i = 0; i < 7; i++) {
     const date = new Date(startOfWeek);
     date.setDate(startOfWeek.getDate() + i);
-    const scheduleDay = props.student?.schedule?.find(s => s.date === date.toISOString().split('T')[0]);
     weekDays.push({
       date: date.toISOString().split('T')[0],
       dayName: date.toLocaleDateString('ar-EG', { weekday: 'long' }),
       dayNameShort: date.toLocaleDateString('ar-EG', { weekday: 'short' }),
       dayNumber: date.getDate(),
       month: date.toLocaleDateString('ar-EG', { month: 'long' }),
-      isToday: date.toDateString() === today.toDateString(),
-      isHoliday: scheduleDay?.isHoliday || false
+      isToday: date.toDateString() === today.toDateString()
     });
   }
   return weekDays;
@@ -152,13 +148,33 @@ const getWeekDates = (offset = 0) => {
 
 const weekDays = computed(() => {
   const days = getWeekDates(currentWeekOffset.value);
+  
+  // Get schedule data from student or generate sample data
+  let scheduleData = props.student?.schedule || [];
+  
+  // If no schedule data exists or it's for a different week, generate sample data
+  if (!scheduleData || scheduleData.length === 0) {
+    scheduleData = generateStudentSchedule(props.student?.id || 1, currentWeekOffset.value);
+  } else {
+    // Check if we have data for the current week
+    const hasCurrentWeekData = days.some(day => 
+      scheduleData.some(s => s.date === day.date)
+    );
+    
+    // If no data for current week, generate it
+    if (!hasCurrentWeekData) {
+      scheduleData = generateStudentSchedule(props.student?.id || 1, currentWeekOffset.value);
+    }
+  }
+  
   // Map schedule data to days
   return days.map(day => {
-    const daySchedule = props.student?.schedule?.find(s => s.date === day.date) || null;
+    const daySchedule = scheduleData.find(s => s.date === day.date) || null;
     return {
       ...day,
       subjects: daySchedule?.subjects || [],
-      dailyProgress: daySchedule?.dailyProgress || 0
+      dailyProgress: daySchedule?.dailyProgress || 0,
+      isHoliday: daySchedule?.isHoliday || false
     };
   });
 });
@@ -168,6 +184,15 @@ const weekLabel = computed(() => {
     return 'This Week';
   }
   return currentWeekOffset.value < 0 ? `${Math.abs(currentWeekOffset.value)} weeks ago` : `In ${currentWeekOffset.value} weeks`;
+});
+
+const weekLabelArabic = computed(() => {
+  if (currentWeekOffset.value === 0) {
+    return 'هذا الأسبوع';
+  }
+  return currentWeekOffset.value < 0 
+    ? `منذ ${Math.abs(currentWeekOffset.value)} أسبوع${Math.abs(currentWeekOffset.value) > 1 ? 'ات' : ''}`
+    : `خلال ${currentWeekOffset.value} أسبوع${currentWeekOffset.value > 1 ? 'ات' : ''}`;
 });
 
 const weekDateRange = computed(() => {
@@ -181,6 +206,21 @@ const weekDateRange = computed(() => {
   return `${firstDay.dayNumber} - ${lastDay.dayNumber} ${lastDay.month} ${year}`;
 });
 
+const weekDateRangeArabic = computed(() => {
+  if (weekDays.value.length === 0) {
+    return '';
+  }
+  const firstDay = weekDays.value[0];
+  const lastDay = weekDays.value[6];
+  const year = new Date(firstDay.date).getFullYear();
+  // Format: "٨ - ١٤ ديسمبر ٢٠٢٥" (Arabic numerals)
+  const toArabicNum = (num) => {
+    const arabicNums = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+    return num.toString().split('').map(d => arabicNums[parseInt(d)]).join('');
+  };
+  return `${toArabicNum(firstDay.dayNumber)} - ${toArabicNum(lastDay.dayNumber)} ${lastDay.month} ${toArabicNum(year)}`;
+});
+
 const weeklySummary = computed(() => {
   const allSubjects = weekDays.value.flatMap(day => day.subjects || []);
   const completed = allSubjects.filter(s => s.progress >= 100).length;
@@ -188,7 +228,8 @@ const weeklySummary = computed(() => {
   const averageProgress = total > 0
     ? Math.round(allSubjects.reduce((sum, s) => sum + s.progress, 0) / total)
     : 0;
-  const accumulated = props.student?.accumulatedLessons || 0;
+  // Use accumulated lessons from student or calculate from schedule
+  const accumulated = props.student?.accumulatedLessons || allSubjects.length;
 
   return {
     averageProgress,

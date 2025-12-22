@@ -3,9 +3,12 @@
         <!-- Header -->
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-bold text-gray-900">Parent Info</h3>
-            <BaseButton variant="secondary" size="sm" @click="handleAddParent">
-                + Add Parent
-            </BaseButton>
+            <button
+                class="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-600 text-sm font-medium rounded-lg border border-gray-200 hover:from-blue-100 hover:to-blue-200 transition-all"
+                @click="handleAddParent">
+                <Plus :size="16" class="text-blue-600" />
+                <span>+ Add Parent</span>
+            </button>
         </div>
 
         <!-- Parent Identity -->
@@ -28,7 +31,7 @@
             <BaseButton variant="success" class="w-full" :icon="MessageCircle" @click="$emit('whatsapp-contact')">
                 Contact Main Parent via WhatsApp
             </BaseButton>
-            <BaseButton variant="primary" class="w-full" :icon="User" @click="$emit('go-to-parent-profile')">
+            <BaseButton variant="primary" class="w-full" :icon="UserRound" @click="$emit('go-to-parent-profile')">
                 Go to Parent Profile
             </BaseButton>
         </div>
@@ -37,7 +40,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { MessageCircle, User } from 'lucide-vue-next';
+import { MessageCircle, User, Plus, UserRound } from 'lucide-vue-next';
 import { BaseInput, BaseButton } from '../../../ui';
 
 const props = defineProps({

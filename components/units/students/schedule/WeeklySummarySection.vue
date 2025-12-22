@@ -6,22 +6,22 @@
     </div>
 
     <div class="grid grid-cols-3 gap-4">
-      <!-- Average Progress Card -->
+      <!-- Completed Lessons Card (Right) -->
       <div class="bg-white rounded-lg border border-gray-200 p-4">
-        <p class="text-sm text-gray-600 mb-2">التقدم الأسبوعي</p>
-        <p class="text-2xl font-bold text-blue-600">{{ summary.averageProgress }}%</p>
+        <p class="text-sm text-gray-600 mb-2 text-right">الدروس المكتملة</p>
+        <p class="text-2xl font-bold text-green-600 text-right">{{ summary.completedLessons }}</p>
       </div>
 
-      <!-- Completed Lessons Card -->
+      <!-- Average Progress Card (Middle) -->
       <div class="bg-white rounded-lg border border-gray-200 p-4">
-        <p class="text-sm text-gray-600 mb-2">الدروس المكتملة</p>
-        <p class="text-2xl font-bold text-green-600">{{ summary.completedLessons }}</p>
+        <p class="text-sm text-gray-600 mb-2 text-right">التقدم الأسبوعي</p>
+        <p class="text-2xl font-bold text-blue-600 text-right">{{ summary.averageProgress }}%</p>
       </div>
 
-      <!-- Accumulated Sessions Card -->
+      <!-- Accumulated Sessions Card (Left) -->
       <div class="bg-white rounded-lg border border-gray-200 p-4">
-        <p class="text-sm text-gray-600 mb-2">الحصص المتراكمة</p>
-        <p class="text-2xl font-bold text-orange-600">{{ summary.accumulatedSessions }}</p>
+        <p class="text-sm text-gray-600 mb-2 text-right">الحصص المتراكمة</p>
+        <p class="text-2xl font-bold text-orange-600 text-right">{{ summary.accumulatedSessions }}</p>
       </div>
     </div>
   </div>
