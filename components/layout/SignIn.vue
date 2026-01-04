@@ -26,19 +26,24 @@
 
         <!-- Form -->
         <form class="space-y-5" @submit.prevent="handleSubmit">
+          <div
+            v-if="formError"
+            class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-100"
+            dir="rtl"
+          >
+            {{ formError }}
+          </div>
+
           <!-- Phone Input -->
           <BaseInput
             v-model="phone"
             type="tel"
             label="Phone Number"
             :icon="Phone"
-            :error="phoneError"
             placeholder="01xxxxxxxxx"
             dir="ltr"
             label-class="text-gray-300"
             input-class="bg-white/5 text-white placeholder-gray-400 focus:ring-cyan-400 border-white/10"
-            error-dir="rtl"
-            @update:model-value="phoneError = ''"
           />
 
           <!-- Password Input -->
@@ -47,12 +52,9 @@
             :type="showPassword ? 'text' : 'password'"
             label="Password"
             :icon="Lock"
-            :error="passwordError"
             placeholder="••••••••"
             label-class="text-gray-300"
             input-class="bg-white/5 text-white placeholder-gray-400 focus:ring-cyan-400 border-white/10"
-            error-dir="rtl"
-            @update:model-value="passwordError = ''"
           >
             <template #suffix>
               <button
@@ -93,37 +95,52 @@
 import { ref } from 'vue';
 import { Phone, Lock, LogIn, GraduationCap, Eye, EyeOff } from 'lucide-vue-next';
 import { login } from '../../utils/auth.js';
+import { useAuth } from '../../composables/useAuth.js';
 import { BaseInput, BaseButton } from '../ui';
 
 const emit = defineEmits(['signIn']);
+const { setUser } = useAuth();
 
 const phone = ref('');
 const password = ref('');
-const phoneError = ref('');
-const passwordError = ref('');
+const formError = ref('');
 const isLoading = ref(false);
 const showPassword = ref(false);
 
 const handleSubmit = async () => {
-  phoneError.value = '';
-  passwordError.value = '';
+  formError.value = '';
+  
+  // Validate inputs
+  if (!phone.value.trim()) {
+    formError.value = 'رقم الهاتف مطلوب';
+    return;
+  }
+  
+  if (!password.value.trim()) {
+    formError.value = 'كلمة السر مطلوبة';
+    return;
+  }
+
   isLoading.value = true;
 
   try {
     const result = await login(phone.value, password.value);
     
     if (result.success) {
-      emit('signIn');
+      // Update auth state with user data
+      setUser(result.user);
+      
+      // Emit success event
+      emit('signIn', result.user);
     } else {
-      // Set error based on which field failed
-      if (result.error.includes('هاتف')) {
-        phoneError.value = result.error;
-      } else {
-        passwordError.value = result.error;
-      }
+      formError.value =
+        (Array.isArray(result.displayValidationMessages) && result.displayValidationMessages[0]) ||
+        result.error ||
+        'فشل في تسجيل الدخول';
     }
-  } catch {
-    passwordError.value = 'حدث خطأ أثناء تسجيل الدخول';
+  } catch (error) {
+    console.error('Login error:', error);
+    formError.value = 'حدث خطأ أثناء تسجيل الدخول';
   } finally {
     isLoading.value = false;
   }
