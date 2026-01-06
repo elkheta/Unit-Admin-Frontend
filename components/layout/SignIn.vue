@@ -133,10 +133,7 @@ const handleSubmit = async () => {
       // Emit success event
       emit('signIn', result.user);
     } else {
-      formError.value =
-        (Array.isArray(result.displayValidationMessages) && result.displayValidationMessages[0]) ||
-        result.error ||
-        'فشل في تسجيل الدخول';
+      formError.value = result.error ||   'فشل في تسجيل الدخول';
     }
   } catch (error) {
     console.error('Login error:', error);

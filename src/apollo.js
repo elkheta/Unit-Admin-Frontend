@@ -1,5 +1,6 @@
 import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
+import { provideApolloClient } from '@vue/apollo-composable';
 import { authStorage } from '../utils/authStorage.js';
 
 /**
@@ -35,6 +36,8 @@ const apolloClient = new ApolloClient({
     },
   },
 });
+
+provideApolloClient(apolloClient);
 
 export default apolloClient;
 
