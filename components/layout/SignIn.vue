@@ -107,17 +107,67 @@ const formError = ref('');
 const isLoading = ref(false);
 const showPassword = ref(false);
 
+const validatePhone = (phoneNumber) => {
+  // Check if empty
+  if (!phoneNumber || !phoneNumber.trim()) {
+    return 'رقم الهاتف مطلوب';
+  }
+
+  const cleanPhone = phoneNumber.trim();
+
+  // Check if contains only digits
+  if (!/^\d+$/.test(cleanPhone)) {
+    return 'رقم الهاتف يجب أن يحتوي على أرقام فقط';
+  }
+
+  // Check if exactly 11 digits
+  if (cleanPhone.length !== 11) {
+    return 'رقم الهاتف يجب أن يكون 11 رقم بالضبط';
+  }
+
+  // Check if starts with valid Egyptian prefixes
+  const validPrefixes = ['010', '011', '012', '015'];
+  const prefix = cleanPhone.substring(0, 3);
+  if (!validPrefixes.includes(prefix)) {
+    return 'رقم الهاتف يجب أن يبدأ بـ 010 أو 011 أو 012 أو 015';
+  }
+
+  return null; // Valid
+};
+
+const validatePassword = (password) => {
+  // Check if empty
+  if (!password) {
+    return 'كلمة السر مطلوبة';
+  }
+
+  // Check minimum length
+  if (password.length < 8) {
+    return 'كلمة السر يجب أن تكون 8 أحرف على الأقل';
+  }
+
+  // Check if starts or ends with space
+  if (password.startsWith(' ') || password.endsWith(' ')) {
+    return 'كلمة السر لا يمكن أن تبدأ أو تنتهي بمسافة';
+  }
+
+  return null; // Valid
+};
+
 const handleSubmit = async () => {
   formError.value = '';
   
-  // Validate inputs
-  if (!phone.value.trim()) {
-    formError.value = 'رقم الهاتف مطلوب';
+  // Validate phone number
+  const phoneError = validatePhone(phone.value);
+  if (phoneError) {
+    formError.value = phoneError;
     return;
   }
   
-  if (!password.value.trim()) {
-    formError.value = 'كلمة السر مطلوبة';
+  // Validate password
+  const passwordError = validatePassword(password.value);
+  if (passwordError) {
+    formError.value = passwordError;
     return;
   }
 
