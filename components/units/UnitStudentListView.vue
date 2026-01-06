@@ -41,6 +41,7 @@
               @score-click="handleScoreClick"
               @notes-click="handleNotesClick"
               @name-click="handleStudentNameClick"
+              @accumulated-lessons-click="handleAccumulatedLessonsClick"
             />
     </div>
 
@@ -82,6 +83,15 @@
       :student="selectedStudentForSchedule"
       @close="handleCloseScheduleSidebar"
     />
+
+    <!-- Accumulated Lessons Sidebar -->
+    <AccumulatedLessonsSidebar
+      :is-visible="isAccumulatedLessonsSidebarOpen"
+      :student="selectedStudentForAccumulatedLessons"
+      :accumulated-lessons="accumulatedLessonsData"
+      @close="handleCloseAccumulatedLessonsSidebar"
+      @go-to-schedule="handleGoToScheduleFromAccumulated"
+    />
   </div>
 </template>
 
@@ -95,7 +105,8 @@ import {
   StudentCountDisplay,
   PaginationControls,
   ActiveFiltersDisplay,
-  StudentScheduleSidebar
+  StudentScheduleSidebar,
+  AccumulatedLessonsSidebar
 } from './students';
 import StudentProfileSidebar from './students/StudentProfileSidebar.vue';
 
@@ -121,6 +132,50 @@ const isProfileSidebarOpen = ref(false);
 const selectedStudent = ref(null);
 const isScheduleSidebarOpen = ref(false);
 const selectedStudentForSchedule = ref(null);
+const isAccumulatedLessonsSidebarOpen = ref(false);
+const selectedStudentForAccumulatedLessons = ref(null);
+
+// Accumulated lessons data for each student
+const accumulatedLessonsData = computed(() => {
+  if (!selectedStudentForAccumulatedLessons.value) return [];
+  
+  const studentId = selectedStudentForAccumulatedLessons.value.id;
+  
+  // Sample accumulated lessons data - in a real app, this would come from an API
+  const lessonsMap = {
+    1: [ // Ahmed Hassan
+      {
+        subject: 'الرياضيات - التفاضل',
+        day: 'الخميس',
+        date: '13 ديسمبر',
+        progress: 32
+      },
+      {
+        subject: 'اللغة العربية - البلاغة',
+        day: 'الثلاثاء',
+        date: '11 ديسمبر',
+        progress: 15
+      },
+      {
+        subject: 'الفيزياء - الكهرباء',
+        day: 'الاثنين',
+        date: '10 ديسمبر',
+        progress: 80
+      }
+    ],
+    2: [ // Sara Ahmed
+      {
+        subject: 'الكيمياء - العضوية',
+        day: 'الأربعاء',
+        date: '12 ديسمبر',
+        progress: 90
+      }
+    ],
+    // Add more students as needed
+  };
+  
+  return lessonsMap[studentId] || [];
+});
 
 // Sorting options
 const sortOptions = ref({
@@ -172,6 +227,7 @@ const sampleStudents = [
     dateAdded: '2024-01-15',
     expirationDate: '2024-12-31',
     accumulatedLessons: 120,
+    accumulatedProgress: 17,
     orders: [
       {
         id: 1,
@@ -301,6 +357,7 @@ const sampleStudents = [
     dateAdded: '2024-02-20',
     expirationDate: '2025-01-15',
     accumulatedLessons: 95,
+    accumulatedProgress: 40,
     daysToExpire: 39,
     email: 'dina.sayed@example.com',
     governorate: 'cairo',
@@ -344,6 +401,7 @@ const sampleStudents = [
     dateAdded: '2024-03-10',
     expirationDate: '2025-02-28',
     accumulatedLessons: 180,
+    accumulatedProgress: 60,
     daysToExpire: 60,
     email: 'mohamed.ali@example.com',
     governorate: 'alexandria',
@@ -396,6 +454,7 @@ const sampleStudents = [
     dateAdded: '2024-01-25',
     expirationDate: '2024-11-30',
     accumulatedLessons: 150,
+    accumulatedProgress: 25,
     daysToExpire: 15,
     email: 'sara.ahmed@example.com',
     governorate: 'giza',
@@ -439,6 +498,7 @@ const sampleStudents = [
     dateAdded: '2023-12-01',
     expirationDate: '2024-10-15',
     accumulatedLessons: 45,
+    accumulatedProgress: 25,
     daysToExpire: 0,
     email: 'omar.khaled@example.com',
     governorate: 'sharqia',
@@ -472,6 +532,7 @@ const sampleStudents = [
     dateAdded: '2024-02-05',
     expirationDate: '2025-01-20',
     accumulatedLessons: 135,
+    accumulatedProgress: 25,
     daysToExpire: 38,
     email: 'fatma.mahmoud@example.com',
     governorate: 'dakahlia',
@@ -515,6 +576,7 @@ const sampleStudents = [
     dateAdded: '2024-03-15',
     expirationDate: '2025-03-01',
     accumulatedLessons: 165,
+    accumulatedProgress: 25,
     daysToExpire: 78,
     email: 'youssef.ibrahim@example.com',
     governorate: 'cairo',
@@ -558,6 +620,7 @@ const sampleStudents = [
     dateAdded: '2024-01-10',
     expirationDate: '2024-12-20',
     accumulatedLessons: 100,
+    accumulatedProgress: 25,
     daysToExpire: 7,
     email: 'nour.eldin@example.com',
     governorate: 'beheira',
@@ -601,6 +664,7 @@ const sampleStudents = [
     dateAdded: '2024-04-01',
     expirationDate: '2025-03-15',
     accumulatedLessons: 200,
+    accumulatedProgress: 25,
     daysToExpire: 92,
     email: 'mariam.farid@example.com',
     governorate: 'cairo',
@@ -653,6 +717,7 @@ const sampleStudents = [
     dateAdded: '2023-11-20',
     expirationDate: '2024-09-30',
     accumulatedLessons: 60,
+    accumulatedProgress: 25,
     daysToExpire: 0,
     email: 'khaled.samir@example.com',
     governorate: 'monufia',
@@ -686,6 +751,7 @@ const sampleStudents = [
     dateAdded: '2024-02-28',
     expirationDate: '2025-02-10',
     accumulatedLessons: 170,
+    accumulatedProgress: 25,
     daysToExpire: 58,
     email: 'layla.mohamed@example.com',
     governorate: 'giza',
@@ -729,6 +795,7 @@ const sampleStudents = [
     dateAdded: '2024-01-20',
     expirationDate: '2024-12-10',
     accumulatedLessons: 110,
+    accumulatedProgress: 25,
     daysToExpire: 0,
     email: 'hassan.mostafa@example.com',
     governorate: 'qalyubia',
@@ -772,6 +839,7 @@ const sampleStudents = [
     dateAdded: '2024-03-20',
     expirationDate: '2025-02-28',
     accumulatedLessons: 190,
+    accumulatedProgress: 25,
     daysToExpire: 76,
     email: 'zeinab.ali@example.com',
     governorate: 'cairo',
@@ -815,6 +883,7 @@ const sampleStudents = [
     dateAdded: '2023-10-15',
     expirationDate: '2024-08-20',
     accumulatedLessons: 50,
+    accumulatedProgress: 25,
     daysToExpire: 0,
     email: 'tamer.hosny@example.com',
     governorate: 'gharbia',
@@ -848,6 +917,7 @@ const sampleStudents = [
     dateAdded: '2024-02-15',
     expirationDate: '2025-01-05',
     accumulatedLessons: 140,
+    accumulatedProgress: 25,
     daysToExpire: 23,
     email: 'rania.kamel@example.com',
     governorate: 'kafr-elsheikh',
@@ -1116,6 +1186,24 @@ const handleCloseSidebar = () => {
 const handleCloseScheduleSidebar = () => {
   isScheduleSidebarOpen.value = false;
   selectedStudentForSchedule.value = null;
+};
+
+const handleAccumulatedLessonsClick = (student) => {
+  selectedStudentForAccumulatedLessons.value = student;
+  isAccumulatedLessonsSidebarOpen.value = true;
+};
+
+const handleCloseAccumulatedLessonsSidebar = () => {
+  isAccumulatedLessonsSidebarOpen.value = false;
+  selectedStudentForAccumulatedLessons.value = null;
+};
+
+const handleGoToScheduleFromAccumulated = (student) => {
+  // Close accumulated lessons sidebar and open schedule sidebar
+  isAccumulatedLessonsSidebarOpen.value = false;
+  selectedStudentForAccumulatedLessons.value = null;
+  selectedStudentForSchedule.value = student;
+  isScheduleSidebarOpen.value = true;
 };
 
 const handleSaveProfile = (data) => {

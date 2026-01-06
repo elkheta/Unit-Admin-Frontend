@@ -35,9 +35,13 @@
         </button>
       </div>
 
-      <!-- Score Badge (Clickable) -->
+      <!-- Accumulated Lessons Badge -->
       <div class="flex-shrink-0">
-        <StudentScoreBadge :score="student.score" @click="$emit('score-click', student)" />
+        <StudentScoreBadge 
+          :accumulated-lessons="student.accumulatedLessons" 
+          :accumulated-progress="student.accumulatedProgress"
+          @click="$emit('accumulated-lessons-click', student)" 
+        />
       </div>
 
       <!-- Diamond Points and Last Active -->
@@ -81,9 +85,9 @@
 import { ref, computed } from 'vue';
 import { MessageCircle, FileText } from 'lucide-vue-next';
 import { BaseSelect, DiamondIcon } from '../../ui';
-import StudentScoreBadge from './StudentScoreBadge.vue';
 import StudentStatusBadge from './StudentStatusBadge.vue';
 import StudentPerformanceBadge from './StudentPerformanceBadge.vue';
+import StudentScoreBadge from './StudentScoreBadge.vue';
 
 const props = defineProps({
   student: {
@@ -92,7 +96,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['group-change', 'whatsapp-click', 'progress-click', 'score-click', 'notes-click', 'name-click']);
+const emit = defineEmits(['group-change', 'whatsapp-click', 'progress-click', 'score-click', 'notes-click', 'name-click', 'accumulated-lessons-click']);
 
 const selectedGroup = ref(props.student.group);
 

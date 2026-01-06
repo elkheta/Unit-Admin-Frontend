@@ -1,32 +1,66 @@
 <template>
-  <button
-    class="w-12 h-12 rounded-full flex flex-col items-center justify-center text-xs font-bold cursor-pointer hover:opacity-80 transition-opacity"
-    :class="scoreClasses"
+  <div
+    class="relative flex flex-col items-center justify-center w-11 h-11 rounded-full border-2 shrink-0 transition-all group cursor-pointer hover:shadow-lg"
+    :class="badgeClasses"
     @click="$emit('click')"
+    :title="tooltipText"
   >
-    <span>{{ score }}%</span>
-    <span class="text-[10px] font-normal">Score</span>
-  </button>
+    <span class="text-[10px] font-bold">{{ displayProgress }}%</span>
+    <span class="text-[7px] leading-none">Score</span>
+    
+    <!-- Tooltip on hover -->
+    <div 
+      v-if="hasAccumulatedLessons"
+      class="absolute bottom-full mb-2 hidden group-hover:block bg-gray-900 text-white text-xs px-2 py-1 rounded shadow-lg whitespace-nowrap z-10" 
+      dir="rtl"
+    >
+      حصص متراكمة: {{ accumulatedLessons }}
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
 
 const props = defineProps({
-  score: {
+  accumulatedLessons: {
     type: Number,
-    required: true
+    default: 0
+  },
+  accumulatedProgress: {
+    type: Number,
+    default: 0
   }
 });
 
 defineEmits(['click']);
 
-const scoreClasses = computed(() => {
-  // Green if score > 80%, red if score < 80%
-  if (props.score > 80) {
-    return 'bg-green-100 text-green-700';
+const hasAccumulatedLessons = computed(() => {
+  return props.accumulatedLessons && props.accumulatedLessons > 0;
+});
+
+const displayProgress = computed(() => {
+  return hasAccumulatedLessons.value ? props.accumulatedProgress : 100;
+});
+
+const badgeClasses = computed(() => {
+  if (!hasAccumulatedLessons.value) {
+    return 'border-green-200 text-green-600';
   }
-  return 'bg-red-100 text-red-700';
+  
+  const progress = props.accumulatedProgress || 0;
+  if (progress >= 70) {
+    return 'border-green-200 text-green-600 hover:border-green-300';
+  } else if (progress >= 40) {
+    return 'border-orange-200 text-orange-600 hover:border-orange-300';
+  } else {
+    return 'border-red-200 text-red-500 hover:border-red-300';
+  }
+});
+
+const tooltipText = computed(() => {
+  return hasAccumulatedLessons.value 
+    ? `عدد الحصص المتراكمة: ${props.accumulatedLessons}`
+    : 'لا توجد حصص متراكمة';
 });
 </script>
-
