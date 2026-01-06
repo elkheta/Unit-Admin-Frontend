@@ -5,16 +5,28 @@ import { gql } from '@apollo/client';
  * Authenticates a user with phone and password
  */
 export const LOGIN_MUTATION = gql`
-  mutation Login($phone: String!, $password: String!) {
-    login(phone: $phone, password: $password) {
-      success
+  mutation LoginUser($input: LoginUserInput!) {
+    loginUser(input: $input) {
       token
       user {
         id
         name
-        phone
+        phone_number
+        email
       }
-      error
+    }
+  }
+`;
+
+/**
+ * Logout mutation
+ * Logs out the current user
+ */
+export const LOGOUT_MUTATION = gql`
+  mutation LogoutUser {
+    logoutUser {
+      status
+      message
     }
   }
 `;

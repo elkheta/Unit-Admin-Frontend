@@ -1,16 +1,34 @@
-import { ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
+import { ApolloClient, InMemoryCache, createHttpLink, from } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
+import { provideApolloClient } from '@vue/apollo-composable';
+import { authStorage } from '../utils/authStorage.js';
 
 /**
- * Apollo Client configuration
- * For now, using a placeholder endpoint
- * Replace with actual GraphQL endpoint when backend is ready
+ * HTTP Link for GraphQL endpoint
  */
 const httpLink = createHttpLink({
-  uri: import.meta.env.VITE_GRAPHQL_ENDPOINT || 'http://localhost:4000/graphql',
+  uri: import.meta.env.VITE_GRAPHQL_ENDPOINT || 'http://127.0.0.1:8000/graphql',
 });
 
+/**
+ * Auth Link to add authentication headers
+ */
+const authLink = setContext((_, { headers }) => {
+  const token = authStorage.getToken();
+  
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : "",
+    }
+  };
+});
+
+/**
+ * Apollo Client configuration with authentication
+ */
 const apolloClient = new ApolloClient({
-  link: httpLink,
+  link: from([authLink, httpLink]),
   cache: new InMemoryCache(),
   defaultOptions: {
     watchQuery: {
@@ -18,6 +36,8 @@ const apolloClient = new ApolloClient({
     },
   },
 });
+
+provideApolloClient(apolloClient);
 
 export default apolloClient;
 

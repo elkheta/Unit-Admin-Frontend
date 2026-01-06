@@ -3,7 +3,8 @@
     <!-- Header with Icon, Title, Admin, and Expired Button -->
     <div class="flex items-start justify-between gap-4 mb-6">
       <div class="flex items-start gap-3 flex-1 min-w-0">
-        <IconBadge :icon="Package" :size="20" :stroke-width="2" variant="primary" custom-size="w-12 h-12"
+        <IconBadge
+:icon="Package" :size="20" :stroke-width="2" variant="primary" custom-size="w-12 h-12"
           class="shadow-blue-100 shadow-md flex-shrink-0" />
         <div class="flex-1 min-w-0">
           <h3 class="text-lg font-bold text-gray-900 leading-tight mb-1">{{ unit.title }}</h3>
@@ -14,7 +15,8 @@
         </div>
       </div>
       <!-- Expired Button -->
-      <BaseButton :variant="expiredCount > 0 ? 'warning' : 'secondary'" size="sm"
+      <BaseButton
+:variant="expiredCount > 0 ? 'warning' : 'secondary'" size="sm"
         class="text-xs px-3 py-1.5 flex-shrink-0" :disabled="expiredCount === 0" @click="$emit('expired-click', unit)">
         {{ expiredCount }} Expired
       </BaseButton>
@@ -53,7 +55,8 @@
 
     <!-- Action Button at the bottom -->
     <div class="mt-auto">
-      <BaseButton variant="primary" size="md" class="w-full shadow-md shadow-blue-100 hover:shadow-lg transition-shadow"
+      <BaseButton
+variant="primary" size="md" class="w-full shadow-md shadow-blue-100 hover:shadow-lg transition-shadow"
         @click="$emit('unit-click', unit)">
         Students List
       </BaseButton>
@@ -65,7 +68,7 @@
 import { computed } from 'vue';
 import { Package, User } from 'lucide-vue-next';
 import { BaseCard, BaseButton, IconBadge } from '../ui';
-import GroupItem from './GroupItem.vue';
+import { GroupItem } from './index.js';
 
 const props = defineProps({
   unit: {

@@ -2,6 +2,7 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
 import apolloClient from './src/apollo.js';
+import { DefaultApolloClient } from '@vue/apollo-composable';
 
 const app = createApp(App);
 
@@ -9,7 +10,7 @@ const app = createApp(App);
 app.use(router);
 
 // Provide Apollo client to the app
-app.provide('apollo', apolloClient);
+app.provide(DefaultApolloClient, apolloClient);
 
 app.mount('#app');
 

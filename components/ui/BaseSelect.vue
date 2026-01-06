@@ -4,14 +4,16 @@
             {{ label }}
         </label>
         <div class="relative">
-            <select :value="modelValue" :disabled="disabled" :class="computedSelectClasses"
+            <select
+:value="modelValue" :disabled="disabled" :class="computedSelectClasses"
                 @change="$emit('update:modelValue', $event.target.value)">
                 <option v-if="placeholder" value="" disabled>{{ placeholder }}</option>
                 <option v-for="option in options" :key="option.value" :value="option.value">
                     {{ option.label }}
                 </option>
             </select>
-            <ChevronDown :size="14"
+            <ChevronDown
+:size="14"
                 class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
         </div>
         <p v-if="error" class="mt-2 text-sm font-medium" :class="errorClass" :dir="errorDir">

@@ -1,0 +1,19 @@
+export { default as UnitHeaderSection } from './UnitHeaderSection.vue';
+export { default as GeneralInformationSection } from './GeneralInformationSection.vue';
+export { default as StatisticsSection } from './StatisticsSection.vue';
+export { default as EducationalSectionsProductsSection } from './EducationalSectionsProductsSection.vue';
+export { default as BackendNotificationSection } from './BackendNotificationSection.vue';
+export { default as StudentCapacityDisplay } from './StudentCapacityDisplay.vue';
+export { default as TotalGroupsDisplay } from './TotalGroupsDisplay.vue';
+export { default as CapacityProgressBar } from './CapacityProgressBar.vue';
+export { default as CapacityInfo } from './CapacityInfo.vue';
+export { default as EducationalSectionsList } from './EducationalSectionsList.vue';
+export { default as UnitProductsList } from './UnitProductsList.vue';
+export { default as ProductItem } from './ProductItem.vue';
+export { default as ProductIcon } from './ProductIcon.vue';
+export { default as ProductName } from './ProductName.vue';
+export { default as ProductStatus } from './ProductStatus.vue';
+export { default as EmptyProductsMessage } from './EmptyProductsMessage.vue';
+export { default as NotificationIcon } from './NotificationIcon.vue';
+export { default as NotificationMessage } from './NotificationMessage.vue';
+

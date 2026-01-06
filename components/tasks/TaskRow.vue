@@ -46,9 +46,7 @@
 
 <script setup>
 import { BaseButton } from '../ui';
-import TaskProgress from './TaskProgress.vue';
-import TaskStatus from './TaskStatus.vue';
-import TaskVisibility from './TaskVisibility.vue';
+import { TaskProgress, TaskStatus, TaskVisibility } from './index.js';
 
 defineProps({
   task: {

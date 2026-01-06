@@ -10,7 +10,7 @@ import { computed } from 'vue';
 
 const props = defineProps({
   icon: {
-    type: Object,
+    type: Function,
     default: null
   },
   size: {

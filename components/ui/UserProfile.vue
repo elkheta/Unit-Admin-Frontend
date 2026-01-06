@@ -9,7 +9,7 @@
 </template>
 
 <script setup>
-import UserAvatar from './UserAvatar.vue';
+import { UserAvatar } from './index.js';
 
 defineProps({
   name: {
@@ -21,7 +21,7 @@ defineProps({
     default: ''
   },
   icon: {
-    type: Object,
+    type: Function,
     default: null
   },
   initials: {

@@ -1,44 +1,83 @@
 <template>
-  <div class="flex flex-col h-full animate-fade-in">
-    <h2 class="text-2xl font-bold text-gray-900 mb-6">Unit Settings</h2>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-      <div class="border-b border-gray-100 pb-4 mb-4">
-        <h3 class="text-lg font-medium text-gray-900">General Information</h3>
-        <p class="text-sm text-gray-500">Update unit details and configurations.</p>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Main Name</label>
-          <input 
-            type="text" 
-            :value="selectedUnit?.title"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50" 
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Capacity</label>
-          <input 
-            type="number" 
-            placeholder="Enter capacity"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none bg-gray-50" 
-          />
-        </div>
-      </div>
-      <div class="mt-6 flex justify-end">
-        <BaseButton variant="primary" size="md">Save Changes</BaseButton>
-      </div>
+  <div class="flex flex-col h-full animate-fade-in max-w-5xl mx-auto">
+    <UnitHeaderSection @back="handleBackToUnit" />
+
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8 space-y-8">
+      <GeneralInformationSection :unit-data="unitData" />
+      <StatisticsSection :unit-data="unitData" />
+      <EducationalSectionsProductsSection :unit-data="unitData" />
+      <BackendNotificationSection />
     </div>
   </div>
 </template>
 
 <script setup>
-import { BaseButton } from '../ui';
+import { computed } from 'vue';
+import {
+  UnitHeaderSection,
+  GeneralInformationSection,
+  StatisticsSection,
+  EducationalSectionsProductsSection,
+  BackendNotificationSection
+} from './settings';
 
-defineProps({
+const props = defineProps({
   selectedUnit: {
     type: Object,
-    default: null
+    default: () => ({
+      id: 2,
+      name: 'S3 - Rania',
+      adminName: 'Rania Farid',
+      supervisors: ['Mona Ali', 'Sara Mahmoud'],
+      currentCapacity: 90,
+      maxCapacity: 150,
+      totalGroups: 2,
+      educationalSections: ['الأول الثانوي عام', 'الثالث الثانوي علمي علوم عام'],
+      products: [
+        { name: 's1- ar - bundle', status: 'Active' },
+        { name: 's3- ar - single - arabic', status: 'Active' }
+      ]
+    })
   }
 });
-</script>
 
+const emit = defineEmits(['back-to-unit']);
+
+// Default unit data values
+const defaultUnitData = {
+  id: 2,
+  name: 'S3 - Rania',
+  adminName: 'Rania Farid',
+  supervisors: ['Mona Ali', 'Sara Mahmoud'],
+  currentCapacity: 90,
+  maxCapacity: 150,
+  totalGroups: 2,
+  educationalSections: ['الأول الثانوي عام', 'الثالث الثانوي علمي علوم عام'],
+  products: [
+    { name: 's1- ar - bundle', status: 'Active' },
+    { name: 's3- ar - single - arabic', status: 'Active' }
+  ]
+};
+
+// Helper function to get unit data with defaults
+const getUnitDataWithDefaults = (selectedUnit) => {
+  if (!selectedUnit) {
+    return { ...defaultUnitData };
+  }
+  
+  return {
+    ...defaultUnitData,
+    ...selectedUnit,
+    supervisors: selectedUnit.supervisors ?? defaultUnitData.supervisors,
+    educationalSections: selectedUnit.educationalSections ?? defaultUnitData.educationalSections,
+    products: selectedUnit.products ?? defaultUnitData.products
+  };
+};
+
+// Computed unit data with defaults
+const unitData = computed(() => getUnitDataWithDefaults(props.selectedUnit));
+
+const handleBackToUnit = () => {
+  emit('back-to-unit');
+};
+</script>
