@@ -92,6 +92,15 @@
       @close="handleCloseAccumulatedLessonsSidebar"
       @go-to-schedule="handleGoToScheduleFromAccumulated"
     />
+
+    <!-- Notes & Activity Modal -->
+    <StudentNotesModal
+      :is-open="isNotesModalOpen"
+      :student="currentNotesStudent"
+      :notes="currentStudentNotes"
+      @close="closeNotesModal"
+      @update:notes="updateCurrentStudentNotes"
+    />
   </div>
 </template>
 
@@ -109,6 +118,7 @@ import {
   AccumulatedLessonsSidebar
 } from './students';
 import StudentProfileSidebar from './students/StudentProfileSidebar.vue';
+import StudentNotesModal from './students/StudentNotesModal.vue';
 
 const props = defineProps({
   selectedUnit: {
@@ -175,6 +185,17 @@ const accumulatedLessonsData = computed(() => {
   };
   
   return lessonsMap[studentId] || [];
+});
+
+// Notes modal state
+const isNotesModalOpen = ref(false);
+const currentNotesStudent = ref(null);
+const notesByStudentId = ref({});
+
+const currentStudentNotes = computed(() => {
+  const id = currentNotesStudent.value?.id;
+  if (!id) return [];
+  return notesByStudentId.value[id] || [];
 });
 
 // Sorting options
@@ -1163,10 +1184,23 @@ const handleScoreClick = (student) => {
 };
 
 const handleNotesClick = (student) => {
-  // Open notes modal or navigate to notes page
-  // In a real app, this would open a notes modal or navigate to notes page
-  // eslint-disable-next-line no-console
-  console.log('Notes clicked for:', student.name);
+  // Match the legacy dashboard behavior: open modal and stop propagation is handled in StudentCard
+  currentNotesStudent.value = student;
+  isNotesModalOpen.value = true;
+};
+
+const closeNotesModal = () => {
+  isNotesModalOpen.value = false;
+  currentNotesStudent.value = null;
+};
+
+const updateCurrentStudentNotes = (nextNotes) => {
+  const id = currentNotesStudent.value?.id;
+  if (!id) return;
+  notesByStudentId.value = {
+    ...notesByStudentId.value,
+    [id]: Array.isArray(nextNotes) ? nextNotes : []
+  };
 };
 
 const handleStudentNameClick = (student) => {
