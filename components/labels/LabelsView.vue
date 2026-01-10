@@ -34,15 +34,19 @@
               <td class="px-6 py-4 text-sm text-gray-500 font-mono">#{{ label.id }}</td>
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
-                  <IconBadge :icon="Tag" :size="14" variant="success" shape="circle" custom-size="w-8 h-8" />
+                  <div 
+                    class="w-3 h-3 rounded-full shadow-sm ring-2 ring-white"
+                    :style="{ backgroundColor: label.color || '#ccc' }"
+                    :title="label.color"
+                  ></div>
                   <span class="text-sm font-bold text-gray-900">{{ label.name }}</span>
                 </div>
               </td>
               <td class="px-6 py-4">
-                <Badge v-if="label.category" :text="capitalizeCategory(label.category)" variant="default" />
+                <Badge v-if="label.category" :text="getCategoryName(label.category)" variant="default" />
               </td>
               <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">{{ label.description }}</td>
-              <td class="px-6 py-4 text-sm text-gray-500">{{ label.creationDate }}</td>
+              <td class="px-6 py-4 text-sm text-gray-500">{{ formatDate(label.created_at || label.creationDate) }}</td>
               <td class="px-6 py-4 text-right">
                 <div class="flex items-center justify-end gap-2">
                   <BaseButton 
@@ -76,6 +80,7 @@
     <LabelModal
       :is-open="isModalOpen"
       :label="currentLabel"
+      :categories="categories"
       @close="closeModal"
       @save="handleSave"
     />
@@ -111,16 +116,21 @@
 
 <script setup>
 import { ref } from 'vue';
-import { PlusCircle, Tag, Edit3, Trash2 } from 'lucide-vue-next';
-import { BaseButton, BaseModal, Badge, IconBadge } from '../ui';
+import { PlusCircle, Edit3, Trash2 } from 'lucide-vue-next';
+import { BaseButton, BaseModal, Badge } from '../ui';
 import { LabelModal } from './index.js';
 
 defineProps({
   labels: {
     type: Array,
     default: () => []
+  },
+  categories: {
+    type: Array,
+    default: () => []
   }
 });
+
 
 const emit = defineEmits(['delete', 'save']);
 
@@ -167,9 +177,19 @@ const handleSave = (labelData) => {
   closeModal();
 };
 
-const capitalizeCategory = (category) => {
-  if (!category) {return '';}
-  return category.charAt(0).toUpperCase() + category.slice(1);
+const getCategoryName = (category) => {
+  if (!category) return '';
+  return category.name || category; 
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return '-';
+  // Check if dateString is just YYYY-MM-DD or full ISO
+  try {
+    return new Date(dateString).toLocaleDateString();
+  } catch (e) {
+    return dateString;
+  }
 };
 </script>
 

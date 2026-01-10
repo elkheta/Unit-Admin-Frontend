@@ -19,6 +19,8 @@ export const loginUser = async (phone, password) => {
     const response = await mutate();
     const handled = handleResponse(response, 'loginUser');
 
+    console.log('Login response:', handled, response);
+
     if (handled.success && handled.data?.token) {
       authStorage.setToken(handled.data.token);
       authStorage.setUser(handled.data.user);
