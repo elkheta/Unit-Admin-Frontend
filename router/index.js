@@ -63,15 +63,17 @@ const router = createRouter({
   routes
 });
 
+import { isAuthenticated } from '../utils/auth.js';
+
 // Navigation guard for authentication
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+  const userIsAuthenticated = isAuthenticated();
   
-  if (to.meta.requiresAuth && !isAuthenticated) {
+  if (to.meta.requiresAuth && !userIsAuthenticated) {
     next('/signin');
-  } else if ((to.path === '/signin' || to.path === '/register') && isAuthenticated) {
+  } else if ((to.path === '/signin' || to.path === '/register') && userIsAuthenticated) {
     next('/dashboard/main');
-  } else if (to.path === '/dashboard' && isAuthenticated) {
+  } else if (to.path === '/dashboard' && userIsAuthenticated) {
     next('/dashboard/main');
   } else {
     next();

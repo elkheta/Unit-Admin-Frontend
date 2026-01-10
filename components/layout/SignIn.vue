@@ -26,19 +26,24 @@
 
         <!-- Form -->
         <form class="space-y-5" @submit.prevent="handleSubmit">
+          <div
+            v-if="formError"
+            class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-100"
+            dir="rtl"
+          >
+            {{ formError }}
+          </div>
+
           <!-- Phone Input -->
           <BaseInput
             v-model="phone"
             type="tel"
             label="Phone Number"
             :icon="Phone"
-            :error="phoneError"
             placeholder="01xxxxxxxxx"
             dir="ltr"
             label-class="text-gray-300"
             input-class="bg-white/5 text-white placeholder-gray-400 focus:ring-cyan-400 border-white/10"
-            error-dir="rtl"
-            @update:model-value="phoneError = ''"
           />
 
           <!-- Password Input -->
@@ -47,12 +52,9 @@
             :type="showPassword ? 'text' : 'password'"
             label="Password"
             :icon="Lock"
-            :error="passwordError"
             placeholder="••••••••"
             label-class="text-gray-300"
             input-class="bg-white/5 text-white placeholder-gray-400 focus:ring-cyan-400 border-white/10"
-            error-dir="rtl"
-            @update:model-value="passwordError = ''"
           >
             <template #suffix>
               <button
@@ -93,37 +95,99 @@
 import { ref } from 'vue';
 import { Phone, Lock, LogIn, GraduationCap, Eye, EyeOff } from 'lucide-vue-next';
 import { login } from '../../utils/auth.js';
+import { useAuth } from '../../composables/useAuth.js';
 import { BaseInput, BaseButton } from '../ui';
 
 const emit = defineEmits(['signIn']);
+const { setUser } = useAuth();
 
 const phone = ref('');
 const password = ref('');
-const phoneError = ref('');
-const passwordError = ref('');
+const formError = ref('');
 const isLoading = ref(false);
 const showPassword = ref(false);
 
+const validatePhone = (phoneNumber) => {
+  // Check if empty
+  if (!phoneNumber || !phoneNumber.trim()) {
+    return 'رقم الهاتف مطلوب';
+  }
+
+  const cleanPhone = phoneNumber.trim();
+
+  // Check if contains only digits
+  if (!/^\d+$/.test(cleanPhone)) {
+    return 'رقم الهاتف يجب أن يحتوي على أرقام فقط';
+  }
+
+  // Check if exactly 11 digits
+  if (cleanPhone.length !== 11) {
+    return 'رقم الهاتف يجب أن يكون 11 رقم بالضبط';
+  }
+
+  // Check if starts with valid Egyptian prefixes
+  const validPrefixes = ['010', '011', '012', '015'];
+  const prefix = cleanPhone.substring(0, 3);
+  if (!validPrefixes.includes(prefix)) {
+    return 'رقم الهاتف يجب أن يبدأ بـ 010 أو 011 أو 012 أو 015';
+  }
+
+  return null; // Valid
+};
+
+const validatePassword = (password) => {
+  // Check if empty
+  if (!password) {
+    return 'كلمة السر مطلوبة';
+  }
+
+  // Check minimum length
+  if (password.length < 8) {
+    return 'كلمة السر يجب أن تكون 8 أحرف على الأقل';
+  }
+
+  // Check if starts or ends with space
+  if (password.startsWith(' ') || password.endsWith(' ')) {
+    return 'كلمة السر لا يمكن أن تبدأ أو تنتهي بمسافة';
+  }
+
+  return null; // Valid
+};
+
 const handleSubmit = async () => {
-  phoneError.value = '';
-  passwordError.value = '';
+  formError.value = '';
+  
+  // Validate phone number
+  const phoneError = validatePhone(phone.value);
+  if (phoneError) {
+    formError.value = phoneError;
+    return;
+  }
+  
+  // Validate password
+  const passwordError = validatePassword(password.value);
+  if (passwordError) {
+    formError.value = passwordError;
+    return;
+  }
+
   isLoading.value = true;
 
   try {
     const result = await login(phone.value, password.value);
     
     if (result.success) {
-      emit('signIn');
+      // Update auth state with user data
+      setUser(result.user);
+      
+      // Emit success event
+      emit('signIn', result.user);
     } else {
-      // Set error based on which field failed
-      if (result.error.includes('هاتف')) {
-        phoneError.value = result.error;
-      } else {
-        passwordError.value = result.error;
-      }
+      formError.value = result.error ||   'فشل في تسجيل الدخول';
     }
-  } catch {
-    passwordError.value = 'حدث خطأ أثناء تسجيل الدخول';
+  } catch (error) {
+    console.error('Login error:', error);
+    formError.value = 'حدث خطأ أثناء تسجيل الدخول';
   } finally {
     isLoading.value = false;
   }

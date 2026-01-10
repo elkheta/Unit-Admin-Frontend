@@ -9,7 +9,6 @@ import { SignIn } from '../../components/layout';
 const router = useRouter();
 
 const handleSignIn = () => {
-  localStorage.setItem('isAuthenticated', 'true');
   router.push('/dashboard/main');
 };
 </script>
