@@ -82,6 +82,15 @@
       :student="selectedStudentForSchedule"
       @close="handleCloseScheduleSidebar"
     />
+
+    <!-- Notes & Activity Modal -->
+    <StudentNotesModal
+      :is-open="isNotesModalOpen"
+      :student="currentNotesStudent"
+      :notes="currentStudentNotes"
+      @close="closeNotesModal"
+      @update:notes="updateCurrentStudentNotes"
+    />
   </div>
 </template>
 
@@ -98,6 +107,7 @@ import {
   StudentScheduleSidebar
 } from './students';
 import StudentProfileSidebar from './students/StudentProfileSidebar.vue';
+import StudentNotesModal from './students/StudentNotesModal.vue';
 
 const props = defineProps({
   selectedUnit: {
@@ -121,6 +131,17 @@ const isProfileSidebarOpen = ref(false);
 const selectedStudent = ref(null);
 const isScheduleSidebarOpen = ref(false);
 const selectedStudentForSchedule = ref(null);
+
+// Notes modal state
+const isNotesModalOpen = ref(false);
+const currentNotesStudent = ref(null);
+const notesByStudentId = ref({});
+
+const currentStudentNotes = computed(() => {
+  const id = currentNotesStudent.value?.id;
+  if (!id) return [];
+  return notesByStudentId.value[id] || [];
+});
 
 // Sorting options
 const sortOptions = ref({
@@ -1093,10 +1114,23 @@ const handleScoreClick = (student) => {
 };
 
 const handleNotesClick = (student) => {
-  // Open notes modal or navigate to notes page
-  // In a real app, this would open a notes modal or navigate to notes page
-  // eslint-disable-next-line no-console
-  console.log('Notes clicked for:', student.name);
+  // Match the legacy dashboard behavior: open modal and stop propagation is handled in StudentCard
+  currentNotesStudent.value = student;
+  isNotesModalOpen.value = true;
+};
+
+const closeNotesModal = () => {
+  isNotesModalOpen.value = false;
+  currentNotesStudent.value = null;
+};
+
+const updateCurrentStudentNotes = (nextNotes) => {
+  const id = currentNotesStudent.value?.id;
+  if (!id) return;
+  notesByStudentId.value = {
+    ...notesByStudentId.value,
+    [id]: Array.isArray(nextNotes) ? nextNotes : []
+  };
 };
 
 const handleStudentNameClick = (student) => {
