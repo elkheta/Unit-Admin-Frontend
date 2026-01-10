@@ -17,11 +17,15 @@
         <router-view />
       </main>
     </div>
+    
+    <!-- Global Toast Notifications -->
+    <ToastContainer />
   </div>
 </template>
 
 <script setup>
 import { Sidebar, Header } from './components/layout';
+import ToastContainer from './components/ui/ToastContainer.vue';
 import { usePageLayout } from './composables/usePageLayout';
 import { useNavigation } from './composables/useNavigation';
 import { useAuth } from './composables/useAuth';
