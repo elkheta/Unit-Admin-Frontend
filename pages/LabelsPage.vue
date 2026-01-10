@@ -2,6 +2,10 @@
   <LabelsView
     :labels="labels"
     :categories="categories"
+    :paginator-info="paginatorInfo"
+    :search-query="searchQuery"
+    @update:search-query="handleSearch"
+    @page-change="handlePageChange"
     @edit="handleEditLabel"
     @delete="handleDeleteLabel"
     @save="handleSaveLabel"
@@ -9,12 +13,13 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { LabelsView } from '../components/labels';
 import { useLabels } from '../composables/useLabels';
 import { useAuth } from '../composables/useAuth';
+import { useToast } from '../composables/useToast';
 
-const { user } = useAuth();
+const { user, refreshAuth } = useAuth();
 const { 
   fetchLabels, 
   fetchCategories, 
@@ -23,57 +28,117 @@ const {
   deleteLabel 
 } = useLabels();
 
+// Search & Pagination
+const searchQuery = ref('');
+const debouncedSearchQuery = ref('');
+const currentPage = ref(1);
+
+const variables = computed(() => ({
+  page: currentPage.value,
+  first: 10,
+  name: debouncedSearchQuery.value ? `%${debouncedSearchQuery.value}%` : undefined
+}));
+
 // Fetch Data
-const { result: labelsResult, refetch: refetchLabels } = fetchLabels();
+const { result: labelsResult, refetch: refetchLabels } = fetchLabels(variables);
 const { result: categoriesResult } = fetchCategories();
 
 // Computed Data
 const labels = computed(() => labelsResult.value?.labels?.data || []);
+const paginatorInfo = computed(() => labelsResult.value?.labels?.paginatorInfo || {});
 const categories = computed(() => categoriesResult.value?.labelCategories || []);
+
+const { success, error, loading, removeToast } = useToast();
+
+const handlePageChange = (page) => {
+  currentPage.value = page;
+};
+
+let debounceTimer = null;
+const handleSearch = (query) => {
+  searchQuery.value = query; // Update config immediately for UI
+  
+  if (debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    debouncedSearchQuery.value = query;
+    currentPage.value = 1; // Reset to page 1 on search
+  }, 300);
+};
 
 const handleEditLabel = (_label) => {
   // Handled by LabelsView component
 };
 
 const handleDeleteLabel = async (id) => {
-  const result = await deleteLabel(id);
-  if (result.success) {
-    refetchLabels();
-  } else {
-    alert('Failed to delete label');
+  if (!confirm('Are you sure you want to delete this label?')) return;
+
+  const loadingId = loading('Deleting label...');
+  try {
+    const result = await deleteLabel(id);
+    removeToast(loadingId);
+    
+    if (result.success) {
+      success('Label deleted successfully');
+      refetchLabels();
+    } else {
+      error('Failed to delete label');
+    }
+  } catch (e) {
+    removeToast(loadingId);
+    error('Error deleting label: ' + e.message);
   }
 };
 
 const handleSaveLabel = async (labelData) => {
   const payload = {
     name: labelData.name,
-    label_category_id: labelData.category, // Category ID from modal
+    label_category_id: labelData.category,
     description: labelData.description,
     color: labelData.color,
-    // Add created_by only for create, but backend requires it. 
-    // Usually backend handles current user but schema requires input.
-    // We'll add it for create only if user exists.
   };
 
-  if (labelData.id) {
-    // Edit
-    const result = await updateLabel(labelData.id, payload);
-    if (result.success) {
-      refetchLabels();
+  const loadingId = loading(labelData.id ? 'Updating label...' : 'Creating label...');
+
+  try {
+    if (labelData.id) {
+      // Edit
+      const result = await updateLabel(labelData.id, payload);
+      removeToast(loadingId); // Clear loading
+      
+      if (result.success) {
+        success('Label updated successfully');
+        refetchLabels();
+      } else {
+        error('Failed to update label');
+      }
     } else {
-      alert('Failed to update label');
+      // Add
+      if (user.value) {
+        payload.created_by = user.value.id;
+      } else {
+         // Refresh and retry check
+         refreshAuth();
+         if (!user.value) {
+           removeToast(loadingId);
+           error('Authentication error: User session missing. Please reload.');
+           return;
+         }
+         payload.created_by = user.value.id;
+      }
+      
+      const result = await createLabel(payload);
+      removeToast(loadingId); // Clear loading
+      
+      if (result.success) {
+        success('Label created successfully');
+        refetchLabels();
+      } else {
+        error('Failed to create label: ' + (result.error?.message || 'Unknown error'));
+      }
     }
-  } else {
-    // Add
-    if (user.value) {
-      payload.created_by = user.value.id;
-    }
-    const result = await createLabel(payload);
-    if (result.success) {
-      refetchLabels();
-    } else {
-      alert('Failed to create label: ' + (result.error?.message || 'Unknown error'));
-    }
+  } catch (e) {
+    removeToast(loadingId);
+    error('An unexpected error occurred: ' + e.message);
   }
 };
 </script>

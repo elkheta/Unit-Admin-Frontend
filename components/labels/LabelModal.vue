@@ -9,6 +9,7 @@
         v-model="localLabel.name" 
         label="Label Name" 
         placeholder="e.g. VIP, Urgent"
+        :error="errors.name"
       />
       
       <div class="grid grid-cols-2 gap-4">
@@ -17,6 +18,7 @@
           label="Linked Category"
           placeholder="Select Category"
           :options="categoryOptions"
+          :error="errors.category"
         />
         
         <BaseSelect
@@ -24,6 +26,7 @@
           label="Label Color"
           placeholder="Select Color"
           :options="colorOptions"
+          :error="errors.color"
         />
       </div>
 
@@ -96,6 +99,7 @@ const colorOptions = [
 const emit = defineEmits(['close', 'save']);
 
 const localLabel = ref({ name: '', category: '', color: '', description: '' });
+const errors = ref({});
 
 watch(() => props.label, (newLabel) => {
   // If editing, category might be an object {id, name}, retrieve id for select
@@ -107,6 +111,7 @@ watch(() => props.label, (newLabel) => {
 }, { immediate: true, deep: true });
 
 watch(() => props.isOpen, (isOpen) => {
+  errors.value = {}; // Reset errors on open/close
   if (!isOpen) {
     localLabel.value = { name: '', category: '', color: '', description: '' };
   } else if (props.label && Object.keys(props.label).length > 0) {
@@ -115,8 +120,32 @@ watch(() => props.isOpen, (isOpen) => {
   }
 });
 
+const validate = () => {
+  errors.value = {};
+  let isValid = true;
+
+  if (!localLabel.value.name?.trim()) {
+    errors.value.name = 'Label Name is required';
+    isValid = false;
+  }
+
+  if (!localLabel.value.category) {
+    errors.value.category = 'Category is required';
+    isValid = false;
+  }
+
+  if (!localLabel.value.color) {
+    errors.value.color = 'Color is required';
+    isValid = false;
+  }
+
+  return isValid;
+};
+
 const handleSave = () => {
-  emit('save', { ...localLabel.value });
+  if (validate()) {
+    emit('save', { ...localLabel.value });
+  }
 };
 </script>
 
