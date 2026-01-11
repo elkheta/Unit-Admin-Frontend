@@ -17,7 +17,7 @@ const { setUnitData } = useUnitData();
 const unitsData = {
   's3-rania': {
     id: 2,
-    slug: 's3-rania',
+    slug: 'M5-GEN-EN-U1 (الأستاذ محمود إبراهيم - U1)',
     title: 'S3 - Rania',
     name: 'S3 - Rania'
   },
@@ -38,7 +38,7 @@ const unitsData = {
 onMounted(() => {
   const unitSlug = route.params.slug;
   // In a real app, fetch unit data from API using slug
-  unit.value = unitsData[unitSlug] || unitsData['s3-rania'];
+  unit.value = unitsData[unitSlug] || Object.values(unitsData)[0];
   // Set unit data for sidebar to use
   setUnitData(unit.value);
 });

@@ -18,7 +18,7 @@ const router = useRouter();
 const units = ref([
   {
     id: 2,
-    slug: 's3-rania',
+    slug: 'M5-GEN-EN-U1 (الأستاذ محمود إبراهيم - U1)',
     name: 'S3 - Rania',
     active: 120,
     outside: 15,

@@ -12,6 +12,7 @@ export { default as FormLabel } from './FormLabel.vue';
 export { default as IconBadge } from './IconBadge.vue';
 export { default as NavItem } from './NavItem.vue';
 export { default as StatDisplay } from './StatDisplay.vue';
+export { default as ToastContainer } from './ToastContainer.vue';
 export { default as UserAvatar } from './UserAvatar.vue';
 export { default as UserProfile } from './UserProfile.vue';
 
