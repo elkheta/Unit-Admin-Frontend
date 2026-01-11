@@ -1,5 +1,8 @@
 <template>
   <div class="flex h-screen bg-gray-50 text-gray-800 font-sans overflow-hidden">
+    <!-- Toast Container -->
+    <ToastContainer />
+    
     <!-- Sidebar - Handles its own rendering logic internally -->
     <Sidebar v-if="showLayout" />
 
@@ -22,6 +25,7 @@
 
 <script setup>
 import { Sidebar, Header } from './components/layout';
+import { ToastContainer } from './components/ui';
 import { usePageLayout } from './composables/usePageLayout';
 import { useNavigation } from './composables/useNavigation';
 import { useAuth } from './composables/useAuth';

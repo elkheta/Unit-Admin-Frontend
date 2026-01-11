@@ -1,19 +1,14 @@
 <template>
   <div>
     <FormLabel text="SUPERVISORS" />
-    <div class="flex flex-wrap gap-2 items-center">
-      <SupervisorBadge 
-        v-for="(supervisor, index) in supervisors" 
-        :key="index"
-        :name="supervisor"
-      />
+    <div class="text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2 border border-gray-200 min-h-[42px] flex items-center">
+      {{ supervisors && supervisors.length > 0 ? supervisors.join(', ') : 'No supervisors assigned' }}
     </div>
   </div>
 </template>
 
 <script setup>
 import { FormLabel } from '../../../ui';
-import { SupervisorBadge } from './index.js';
 
 defineProps({
   supervisors: {
