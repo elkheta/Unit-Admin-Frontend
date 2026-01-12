@@ -7,11 +7,11 @@
                 <div class="flex-shrink-0 px-6 py-4 border-b border-gray-200 bg-white">
                     <div class="flex items-center justify-between mb-2">
                         <div>
-                            <h2 class="text-2xl font-bold text-gray-900">{{ student?.name || 'Student Profile' }}</h2>
+                            <h2 class="text-2xl font-bold text-gray-900">{{ displayStudent?.name || student?.name || 'Student Profile' }}</h2>
                             <p class="text-sm text-gray-500 mt-1">Student Profile</p>
                         </div>
                         <div class="flex items-center gap-3">
-                            <BaseButton variant="primary" size="sm" @click="handleSave">
+                            <BaseButton v-if="!profileError" variant="primary" size="sm" :disabled="saving || profileLoading" @click="handleSave">
                                 Save
                             </BaseButton>
                             <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" @click="handleClose">
@@ -22,16 +22,31 @@
                 </div>
 
                 <!-- Content -->
-                <div class="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+                <div class="flex-1 overflow-y-auto px-6 py-6">
+                    <div v-if="profileLoading" class="py-10 text-center text-sm text-gray-500">
+                        Loading profile...
+                    </div>
+
+                    <div v-else-if="profileError" class="py-10">
+                        <div class="border border-red-200 bg-red-50 rounded-lg p-4">
+                            <div class="font-semibold text-red-800 mb-1">Failed to load student profile</div>
+                            <div class="text-sm text-red-700 break-words">{{ profileErrorMessage }}</div>
+                        </div>
+                    </div>
+
+                    <div v-else class="space-y-6">
                     <!-- Personal Information Section -->
-                    <PersonalInformationSection :student="student" @go-to-profile="handleGoToStudentProfile" />
+                    <PersonalInformationSection
+                        :personal-information="profile?.personal_information"
+                        :subscription-status="subscriptionStatus"
+                        @go-to-profile="handleGoToStudentProfile"
+                        @field-change="handleFieldChange"
+                    />
 
                     <!-- More Data Section -->
                     <MoreDataSection
-                      :student="student"
-                      :educational-sections="educationalSections"
-                      :labels="availableLabels"
-                      @update-data="handleMoreDataUpdate"
+                      :more-data="profile?.more_data"
+                      @field-change="handleFieldChange"
                     />
 
                     <!-- Special Notes -->
@@ -42,17 +57,22 @@
                     </div>
 
                     <!-- Parent Info Section -->
-                    <ParentInfoSection :parent="parent" @go-to-parent-profile="handleGoToParentProfile"
-                        @whatsapp-contact="handleWhatsAppContact" />
+                    <ParentInfoSection
+                        :parent-info="profile?.parent_info"
+                        @go-to-parent-profile="handleGoToParentProfile"
+                        @whatsapp-contact="handleWhatsAppContact"
+                        @field-change="handleFieldChange"
+                    />
 
                     <!-- Educational Information Section -->
-                    <EducationalInformationSection :student="student" />
+                    <EducationalInformationSection :student="displayStudent || student" />
 
                     <!-- Technical Information Section -->
-                    <TechnicalInformationSection :student="student" />
+                    <TechnicalInformationSection :student="displayStudent || student" />
 
                     <!-- Student Orders Section -->
-                    <StudentOrdersSection :orders="orders" @view-order="handleViewOrder" />
+                    <StudentOrdersSection :orders="displayOrders || orders" @view-order="handleViewOrder" />
+                    </div>
                 </div>
             </div>
         </Transition>
@@ -60,8 +80,9 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, nextTick } from 'vue';
 import { X } from 'lucide-vue-next';
+import { useQuery, useMutation } from '@vue/apollo-composable';
 import { BaseButton } from '../../ui';
 import PersonalInformationSection from './profile/PersonalInformationSection.vue';
 import MoreDataSection from './profile/MoreDataSection.vue';
@@ -69,6 +90,9 @@ import ParentInfoSection from './profile/ParentInfoSection.vue';
 import EducationalInformationSection from './profile/EducationalInformationSection.vue';
 import TechnicalInformationSection from './profile/TechnicalInformationSection.vue';
 import StudentOrdersSection from './profile/StudentOrdersSection.vue';
+import { GET_STUDENT_PROFILE } from '../../../graphql/queries/studentProfile';
+import { UPDATE_PROFILE_MUTATION } from '../../../graphql/mutations/updateProfile';
+import { useToast } from '../../../composables/useToast';
 
 const props = defineProps({
     isOpen: {
@@ -100,39 +124,133 @@ const props = defineProps({
 const emit = defineEmits(['close', 'save', 'go-to-student-profile', 'go-to-parent-profile', 'whatsapp-contact', 'view-order']);
 
 const specialNotes = ref('');
+const parentNote = ref('');
 
-// Available labels from labels page
-const availableLabels = computed(() => {
-  // Default labels - in a real app, this would come from a store or API
-  return props.labels.length > 0 ? props.labels : [
-    { id: 1, name: 'VIP', category: 'Status' },
-    { id: 2, name: 'New', category: 'Status' },
-    { id: 3, name: 'Warning', category: 'Behavior' },
-    { id: 4, name: 'Excellent', category: 'Academic' }
-  ];
+const studentId = computed(() => props.student?.id ? String(props.student.id) : null);
+const isQueryEnabled = computed(() => Boolean(props.isOpen && studentId.value));
+
+const { error: toastError, success: toastSuccess } = useToast();
+
+const {
+  result: profileResult,
+  loading: profileLoading,
+  error: profileError,
+  refetch: refetchProfile
+} = useQuery(
+  GET_STUDENT_PROFILE,
+  computed(() => ({ studentId: studentId.value })),
+  computed(() => ({
+    enabled: isQueryEnabled.value,
+    fetchPolicy: 'network-only'
+  }))
+);
+
+const profile = computed(() => profileResult.value?.studentProfile || null);
+
+const subscriptionStatus = computed(() => {
+  const status = profile.value?.orders?.status;
+  const expiresAt = profile.value?.orders?.expires_at;
+  if (!status) return '';
+  if (expiresAt) return `${status} (${expiresAt})`;
+  return status;
 });
 
-watch(() => props.student, (newStudent) => {
-  if (newStudent) {
-    specialNotes.value = newStudent.specialNotes || '';
-  }
+const profileErrorMessage = computed(() => {
+  const e = profileError.value;
+  if (!e) return '';
+  return (
+    e?.graphQLErrors?.[0]?.message ||
+    e?.networkError?.message ||
+    e.message ||
+    'Unknown error'
+  );
+});
+
+watch(profileError, (e) => {
+  if (e) toastError('Failed to load student profile: ' + e.message);
+});
+
+const sortIds = (ids) => {
+  if (!Array.isArray(ids)) return [];
+  return ids.map(String).filter(Boolean).sort();
+};
+
+// Track only the fields that have been changed by user interaction
+const changedFields = ref({});
+const isHydrating = ref(true);
+
+const hydrateFromProfile = (p) => {
+  if (!p) return;
+  isHydrating.value = true;
+
+  specialNotes.value = p.personal_information?.special_note || '';
+  parentNote.value = p.parent_info?.parent_note || '';
+
+  // Clear any pending changes when new profile data loads
+  changedFields.value = {};
+
+  nextTick(() => {
+    isHydrating.value = false;
+  });
+};
+
+watch(profile, (p) => {
+  hydrateFromProfile(p);
 }, { immediate: true });
 
 const handleClose = () => {
     emit('close');
 };
 
-const moreData = ref({});
-
-const handleMoreDataUpdate = (data) => {
-  moreData.value = { ...moreData.value, ...data };
+// Handle field changes from child components
+const handleFieldChange = (fieldName, value) => {
+  if (isHydrating.value) return;
+  changedFields.value[fieldName] = value;
 };
 
+// Handle special notes change (direct textarea in this component)
+watch(specialNotes, (value) => {
+  if (isHydrating.value) return;
+  handleFieldChange('special_note', value ?? '');
+});
+
+watch(parentNote, (value) => {
+  if (isHydrating.value) return;
+  handleFieldChange('parent_note', value ?? '');
+});
+
+const { mutate: updateProfile, loading: saving } = useMutation(UPDATE_PROFILE_MUTATION);
+
 const handleSave = () => {
-  emit('save', {
-    specialNotes: specialNotes.value,
-    ...moreData.value
-  });
+  if (!studentId.value) return;
+
+  const input = { 
+    student_id: studentId.value,
+    ...changedFields.value 
+  };
+
+  updateProfile({ input })
+    ?.then((res) => {
+      const ok = Boolean(res?.data?.updateProfile?.status);
+      if (!ok) {
+        toastError('Failed to save profile.');
+        return;
+      }
+
+      toastSuccess('Profile updated.');
+      
+      // Clear changed fields after successful save
+      changedFields.value = {};
+
+    //   // Refresh backend payload (e.g. for selected flags)
+    //   refetchProfile?.({ studentId: studentId.value });
+
+      // Keep legacy event for any parent-side state updates
+      emit('save', input);
+    })
+    .catch((e) => {
+      toastError('Failed to save profile: ' + (e?.message || String(e)));
+    });
 };
 
 const handleGoToStudentProfile = () => {
@@ -150,11 +268,12 @@ const handleGoToParentProfile = () => {
 };
 
 const handleWhatsAppContact = () => {
-    if (props.parent?.phone) {
-        const phoneNumber = props.parent.phone.replace(/[\s+]/g, '');
+    const phone = profile.value?.parent_info?.current_parent?.phone_number;
+    if (phone) {
+        const phoneNumber = String(phone).replace(/[\s+]/g, '');
         const whatsappUrl = `https://wa.me/${phoneNumber}`;
         window.open(whatsappUrl, '_blank');
-        emit('whatsapp-contact', props.parent);
+        emit('whatsapp-contact', { phone_number: phone });
     }
 };
 
@@ -164,6 +283,46 @@ const handleViewOrder = (order) => {
         emit('view-order', order);
     }
 };
+
+const displayStudent = computed(() => {
+  const p = profile.value;
+  if (!p) return props.student;
+
+  const first = p.personal_information?.first_name || '';
+  const last = p.personal_information?.last_name || '';
+  const name = `${first} ${last}`.trim() || props.student?.name || '';
+
+  const edu = p.educational_information || {};
+  const tech = p.technical_information || {};
+
+  return {
+    ...(props.student || {}),
+    name,
+    email: p.personal_information?.email || '',
+    extraNames: Array.isArray(p.personal_information?.names) ? p.personal_information.names : [],
+    specialNotes: p.personal_information?.special_note || '',
+    governorate: p.more_data?.governorate || '',
+    educationalSection: edu.education_section?.name || '',
+    secondLanguage: edu.second_language || '',
+    religionLanguage: edu.religion_language || '',
+    lastSeenTimestamp: tech.last_seen || '',
+    lastActive: tech.since_when || ''
+  };
+});
+
+const displayOrders = computed(() => {
+  const p = profile.value;
+  if (!p?.orders?.orders) return props.orders || [];
+  return (p.orders.orders || []).map((o) => ({
+    id: String(o.number),
+    productName: `Order #${o.number}`,
+    price: o.price ?? '',
+    status: o.status ?? '',
+    paidAt: o.paid_at ?? '',
+    expires: o.expires_at?.date ?? '',
+    timeLeft: o.expires_at?.left ?? ''
+  }));
+});
 </script>
 
 <style scoped>

@@ -9,14 +9,17 @@
 
         <!-- Content -->
         <div v-if="isExpanded" class="px-6 pb-6">
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between mt-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Last Seen on Site</label>
                     <p class="text-sm text-gray-900">{{ lastSeenTimestamp }}</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <Monitor :size="18" class="text-orange-500" />
-                    <span class="text-sm text-orange-600 font-medium">{{ relativeTime }}</span>
+                    <template v-if="relativeTime">  
+                        <Monitor :size="18" class="text-orange-500" />
+                        <span class="text-sm text-orange-600 font-medium" >{{ relativeTime }}</span>
+                    </template>
+                    <span class="text-sm text-orange-600 font-medium" v-else>N/A</span>
                 </div>
             </div>
         </div>
@@ -37,40 +40,10 @@ const props = defineProps({
 const isExpanded = ref(false);
 
 const lastSeenTimestamp = computed(() => {
-    if (props.student?.lastSeenTimestamp) {
-        return props.student.lastSeenTimestamp;
-    }
-    // Format current date as example
-    const now = new Date();
-    return now.toLocaleString('en-US', {
-        month: '2-digit',
-        day: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true
-    });
+    return props.student?.lastSeenTimestamp || '';
 });
 
 const relativeTime = computed(() => {
-    if (props.student?.lastActive) {
-        return props.student.lastActive;
-    }
-    // Calculate relative time from lastActive string
-    if (props.student?.lastActive) {
-        const lastActive = props.student.lastActive;
-        if (lastActive.includes('day')) {
-            const days = parseInt(lastActive);
-            return `${days}d ago`;
-        } else if (lastActive.includes('hour')) {
-            const hours = parseInt(lastActive);
-            return `${hours}h ago`;
-        } else if (lastActive.includes('minutes')) {
-            const minutes = parseInt(lastActive);
-            return `${minutes}m ago`;
-        }
-    }
-    return '3d ago'; // Default
+    return props.student?.lastActive || '';
 });
 </script>

@@ -30,8 +30,16 @@
           <div>
             <p class="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">STATUS</p>
             <div class="flex items-center gap-2">
-              <div class="w-2.5 h-2.5 rounded-full bg-green-500 flex-shrink-0"></div>
-              <span class="text-sm font-medium text-green-700">{{ order.status }}</span>
+              <div
+                class="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                :class="order.status === 'EXPIRED' ? 'bg-orange-500' : 'bg-green-500'"
+              ></div>
+              <span
+                class="text-sm font-medium"
+                :class="order.status === 'EXPIRED' ? 'text-orange-700' : 'text-green-700'"
+              >
+                {{ order.status }}
+              </span>
             </div>
           </div>
 
