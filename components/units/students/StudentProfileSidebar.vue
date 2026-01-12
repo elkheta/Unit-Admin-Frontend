@@ -135,13 +135,12 @@ const {
   result: profileResult,
   loading: profileLoading,
   error: profileError,
-  refetch: refetchProfile
 } = useQuery(
   GET_STUDENT_PROFILE,
   computed(() => ({ studentId: studentId.value })),
   computed(() => ({
     enabled: isQueryEnabled.value,
-    fetchPolicy: 'network-only'
+    fetchPolicy: 'no-cache', 
   }))
 );
 
@@ -179,6 +178,18 @@ watch(profileError, (e) => {
 const sortIds = (ids) => {
   if (!Array.isArray(ids)) return [];
   return ids.map(String).filter(Boolean).sort();
+};
+
+const getFirstValidationMessage = (apolloError) => {
+  const gqlError = apolloError?.graphQLErrors?.[0];
+  const validation = gqlError?.extensions?.validation;
+  if (!validation || typeof validation !== 'object') return null;
+
+  const firstFieldErrors = Object.values(validation)?.[0];
+  if (Array.isArray(firstFieldErrors) && firstFieldErrors.length > 0) {
+    return String(firstFieldErrors[0]);
+  }
+  return null;
 };
 
 // Track only the fields that have been changed by user interaction
@@ -248,14 +259,12 @@ const handleSave = () => {
       // Clear changed fields after successful save
       changedFields.value = {};
 
-    //   // Refresh backend payload (e.g. for selected flags)
-    //   refetchProfile?.({ studentId: studentId.value });
-
       // Keep legacy event for any parent-side state updates
       emit('save', input);
     })
     .catch((e) => {
-      toastError('Failed to save profile: ' + (e?.message || String(e)));
+      const validationMsg = getFirstValidationMessage(e);
+      toastError(validationMsg || (e?.message || 'Failed to save profile.'));
     });
 };
 

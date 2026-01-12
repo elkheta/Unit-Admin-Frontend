@@ -202,7 +202,7 @@ watch(
     mainPhoneHasWhatsapp.value = Boolean(pi.is_whatsapp);
 
     const phones = Array.isArray(pi.phone_numbers) ? pi.phone_numbers : [];
-    extraPhones.value = phones.slice(1).map((p) => ({
+    extraPhones.value = phones.map((p) => ({
       phone: p?.phone_number || '',
       hasWhatsapp: Boolean(p?.is_whatsapp)
     }));
@@ -212,12 +212,6 @@ watch(
 
 const emitPhoneNumbers = () => {
   const list = [];
-  if (mainPhoneNumber.value) {
-    list.push({
-      phone_number: mainPhoneNumber.value,
-      is_whatsapp: Boolean(mainPhoneHasWhatsapp.value)
-    });
-  }
 
   for (const p of Array.isArray(extraPhones.value) ? extraPhones.value : []) {
     const phone = String(p?.phone || '').trim();
