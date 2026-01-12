@@ -1,5 +1,5 @@
 <template>
-  <BaseCard padding="none" class="overflow-hidden hover:shadow-lg transition-all duration-200 relative" :style="{ height: '500px' }">
+  <BaseCard padding="none" class="overflow-hidden hover:shadow-lg transition-all duration-200 relative" :style="{ height: '400px' }">
     <div class="flex flex-col h-full p-6 gap-4">
       
       <!-- 1. Header (Fixed) -->
