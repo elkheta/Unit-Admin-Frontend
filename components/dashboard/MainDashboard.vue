@@ -6,7 +6,7 @@
         v-for="unit in units"
         :key="unit.id"
         :unit="unit"
-        :expired-count="getExpiredCount()"
+        :expired-count="unit.expiredCount"
         @unit-click="$emit('unit-click', $event)"
         @expired-click="$emit('expired-click', $event)"
       />
@@ -25,7 +25,7 @@
 import { UnitCard } from '../units';
 import { RemindersSection } from './index.js';
 
-const props = defineProps({
+defineProps({
   units: {
     type: Array,
     default: () => []
@@ -33,20 +33,9 @@ const props = defineProps({
   reminders: {
     type: Array,
     default: () => []
-  },
-  allStudents: {
-    type: Array,
-    default: () => []
   }
 });
 
 defineEmits(['unit-click', 'expired-click', 'complete-reminder', 'dismiss-reminder']);
-
-const getExpiredCount = () => {
-  const now = new Date();
-  return props.allStudents.filter(student =>
-    student.expirationDate < now && student.status === 'Inactive'
-  ).length;
-};
 </script>
 

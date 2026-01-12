@@ -11,42 +11,38 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { MainDashboard } from '../components/dashboard';
+import { useQuery } from '@vue/apollo-composable';
+import { GET_DASHBOARD_UNITS } from '../graphql/queries/dashboard';
+import { useAuth } from '../composables/useAuth.js';
 
-// Units data
-const units = ref([
-  {
-    id: 2,
-    title: "S3 - Rania",
-    subtitle: "Unit created for S3 - Rania",
-    badge: "Senior 3",
-    admin: "Ahmed Hassan",
-    students: 61,
-    outside: 15,
-    availableCapacity: 39,
-    reminders: 2,
-    groups: [
-      { name: "Group A", current: 4, capacity: 25 },
-      { name: "Group B", current: 0, capacity: 25 },
-    ],
-  },
-  {
-    id: 3,
-    title: "Senior Two - Alia",
-    subtitle: "Unit created for Senior Two - Alia",
-    badge: "Senior Two",
-    admin: "Sara Mohamed",
-    students: 40,
-    outside: 10,
-    availableCapacity: 60,
+const { user } = useAuth();
+
+const { result, loading, error } = useQuery(
+  GET_DASHBOARD_UNITS, 
+  () => ({
+    kheta_id: user.value?.id
+  })
+);
+
+const units = computed(() => {
+  if (!result.value?.dashboardUnits) return [];
+  
+  return result.value.dashboardUnits.map(unit => ({
+    id: unit.id,
+    title: unit.name,
+    subtitle: `${unit.educational_sections || 'Unit'} - ${unit.admin_name || 'Admin'}`,
+    badge: unit.educational_sections,
+    admin: unit.admin_name,
+    students: unit.current_capacity || 0,
+    outside: unit.outside_count || 0, 
+    availableCapacity: (unit.max_capacity || 0) - (unit.current_capacity || 0),
     reminders: 0,
-    groups: [
-      { name: "Group A", current: 12, capacity: 25 },
-      { name: "Group B", current: 8, capacity: 25 },
-    ],
-  }
-]);
+    expiredCount: unit.students_expired_at_count || 0,
+    groups: unit.groups || [],
+  }));
+});
 
 // Reminders state
 const reminders = ref([
