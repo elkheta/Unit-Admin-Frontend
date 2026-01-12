@@ -37,7 +37,7 @@
                     <div v-else class="space-y-6">
                     <!-- Personal Information Section -->
                     <PersonalInformationSection
-                        :personal-information="profile?.personal_information"
+                        :personal-information="personalInformation"
                         :subscription-status="subscriptionStatus"
                         @go-to-profile="handleGoToStudentProfile"
                         @field-change="handleFieldChange"
@@ -146,6 +146,12 @@ const {
 );
 
 const profile = computed(() => profileResult.value?.studentProfile || null);
+
+const personalInformation = computed(() => {
+  const pi = profile.value?.personal_information;
+  if (!pi) return null;
+  return pi;
+});
 
 const subscriptionStatus = computed(() => {
   const status = profile.value?.orders?.status;
@@ -268,7 +274,7 @@ const handleGoToParentProfile = () => {
 };
 
 const handleWhatsAppContact = () => {
-    const phone = profile.value?.parent_info?.current_parent?.phone_number;
+    const phone = profile.value?.parent_info?.parent?.phone_number;
     if (phone) {
         const phoneNumber = String(phone).replace(/[\s+]/g, '');
         const whatsappUrl = `https://wa.me/${phoneNumber}`;

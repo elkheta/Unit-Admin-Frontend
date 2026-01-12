@@ -190,13 +190,7 @@ const mainPhoneHasWhatsapp = ref(true);
 const firstName = computed(() => props.personalInformation?.first_name || '');
 const lastName = computed(() => props.personalInformation?.last_name || '');
 
-const phoneNumbers = computed(() => {
-  const arr = props.personalInformation?.phone_numbers;
-  return Array.isArray(arr) ? arr : [];
-});
-
-const mainPhone = computed(() => phoneNumbers.value[0] || null);
-const mainPhoneNumber = computed(() => mainPhone.value?.phone_number || '');
+const mainPhoneNumber = computed(() => props.personalInformation?.phone_number || '');
 
 watch(
   () => props.personalInformation,
@@ -205,10 +199,9 @@ watch(
     email.value = pi.email || '';
     extraNames.value = Array.isArray(pi.names) ? [...pi.names] : [];
 
-    const phones = Array.isArray(pi.phone_numbers) ? pi.phone_numbers : [];
-    const main = phones[0] || null;
-    mainPhoneHasWhatsapp.value = Boolean(main?.is_whatsapp);
+    mainPhoneHasWhatsapp.value = Boolean(pi.is_whatsapp);
 
+    const phones = Array.isArray(pi.phone_numbers) ? pi.phone_numbers : [];
     extraPhones.value = phones.slice(1).map((p) => ({
       phone: p?.phone_number || '',
       hasWhatsapp: Boolean(p?.is_whatsapp)

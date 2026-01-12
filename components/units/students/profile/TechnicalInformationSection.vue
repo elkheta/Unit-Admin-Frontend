@@ -17,7 +17,7 @@
                 <div class="flex items-center gap-2">
                     <template v-if="relativeTime">  
                         <Monitor :size="18" class="text-orange-500" />
-                        <span class="text-sm text-orange-600 font-medium" >{{ relativeTime }}</span>
+                        <span class="text-sm text-orange-600 font-medium" >{{ relativeTime }} ago</span>
                     </template>
                     <span class="text-sm text-orange-600 font-medium" v-else>N/A</span>
                 </div>

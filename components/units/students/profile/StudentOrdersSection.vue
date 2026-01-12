@@ -21,7 +21,7 @@
         <!-- Order Header -->
         <div class="flex items-start justify-between mb-5">
           <h4 class="text-base font-semibold text-gray-900 leading-tight">{{ order.productName }}</h4>
-          <span class="text-base font-bold text-blue-600 ml-4">{{ order.price }}</span>
+          <span class="text-base font-bold text-blue-600 ml-4">{{ order.price }} EGP</span>
         </div>
 
         <!-- Order Details Grid -->

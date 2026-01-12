@@ -6,6 +6,8 @@ export const GET_STUDENT_PROFILE = gql`
       personal_information {
         first_name
         last_name
+        phone_number
+        is_whatsapp
         phone_numbers {
           phone_number
           is_whatsapp
@@ -38,6 +40,10 @@ export const GET_STUDENT_PROFILE = gql`
         }
       }
       parent_info {
+        parent {
+          name
+          phone_number
+        }
         parents {
           name
           phone_number

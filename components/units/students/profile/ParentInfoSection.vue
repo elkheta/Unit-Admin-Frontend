@@ -120,13 +120,13 @@ const parentNotes = ref('');
 const extraParents = ref([]);
 
 const mainParentName = computed(() => {
-  const name = props.parentInfo?.current_parent?.name;
+  const name = props.parentInfo?.parent?.name;
   if (!name) return '';
   return `${name} (Parent)`;
 });
 
 const mainParentPhone = computed(() => {
-  return props.parentInfo?.current_parent?.phone_number || '';
+  return props.parentInfo?.parent?.phone_number || '';
 });
 
 const normalizeExtraParents = (parents) => {

@@ -284,15 +284,15 @@ const labelOptions = computed(() => {
 
 // Governorate options (Egyptian governorates in Arabic)
 const governorateOptions = [
-    { value: 'cairo', label: 'القاهرة' },
-    { value: 'alexandria', label: 'الإسكندرية' },
-    { value: 'giza', label: 'الجيزة' },
-    { value: 'sharqia', label: 'الشرقية' },
-    { value: 'dakahlia', label: 'الدقهلية' },
-    { value: 'beheira', label: 'البحيرة' },
-    { value: 'monufia', label: 'المنوفية' },
-    { value: 'qalyubia', label: 'القليوبية' },
-    { value: 'gharbia', label: 'الغربية' },
-    { value: 'kafr-elsheikh', label: 'كفر الشيخ' }
+    { value: 'القاهرة', label: 'القاهرة' },
+    { value: 'الاسكندرية', label: 'الإسكندرية' },
+    { value: 'الجيزة', label: 'الجيزة' },
+    { value: 'الشرقية', label: 'الشرقية' },
+    { value: 'الدقهلية', label: 'الدقهلية' },
+    { value: 'البحيرة', label: 'البحيرة' },
+    { value: 'المنوفية', label: 'المنوفية' },
+    { value: 'القليوبية', label: 'القليوبية' },
+    { value: 'الغربية', label: 'الغربية' },
+    { value: 'كفر الشيخ', label: 'كفر الشيخ' }
 ];
 </script>
