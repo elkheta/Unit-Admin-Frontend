@@ -1,5 +1,5 @@
 <template>
-  <BaseCard padding="none" class="overflow-hidden hover:shadow-lg transition-all duration-200 relative" :style="{ height: '400px' }">
+  <BaseCard padding="none" class="overflow-hidden hover:shadow-lg transition-all duration-200 relative" :style="{ height: '460px' }">
     <div class="flex flex-col h-full p-6 gap-4">
       
       <!-- 1. Header (Fixed) -->
@@ -76,8 +76,8 @@
         </div>
       </div>
 
-      <!-- 4. Action Button (Fixed) -->
-      <div class="flex-none">
+      <!-- 4. Action Buttons (Fixed) -->
+      <div class="flex-none flex flex-col gap-2">
         <BaseButton
           variant="primary" 
           size="md" 
@@ -85,6 +85,14 @@
           @click="$emit('unit-click', unit)"
         >
           Students List
+        </BaseButton>
+        <BaseButton
+          variant="secondary" 
+          size="md" 
+          class="w-full bg-gray-50 hover:bg-gray-100 border-gray-200 text-gray-600"
+          @click="$emit('settings-click', unit)"
+        >
+          Unit Settings
         </BaseButton>
       </div>
       
@@ -96,7 +104,7 @@
 import { computed } from 'vue';
 import { Package, User } from 'lucide-vue-next';
 import { BaseCard, BaseButton, IconBadge } from '../ui';
-import { GroupItem } from './index.js';
+import GroupItem from './GroupItem.vue';
 
 const props = defineProps({
   unit: {
@@ -109,7 +117,7 @@ const props = defineProps({
   }
 });
 
-defineEmits(['unit-click', 'expired-click']);
+defineEmits(['unit-click', 'expired-click', 'settings-click']);
 
 const activeGroups = computed(() => {
   return props.unit.groups?.filter(group => group.current > 0) || [];

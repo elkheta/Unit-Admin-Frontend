@@ -48,18 +48,37 @@ import { Layout, ArrowLeft, Users, Settings, LayoutDashboard, ClipboardList, Tag
 import { NavItem, IconBadge } from '../ui';
 import { useRouteUtils } from '../../composables/useRouteUtils';
 import { useUnitData } from '../../composables/useUnitData';
+import { useAuth } from '../../composables/useAuth';
 
 const route = useRoute();
 const router = useRouter();
 const { isUnitPage, unitSlug } = useRouteUtils();
 const { unitData } = useUnitData();
+const { user } = useAuth();
 
 // Main navigation items
-const mainNavItems = [
-  { id: 'main', label: 'Main', icon: LayoutDashboard, route: '/dashboard/main' },
-  { id: 'units-list', label: 'Unit List', icon: ClipboardList, route: '/dashboard/units' },
-  { id: 'labels', label: 'Labels', icon: Tag, route: '/dashboard/labels' },
-];
+const mainNavItems = computed(() => {
+  const items = [
+    { id: 'main', label: 'Main', icon: LayoutDashboard, route: '/dashboard/main' },
+    { id: 'units-list', label: 'Unit List', icon: ClipboardList, route: '/dashboard/units' },
+    { id: 'labels', label: 'Labels', icon: Tag, route: '/dashboard/labels' },
+  ];
+
+  // Debugging: Log user to see actual structure
+  console.log('Current User:', user.value);
+  console.log(user.value.roles);
+
+  // Filter based on role
+  // Check if user has "Unit Supervisor" role or permissions
+  const isUnitSupervisor = user.value?.roles?.includes('Unit Supervisor')
+
+  return items.filter(item => {
+    if (item.id === 'units-list') {
+      return isUnitSupervisor;
+    }
+    return true;
+  });
+});
 
 // Unit navigation items
 const unitNavItems = computed(() => [

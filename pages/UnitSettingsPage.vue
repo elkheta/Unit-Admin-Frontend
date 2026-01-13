@@ -19,7 +19,9 @@ const router = useRouter();
 const { setUnitData } = useUnitData();
 const { error: toastError } = useToast();
 
-const unitSlug = route.params.slug;
+const unitSlug = Array.isArray(route.params.slug) 
+  ? decodeURIComponent(route.params.slug[0]) 
+  : decodeURIComponent(route.params.slug);
 
 // Fetch Unit Data
 const { result, loading, error } = useQuery(GET_UNIT_SETTINGS, { 

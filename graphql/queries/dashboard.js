@@ -4,6 +4,7 @@ export const GET_DASHBOARD_UNITS = gql`
   query GetDashboardUnits($kheta_id: ID) {
     dashboardUnits(kheta_id: $kheta_id) {
       id
+      slug
       name
       admin_name
       current_capacity

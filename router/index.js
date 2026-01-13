@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import SignInPage from '../pages/auth/SignInPage.vue';
 import RegisterPage from '../pages/auth/RegisterPage.vue';
 import MainPage from '../pages/MainPage.vue';
-import UnitsListPage from '../pages/UnitsListPage.vue';
+import UnitsPage from '../pages/UnitsPage.vue';
 import UnitSettingsPage from '../pages/UnitSettingsPage.vue';
 import UnitStudentListPage from '../pages/UnitStudentListPage.vue';
 import LabelsPage from '../pages/LabelsPage.vue';
@@ -31,7 +31,7 @@ const routes = [
   {
     path: '/dashboard/units',
     name: 'UnitsList',
-    component: UnitsListPage,
+    component: UnitsPage,
     meta: { requiresAuth: true }
   },
   {
@@ -68,7 +68,7 @@ import { isAuthenticated } from '../utils/auth.js';
 // Navigation guard for authentication
 router.beforeEach((to, from, next) => {
   const userIsAuthenticated = isAuthenticated();
-  
+
   if (to.meta.requiresAuth && !userIsAuthenticated) {
     next('/signin');
   } else if ((to.path === '/signin' || to.path === '/register') && userIsAuthenticated) {

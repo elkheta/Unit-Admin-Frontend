@@ -9,6 +9,7 @@
         :expired-count="unit.expiredCount"
         @unit-click="$emit('unit-click', $event)"
         @expired-click="$emit('expired-click', $event)"
+        @settings-click="$emit('settings-click', $event)"
       />
     </div>
 
@@ -22,7 +23,7 @@
 </template>
 
 <script setup>
-import { UnitCard } from '../units';
+import UnitCard from '../units/UnitCard.vue';
 import { RemindersSection } from './index.js';
 
 defineProps({
@@ -36,6 +37,6 @@ defineProps({
   }
 });
 
-defineEmits(['unit-click', 'expired-click', 'complete-reminder', 'dismiss-reminder']);
+defineEmits(['unit-click', 'expired-click', 'complete-reminder', 'dismiss-reminder', 'settings-click']);
 </script>
 

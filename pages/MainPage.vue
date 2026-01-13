@@ -6,18 +6,22 @@
     @unit-click="handleUnitClick"
     @expired-click="handleExpiredClick"
     @complete-reminder="handleCompleteReminder"
+
     @dismiss-reminder="handleDismissReminder"
+    @settings-click="handleSettingsClick"
   />
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { MainDashboard } from '../components/dashboard';
 import { useQuery } from '@vue/apollo-composable';
 import { GET_DASHBOARD_UNITS } from '../graphql/queries/dashboard';
 import { useAuth } from '../composables/useAuth.js';
 
 const { user } = useAuth();
+const router = useRouter();
 
 const { result, loading, error } = useQuery(
   GET_DASHBOARD_UNITS, 
@@ -31,6 +35,7 @@ const units = computed(() => {
   
   return result.value.dashboardUnits.map(unit => ({
     id: unit.id,
+    slug: unit.slug,
     title: unit.name,
     subtitle: `${unit.educational_sections || 'Unit'} - ${unit.admin_name || 'Admin'}`,
     badge: unit.educational_sections,
@@ -95,14 +100,21 @@ const reminders = ref([
 // Mock students data for expired count
 const allStudents = [];
 
-const handleUnitClick = (_unit) => {
-  // Navigate to unit details or keep on main page
-  // TODO: Implement unit navigation
+const handleUnitClick = (unit) => {
+  if (unit.slug) {
+    router.push({ name: 'UnitStudentList', params: { slug: unit.slug } });
+  }
 };
 
 const handleExpiredClick = (_unit) => {
   // Navigate to unit details or keep on main page
   // TODO: Implement expired navigation
+};
+
+const handleSettingsClick = (unit) => {
+  if (unit.slug) {
+    router.push({ name: 'UnitSettings', params: { slug: unit.slug } });
+  }
 };
 
 const handleCompleteReminder = (reminderId) => {
