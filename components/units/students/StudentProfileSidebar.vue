@@ -23,11 +23,11 @@
 
                 <!-- Content -->
                 <div class="flex-1 overflow-y-auto px-6 py-6">
-                    <div v-if="profileLoading" class="py-10 text-center text-sm text-gray-500">
+                    <div v-if="effectiveProfileLoading" class="py-10 text-center text-sm text-gray-500">
                         Loading profile...
                     </div>
 
-                    <div v-else-if="profileError" class="py-10">
+                    <div v-else-if="effectiveProfileError" class="py-10">
                         <div class="border border-red-200 bg-red-50 rounded-lg p-4">
                             <div class="font-semibold text-red-800 mb-1">Failed to load student profile</div>
                             <div class="text-sm text-red-700 break-words">{{ profileErrorMessage }}</div>
@@ -38,7 +38,8 @@
                     <!-- Personal Information Section -->
                     <PersonalInformationSection
                         :personal-information="personalInformation"
-                        :subscription-status="subscriptionStatus"
+                        :status="profile?.orders?.status"
+                        :expires-at="profile?.orders?.expires_at"
                         @go-to-profile="handleGoToStudentProfile"
                         @field-change="handleFieldChange"
                     />
@@ -94,6 +95,15 @@ import { GET_STUDENT_PROFILE } from '../../../graphql/queries/studentProfile';
 import { UPDATE_PROFILE_MUTATION } from '../../../graphql/mutations/updateProfile';
 import { useToast } from '../../../composables/useToast';
 
+const studentProfileCache = ref({});
+
+const setCachedProfile = (id, p) => {
+  if (!id || !p) return;
+  studentProfileCache.value = { ...studentProfileCache.value, [id]: p };
+};
+
+
+
 const props = defineProps({
     isOpen: {
         type: Boolean,
@@ -127,7 +137,8 @@ const specialNotes = ref('');
 const parentNote = ref('');
 
 const studentId = computed(() => props.student?.id ? String(props.student.id) : null);
-const isQueryEnabled = computed(() => Boolean(props.isOpen && studentId.value));
+const cachedProfile = computed(() => (studentId.value ? (studentProfileCache.value[studentId.value] || null) : null));
+const shouldFetchProfile = computed(() => Boolean(props.isOpen && studentId.value && !cachedProfile.value));
 
 const { error: toastError, success: toastSuccess } = useToast();
 
@@ -139,12 +150,15 @@ const {
   GET_STUDENT_PROFILE,
   computed(() => ({ studentId: studentId.value })),
   computed(() => ({
-    enabled: isQueryEnabled.value,
+    enabled: shouldFetchProfile.value,
     fetchPolicy: 'no-cache', 
   }))
 );
 
-const profile = computed(() => profileResult.value?.studentProfile || null);
+// Prefer cached profile when available (avoid network).
+const profile = computed(() => cachedProfile.value || profileResult.value?.studentProfile || null);
+const effectiveProfileLoading = computed(() => (cachedProfile.value ? false : profileLoading.value));
+const effectiveProfileError = computed(() => (cachedProfile.value ? null : profileError.value));
 
 const personalInformation = computed(() => {
   const pi = profile.value?.personal_information;
@@ -152,16 +166,10 @@ const personalInformation = computed(() => {
   return pi;
 });
 
-const subscriptionStatus = computed(() => {
-  const status = profile.value?.orders?.status;
-  const expiresAt = profile.value?.orders?.expires_at;
-  if (!status) return '';
-  if (expiresAt) return `${status} (${expiresAt})`;
-  return status;
-});
+
 
 const profileErrorMessage = computed(() => {
-  const e = profileError.value;
+  const e = effectiveProfileError.value;
   if (!e) return '';
   return (
     e?.graphQLErrors?.[0]?.message ||
@@ -174,6 +182,16 @@ const profileErrorMessage = computed(() => {
 watch(profileError, (e) => {
   if (e) toastError('Failed to load student profile: ' + e.message);
 });
+
+// Store fetched profile in cache so next open doesn't trigger a query.
+watch(
+  () => profileResult.value?.studentProfile,
+  (p) => {
+    if (p && studentId.value) {
+      setCachedProfile(studentId.value, p);
+    }
+  }
+);
 
 const sortIds = (ids) => {
   if (!Array.isArray(ids)) return [];
