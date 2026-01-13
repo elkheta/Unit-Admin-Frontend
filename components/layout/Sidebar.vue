@@ -1,6 +1,6 @@
 <template>
   <!-- Main Navigation Sidebar -->
-  <aside v-if="!isUnitPage" class="w-50 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 z-20">
+  <aside v-if="!isUnitPage" class="hidden md:flex w-64 bg-white border-r border-gray-200 flex-col flex-shrink-0 z-20">
     <!-- Sidebar Header -->
     <div class="h-16 flex items-center px-6 border-b border-gray-100">
       <div class="flex items-center gap-2">
@@ -20,14 +20,14 @@
   </aside>
 
   <!-- Unit Navigation Sidebar -->
-  <aside v-else class="w-50 bg-white border-r border-gray-200 flex flex-col flex-shrink-0 z-20">
+  <aside v-else class="hidden md:flex w-64 bg-white border-r border-gray-200 flex-col flex-shrink-0 z-20">
     <!-- Unit Header -->
-    <div class="h-16 flex items-center px-6 border-b border-gray-100">
-      <button class="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors"
+    <div class="h-16 flex items-center px-6 border-b border-gray-100 overflow-hidden">
+      <button class="flex items-center gap-2 text-gray-700 hover:text-gray-900 transition-colors w-full"
         @click="handleBackToMain">
-        <ArrowLeft :size="18" />
-        <div class="flex flex-col text-left">
-          <span class="font-semibold text-gray-900 leading-tight">{{ unitName }}</span>
+        <ArrowLeft :size="18" class="flex-shrink-0" />
+        <div class="flex flex-col text-left min-w-0 flex-1">
+          <span class="font-semibold text-gray-900 leading-tight truncate block" :title="unitName">{{ unitName }}</span>
           <span class="text-[10px] text-gray-500 font-medium">BACK TO MAIN</span>
         </div>
       </button>

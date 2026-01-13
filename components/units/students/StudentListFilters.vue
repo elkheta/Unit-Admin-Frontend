@@ -12,11 +12,11 @@
 
     <!-- Filter Row -->
     <div class="flex items-center gap-3 flex-wrap relative">
-      <!-- Sort/View Toggle -->
+      <!-- Sort Button -->
       <button ref="sortButtonRef"
         class="w-10 h-10 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 transition-colors flex items-center justify-center"
         :title="'Sort Students'" @click="handleSortClick">
-        <Eye :size="18" class="text-gray-600" />
+        <ArrowUpDown :size="18" class="text-gray-600" />
       </button>
 
       <!-- Groups Dropdown -->
@@ -42,12 +42,14 @@
         @click="handleFilterClick('progress', $event)">
         <BarChart3 :size="18" class="text-green-600" :stroke-width="2" fill="none" />
       </button>
-      <button ref="lessonsButtonRef"
+
+      <button ref="scoreButtonRef"
         class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors flex items-center justify-center"
-        :class="{ 'bg-purple-50 border-purple-200': activeFilter === 'lessons' }" title="Filter by Accumulated Lessons"
-        @click="handleFilterClick('lessons', $event)">
+        :class="{ 'bg-purple-50 border-purple-200': activeFilter === 'score' }" title="Filter by Score"
+        @click="handleFilterClick('score', $event)">
         <BookOpen :size="18" class="text-purple-600" :stroke-width="2" fill="none" />
       </button>
+
       <button ref="lastSeenButtonRef"
         class="w-10 h-10 rounded-lg bg-white border border-gray-200 hover:bg-gray-50 transition-colors flex items-center justify-center"
         :class="{ 'bg-purple-50 border-purple-200': activeFilter === 'last-seen' }" title="Filter by Last Seen Time"
@@ -61,7 +63,7 @@
       @close="isSortModalOpen = false" @apply-sort="handleApplySort" />
 
     <!-- Filter Modals -->
-    <FilterModal v-for="filterType in ['diamonds', 'progress', 'lessons', 'last-seen']" :key="filterType"
+    <FilterModal v-for="filterType in ['diamonds', 'progress', 'score', 'last-seen']" :key="filterType"
       :is-open="openFilterModal === filterType" :filter-type="filterType" :current-filter="currentFilters[filterType]"
       :position="filterButtonPositions[filterType]" @close="openFilterModal = null"
       @apply-filter="(data) => handleApplyFilter(filterType, data)" />
@@ -70,7 +72,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-import { Search, Eye, BarChart3, BookOpen, Monitor } from 'lucide-vue-next';
+import { Search, ArrowUpDown, BarChart3, BookOpen, Monitor } from 'lucide-vue-next';
 import { BaseInput, BaseSelect } from '../../ui';
 import { DiamondIcon } from '../../ui';
 import SortStudentsModal from './SortStudentsModal.vue';
@@ -96,9 +98,17 @@ const props = defineProps({
     default: () => ({
       diamonds: null,
       progress: null,
-      lessons: null,
+      score: null,
       'last-seen': null
     })
+  },
+  groupOptions: {
+    type: Array,
+    default: () => []
+  },
+  subjectOptions: {
+    type: Array,
+    default: () => []
   }
 });
 
@@ -120,13 +130,13 @@ const openFilterModal = ref(null);
 const sortButtonRef = ref(null);
 const diamondsButtonRef = ref(null);
 const progressButtonRef = ref(null);
-const lessonsButtonRef = ref(null);
+const scoreButtonRef = ref(null);
 const lastSeenButtonRef = ref(null);
 
 const filterButtonPositions = reactive({
   diamonds: { top: 0, left: 0 },
   progress: { top: 0, left: 0 },
-  lessons: { top: 0, left: 0 },
+  score: { top: 0, left: 0 },
   'last-seen': { top: 0, left: 0 }
 });
 
@@ -138,7 +148,7 @@ const handleFilterClick = (filterType, event) => {
   const buttonRef = {
     diamonds: diamondsButtonRef,
     progress: progressButtonRef,
-    lessons: lessonsButtonRef,
+    score: scoreButtonRef,
     'last-seen': lastSeenButtonRef
   }[filterType];
 
@@ -161,17 +171,5 @@ const handleApplyFilter = (filterType, filterData) => {
   emit('apply-filter', { filterType, filterData });
 };
 
-const groupOptions = [
-  { value: '', label: 'All Groups' },
-  { value: 'group-a', label: 'Group A' },
-  { value: 'group-b', label: 'Group B' },
-  { value: 'outside', label: 'Outside' }
-];
 
-const subjectOptions = [
-  { value: '', label: 'All Subjects' },
-  { value: 'math', label: 'Mathematics' },
-  { value: 'science', label: 'Science' },
-  { value: 'english', label: 'English' }
-];
 </script>

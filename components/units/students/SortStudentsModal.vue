@@ -15,7 +15,7 @@
                             sortOptions.progress === 'high-to-low'
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="sortOptions.progress = 'high-to-low'">
+                        ]" @click="setSort('progress', 'high-to-low')">
                             High to Low
                         </button>
                         <button :class="[
@@ -23,7 +23,7 @@
                             sortOptions.progress === 'low-to-high'
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="sortOptions.progress = 'low-to-high'">
+                        ]" @click="setSort('progress', 'low-to-high')">
                             Low to High
                         </button>
                     </div>
@@ -38,7 +38,7 @@
                             sortOptions.diamonds === 'high-to-low'
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="sortOptions.diamonds = 'high-to-low'">
+                        ]" @click="setSort('diamonds', 'high-to-low')">
                             High to Low
                         </button>
                         <button :class="[
@@ -46,7 +46,7 @@
                             sortOptions.diamonds === 'low-to-high'
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="sortOptions.diamonds = 'low-to-high'">
+                        ]" @click="setSort('diamonds', 'low-to-high')">
                             Low to High
                         </button>
                     </div>
@@ -61,7 +61,7 @@
                             sortOptions.lastSeen === 'most-recent'
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="sortOptions.lastSeen = 'most-recent'">
+                        ]" @click="setSort('lastSeen', 'most-recent')">
                             Most Recent
                         </button>
                         <button :class="[
@@ -69,7 +69,7 @@
                             sortOptions.lastSeen === 'oldest'
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="sortOptions.lastSeen = 'oldest'">
+                        ]" @click="setSort('lastSeen', 'oldest')">
                             Oldest
                         </button>
                     </div>
@@ -84,7 +84,7 @@
                             sortOptions.dateAdded === 'newest-first'
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="sortOptions.dateAdded = 'newest-first'">
+                        ]" @click="setSort('dateAdded', 'newest-first')">
                             Newest First
                         </button>
                         <button :class="[
@@ -92,7 +92,7 @@
                             sortOptions.dateAdded === 'oldest-first'
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="sortOptions.dateAdded = 'oldest-first'">
+                        ]" @click="setSort('dateAdded', 'oldest-first')">
                             Oldest First
                         </button>
                     </div>
@@ -107,7 +107,7 @@
                             sortOptions.expirationDate === 'newest-expired'
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="sortOptions.expirationDate = 'newest-expired'">
+                        ]" @click="setSort('expirationDate', 'newest-expired')">
                             Newest Expired
                         </button>
                         <button :class="[
@@ -115,7 +115,7 @@
                             sortOptions.expirationDate === 'oldest-expired'
                                 ? 'bg-blue-600 text-white'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="sortOptions.expirationDate = 'oldest-expired'">
+                        ]" @click="setSort('expirationDate', 'oldest-expired')">
                             Oldest Expired
                         </button>
                     </div>
@@ -162,6 +162,17 @@ const sortOptions = ref({
     dateAdded: 'newest-first', // Default
     expirationDate: null
 });
+
+// Helper to set a single sort option and clear others
+const setSort = (key, value) => {
+    // Reset all options
+    Object.keys(sortOptions.value).forEach(k => {
+        sortOptions.value[k] = null;
+    });
+    
+    // Set the selected option
+    sortOptions.value[key] = value;
+};
 
 // Watch for prop changes to update local state
 watch(() => props.currentSortOptions, (newOptions) => {
