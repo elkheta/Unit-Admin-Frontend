@@ -11,7 +11,13 @@
                             <p class="text-sm text-gray-500 mt-1">Student Profile</p>
                         </div>
                         <div class="flex items-center gap-3">
-                            <BaseButton v-if="!profileError" variant="primary" size="sm" :disabled="saving || profileLoading" @click="handleSave">
+                            <BaseButton
+                                v-if="!effectiveProfileError"
+                                variant="primary"
+                                size="sm"
+                                :disabled="saving || effectiveProfileLoading"
+                                @click="handleSave"
+                            >
                                 Save
                             </BaseButton>
                             <button class="p-2 hover:bg-gray-100 rounded-lg transition-colors" @click="handleClose">
@@ -189,6 +195,8 @@ watch(
   (p) => {
     if (p && studentId.value) {
       setCachedProfile(studentId.value, p);
+      // Apollo can keep the last error even after a successful fetch; clear it once we have data.
+      if (profileError.value) profileError.value = null;
     }
   }
 );
