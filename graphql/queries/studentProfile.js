@@ -64,7 +64,6 @@ export const GET_STUDENT_PROFILE = gql`
         since_when
       }
       orders {
-        count
         status
         expires_at
         orders {

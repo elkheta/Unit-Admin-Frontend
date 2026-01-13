@@ -4,10 +4,11 @@
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-bold text-gray-900">Personal Information</h3>
             <span
-                v-if="subscriptionStatus"
-                class="px-3 py-1.5 bg-green-50 text-green-800 text-xs font-semibold rounded-lg border border-green-200"
+                v-if="status"
+                class="px-3 py-1.5 text-xs font-semibold rounded-lg border"
+                :class="isExpired ? 'bg-orange-50 text-orange-800 border-orange-200' : 'bg-green-50 text-green-800 border-green-200'"
             >
-                {{ subscriptionStatus }}
+                {{ status }} ( {{ expiresAt }} )
             </span>
         </div>
 
@@ -174,7 +175,11 @@ const props = defineProps({
     type: Object,
     default: null
   },
-  subscriptionStatus: {
+  status: {
+    type: String,
+    default: ''
+  },
+  expiresAt: {
     type: String,
     default: ''
   }
@@ -191,6 +196,11 @@ const firstName = computed(() => props.personalInformation?.first_name || '');
 const lastName = computed(() => props.personalInformation?.last_name || '');
 
 const mainPhoneNumber = computed(() => props.personalInformation?.phone_number || '');
+
+const isExpired = computed(() => {
+  const s = String(props.status || '').toUpperCase();
+  return props.status === 'EXPIRED';
+});
 
 watch(
   () => props.personalInformation,

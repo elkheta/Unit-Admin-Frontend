@@ -53,7 +53,11 @@
           <div>
             <p class="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">EXPIRES</p>
             <p class="text-sm text-gray-900 font-medium">{{ order.expires }}</p>
-            <p v-if="order.timeLeft" class="text-xs text-orange-600 font-medium mt-1.5">
+            <p
+              v-if="order.timeLeft"
+              class="text-xs font-medium mt-1.5"
+              :class="order.status === 'EXPIRED' ? 'text-orange-600' : 'text-green-600'"
+            >
               {{ order.timeLeft }}
             </p>
           </div>
