@@ -28,6 +28,12 @@ export const GET_UNIT_STUDENTS = gql`
       groups {
         name
       }
+      education_section {
+        subjects {
+          id
+          name
+        }
+      }
     }
     students(
       unit_slug: $slug

@@ -275,9 +275,13 @@ const groupOptions = computed(() => {
 });
 
 // Subject options placeholder (requires backend support)
-const subjectOptions = computed(() => [
-  { value: '', label: 'All Subjects' }
-]);
+const subjectOptions = computed(() => {
+  const subjects = props.selectedUnit?.education_section?.subjects || [];
+  return [
+    { value: '', label: 'All Subjects' },
+    ...subjects.map(s => ({ value: s.id, label: s.name }))
+  ];
+});
 
 // Helper to map UI filter object to min/max values
 const getFilterValues = (filterObj) => {

@@ -1,8 +1,8 @@
 import gql from 'graphql-tag';
 
 export const GET_DASHBOARD_UNITS = gql`
-  query GetDashboardUnits($kheta_id: ID) {
-    dashboardUnits(kheta_id: $kheta_id) {
+  query GetDashboardUnits($elkheta_id: ID) {
+    dashboardUnits(elkheta_id: $elkheta_id) {
       id
       slug
       name
@@ -17,6 +17,12 @@ export const GET_DASHBOARD_UNITS = gql`
         name
         current
         capacity
+      }
+      education_section {
+        subjects {
+          id
+          name
+        }
       }
     }
   }

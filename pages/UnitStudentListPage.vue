@@ -59,6 +59,7 @@ const { result, loading, error, refetch } = useQuery(GET_UNIT_STUDENTS, cleanVar
 });
 
 const unit = computed(() => result.value?.unit || null);
+
 const studentsData = computed(() => {
   const data = result.value?.students?.data || null;
   
