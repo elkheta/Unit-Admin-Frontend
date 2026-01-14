@@ -13,6 +13,7 @@ export const LOGIN_MUTATION = gql`
         name
         phone_number
         email
+        roles
       }
     }
   }

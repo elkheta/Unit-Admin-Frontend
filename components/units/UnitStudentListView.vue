@@ -8,6 +8,8 @@
       :active-filter="activeFilter"
       :current-sort-options="sortOptions"
       :current-filters="filters"
+      :group-options="groupOptions"
+      :subject-options="subjectOptions"
       @search="handleSearch"
       @apply-sort="handleApplySort"
       @filter-group="handleFilterGroup"
@@ -26,15 +28,16 @@
     <StudentCountDisplay
       :current-page="currentPage"
       :page-size="pageSize"
-      :total="filteredStudents.length"
+      :total="totalStudents"
     />
 
     <!-- Students List -->
-    <div v-if="filteredStudents.length > 0" class="space-y-2">
+    <div v-if="totalStudents > 0" class="space-y-2">
             <StudentCard
               v-for="student in paginatedStudents"
               :key="student.id"
               :student="student"
+              :group-options="groupOptions"
               @group-change="handleGroupChange"
               @whatsapp-click="handleWhatsAppClick"
               @progress-click="handleProgressClick"
@@ -58,10 +61,10 @@
 
     <!-- Pagination -->
     <PaginationControls
-      v-if="filteredStudents.length > 0"
+      v-if="totalStudents > 0"
       :current-page="currentPage"
       :page-size="pageSize"
-      :total="filteredStudents.length"
+      :total="totalStudents"
       @page-change="handlePageChange"
     />
 
@@ -105,7 +108,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { User } from 'lucide-vue-next';
 import {
   StudentCard,
@@ -124,8 +127,29 @@ const props = defineProps({
   selectedUnit: {
     type: Object,
     default: null
+  },
+  studentsResult: {
+    type: Object,
+    default: () => ({ data: [], paginatorInfo: {} })
+  },
+  loading: {
+    type: Boolean,
+    default: false
+  },
+  error: {
+    type: Object,
+    default: null
   }
 });
+
+const emit = defineEmits([
+  'search',
+  'page-change',
+  'filter-change',
+  'sort-change',
+  'filter-group', // Forwarding deprecated/specific events if needed
+  'apply-filter'
+]);
 
 const unitName = computed(() => {
   return props.selectedUnit?.name || props.selectedUnit?.title || 'Unit';
@@ -136,8 +160,6 @@ const students = ref([]);
 const searchQuery = ref('');
 const selectedGroup = ref('');
 const selectedSubject = ref('');
-const currentPage = ref(1);
-const pageSize = ref(10);
 const isProfileSidebarOpen = ref(false);
 const selectedStudent = ref(null);
 const isScheduleSidebarOpen = ref(false);
@@ -215,6 +237,121 @@ const filters = ref({
   'last-seen': null
 });
 
+// Determine if we are using backend data
+const isBackendMode = computed(() => !props.error && props.studentsResult?.data);
+
+// Pagination Helpers
+const totalStudents = computed(() => {
+   if (isBackendMode.value) return props.studentsResult?.paginatorInfo?.total || 0;
+   return filteredStudents.value.length; 
+});
+
+const localPage = ref(1);
+const localPageSize = ref(10);
+
+const currentPage = computed({
+  get: () => isBackendMode.value ? props.studentsResult?.paginatorInfo?.currentPage || 1 : localPage.value,
+  set: (val) => {
+    if (isBackendMode.value) {
+      emit('page-change', val);
+    } else {
+      localPage.value = val;
+    }
+  }
+});
+
+
+
+const pageSize = computed(() => isBackendMode.value ? props.studentsResult?.paginatorInfo?.perPage || 10 : localPageSize.value);
+
+// Compute dynamic filter options
+const groupOptions = computed(() => {
+  const groups = props.selectedUnit?.groups || [];
+  return [
+    { value: '', label: 'All Groups' },
+    ...groups.map(g => ({ value: g.name, label: g.name })),
+    { value: 'Outside Group', label: 'Outside' }
+  ];
+});
+
+// Subject options placeholder (requires backend support)
+const subjectOptions = computed(() => [
+  { value: '', label: 'All Subjects' }
+]);
+
+// Helper to map UI filter object to min/max values
+const getFilterValues = (filterObj) => {
+  if (!filterObj) return { min: null, max: null };
+  const { type, value, min, max } = filterObj;
+  
+  if (type === 'more-than') return { min: value, max: null };
+  if (type === 'less-than') return { min: null, max: value };
+  if (type === 'between') return { min, max };
+  return { min: null, max: null };
+};
+
+// Sync filters to backend
+watch([searchQuery, selectedGroup, selectedSubject, filters, sortOptions], () => {
+  if (isBackendMode.value) {
+    const diamonds = getFilterValues(filters.value.diamonds);
+    const progress = getFilterValues(filters.value.progress);
+    const score = getFilterValues(filters.value.score);
+
+    // Map "Last Seen" filter which is in "days ago"
+    let lastSeenAfter = null;
+    let lastSeenBefore = null;
+    const lastSeen = filters.value['last-seen'];
+    
+    if (lastSeen) {
+        const getDateDaysAgo = (days) => {
+            const date = new Date();
+            date.setDate(date.getDate() - days);
+            // Format as YYYY-MM-DD HH:mm:ss for Laravel
+            return date.toISOString().slice(0, 19).replace('T', ' '); 
+        };
+
+        if (lastSeen.type === 'less-than') {
+            // "Less than 5 days ago" -> Recent -> last_seen >= (Now - 5 days)
+            lastSeenAfter = getDateDaysAgo(lastSeen.value);
+        } else if (lastSeen.type === 'more-than') {
+            // "More than 5 days ago" -> Old -> last_seen <= (Now - 5 days)
+            lastSeenBefore = getDateDaysAgo(lastSeen.value);
+        } else if (lastSeen.type === 'between') {
+            // "Between 5 and 10 days ago"
+            // More recent bound (min days ago) -> Before (Now - 5)
+            // Older bound (max days ago) -> After (Now - 10)
+            // Wait, logic check:
+            // "Between 2 and 5 days" means: 2 days ago >= last_seen >= 5 days ago?
+            // Usually means last_seen is between (Now - 5) and (Now - 2).
+            // So last_seen >= (Now - 5) AND last_seen <= (Now - 2).
+            lastSeenAfter = getDateDaysAgo(lastSeen.max); // 5 days ago
+            lastSeenBefore = getDateDaysAgo(lastSeen.min); // 2 days ago
+        }
+    }
+
+    emit('filter-change', {
+      search: searchQuery.value,
+      group_name: selectedGroup.value || null,
+      subject_id: selectedSubject.value || null,
+      diamonds_min: diamonds.min,
+      diamonds_max: diamonds.max,
+      progress_min: progress.min,
+      progress_max: progress.max,
+      points_min: score.min,
+      points_max: score.max,
+      lessons_min: filters.value.lessons?.value || filters.value.lessons?.min, // Simple fallback for now
+      last_seen_after: lastSeenAfter,
+      last_seen_before: lastSeenBefore,
+      // Map other filters...
+      // Sort
+      // dateAdded: sortOptions.value.dateAdded
+    });
+    // Reset page handled by parent usually, but handlers here set currentPage = 1.
+    // If currentPage is writable computed, `currentPage.value = 1` calls setter -> emits page-change(1).
+  }
+}, { deep: true });
+
+
 const activeFilter = computed(() => {
   // Return the first active filter type for UI highlighting
   if (filters.value.diamonds) {
@@ -222,6 +359,9 @@ const activeFilter = computed(() => {
   }
   if (filters.value.progress) {
     return 'progress';
+  }
+  if (filters.value.score) {
+    return 'score';
   }
   if (filters.value.lessons) {
     return 'lessons';
@@ -1101,6 +1241,9 @@ const filteredStudents = computed(() => {
 
 // Paginated students
 const paginatedStudents = computed(() => {
+  if (isBackendMode.value) {
+    return props.studentsResult.data || [];
+  }
   const start = (currentPage.value - 1) * pageSize.value;
   const end = start + pageSize.value;
   return filteredStudents.value.slice(start, end);
@@ -1114,6 +1257,7 @@ const handleSearch = (query) => {
 
 const handleApplySort = (newSortOptions) => {
   sortOptions.value = { ...newSortOptions };
+  emit('sort-change', newSortOptions);
   currentPage.value = 1;
 };
 

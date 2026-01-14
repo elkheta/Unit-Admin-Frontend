@@ -75,7 +75,7 @@ const props = defineProps({
     filterType: {
         type: String,
         required: true,
-        validator: (value) => ['diamonds', 'progress', 'lessons', 'last-seen'].includes(value)
+        validator: (value) => ['diamonds', 'progress', 'lessons', 'last-seen', 'score'].includes(value)
     },
     currentFilter: {
         type: Object,
@@ -109,6 +109,13 @@ const filterConfigs = {
         rangeLabel: 'Range',
         activeClass: 'bg-green-50 border-green-300 text-green-700',
         applyButtonVariant: 'success'
+    },
+    score: {
+        valueLabel: 'Score Value:',
+        valuePlaceholder: '0',
+        rangeLabel: 'Score Range',
+        activeClass: 'bg-indigo-50 border-indigo-300 text-indigo-700',
+        applyButtonVariant: 'primary'
     },
     lessons: {
         valueLabel: 'Subjects Parts Count:',

@@ -63,12 +63,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Settings } from 'lucide-vue-next';
+import { useQuery } from '@vue/apollo-composable';
 import { MainDashboard } from './index.js';
 import { UnitsListView, UnitStudentListView, UnitSettingsView, UnitMessagesView } from '../units';
 import { LabelsView } from '../labels';
 import { TasksView } from '../tasks';
+import { GET_DASHBOARD_UNITS } from '../../graphql/queries/dashboard';
 
 const props = defineProps({
   activeTab: {
@@ -194,38 +196,33 @@ const reminders = ref([
 ]);
 
 // Units data
-const units = ref([
-  {
-    id: 2,
-    title: "S3 - Rania",
-    subtitle: "Unit created for S3 - Rania",
-    badge: "Senior 3",
-    admin: "Ahmed Hassan",
-    students: 61,
-    outside: 15,
-    availableCapacity: 39,
-    reminders: 2,
-    groups: [
-      { name: "Group A", current: 4, capacity: 25 },
-      { name: "Group B", current: 0, capacity: 25 },
-    ],
-  },
-  {
-    id: 3,
-    title: "Senior Two - Alia",
-    subtitle: "Unit created for Senior Two - Alia",
-    badge: "Senior Two",
-    admin: "Sara Mohamed",
-    students: 40,
-    outside: 10,
-    availableCapacity: 60,
-    reminders: 0,
-    groups: [
-      { name: "Group A", current: 12, capacity: 25 },
-      { name: "Group B", current: 8, capacity: 25 },
-    ],
-  }
-]);
+import { useAuth } from '../../composables/useAuth.js';
+
+const { user } = useAuth();
+
+const { result, loading, error } = useQuery(
+  GET_DASHBOARD_UNITS, 
+  () => ({
+    kheta_id: user.value?.id
+  })
+);
+
+const units = computed(() => {
+  if (!result.value?.dashboardUnits) return [];
+  
+  return result.value.dashboardUnits.map(unit => ({
+    id: unit.id,
+    title: unit.name,
+    subtitle: `${unit.educational_sections || 'Unit'} - ${unit.admin_name || 'Admin'}`, // Derived
+    badge: unit.educational_sections,
+    admin: unit.admin_name,
+    students: unit.current_capacity || 0,
+    outside: 0, // Not implemented yet
+    availableCapacity: (unit.max_capacity || 0) - (unit.current_capacity || 0),
+    reminders: 0, // Not implemented yet
+    groups: [], // Not implemented yet
+  }));
+});
 
 // Mock students data for expired count
 const allStudents = [];
