@@ -4,10 +4,11 @@
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-bold text-gray-900">Personal Information</h3>
             <span
-                v-if="subscriptionStatus"
-                class="px-3 py-1.5 bg-green-50 text-green-800 text-xs font-semibold rounded-lg border border-green-200"
+                v-if="status"
+                class="px-3 py-1.5 text-xs font-semibold rounded-lg border"
+                :class="isExpired ? 'bg-orange-50 text-orange-800 border-orange-200' : 'bg-green-50 text-green-800 border-green-200'"
             >
-                {{ subscriptionStatus }}
+                {{ status }} ( {{ expiresAt }} )
             </span>
         </div>
 
@@ -76,7 +77,7 @@
         <div class="flex items-center gap-2 mb-3">
             <div class="flex-1 relative">
                 <BaseInput
-                    :model-value="phoneNumber"
+                    :model-value="mainPhoneNumber"
                     disabled
                     input-class="bg-gray-100 text-gray-600 cursor-not-allowed pr-20"
                 />
@@ -90,15 +91,15 @@
             />
             <button
                 type="button"
-                :disabled="!mainPhoneHasWhatsapp"
+                :disabled="!mainPhoneNumber || !mainPhoneHasWhatsapp"
                 class="w-9 h-9 flex-shrink-0 rounded-lg flex items-center justify-center transition-colors"
                 :class="
-                    mainPhoneHasWhatsapp
+                    mainPhoneNumber && mainPhoneHasWhatsapp
                         ? 'bg-green-50 text-green-600 border border-green-100 hover:bg-green-100'
                         : 'bg-gray-50 text-gray-300 border border-gray-100 cursor-not-allowed'
                 "
                 :title="mainPhoneHasWhatsapp ? 'Open WhatsApp' : 'WhatsApp not available'"
-                @click="openWhatsApp(phoneNumber)"
+                @click="openWhatsApp(mainPhoneNumber)"
             >
                 <MessageCircle :size="18" />
             </button>
@@ -170,53 +171,88 @@ import { MessageCircle, User, Plus, X } from 'lucide-vue-next';
 import { BaseInput, BaseButton } from '../../../ui';
 
 const props = defineProps({
-    student: {
-        type: Object,
-        default: null
-    }
+  personalInformation: {
+    type: Object,
+    default: null
+  },
+  status: {
+    type: String,
+    default: ''
+  },
+  expiresAt: {
+    type: String,
+    default: ''
+  }
 });
 
-const emit = defineEmits(['go-to-profile', 'add-name', 'add-phone']);
+const emit = defineEmits(['go-to-profile', 'add-name', 'add-phone', 'field-change']);
 
 const email = ref('');
 const extraNames = ref([]);
 const extraPhones = ref([]);
 const mainPhoneHasWhatsapp = ref(true);
 
-const firstName = computed(() => {
-    if (!props.student?.name) return '';
-    const parts = props.student.name.split(' ');
-    return parts[0] || '';
+const firstName = computed(() => props.personalInformation?.first_name || '');
+const lastName = computed(() => props.personalInformation?.last_name || '');
+
+const mainPhoneNumber = computed(() => props.personalInformation?.phone_number || '');
+
+const isExpired = computed(() => {
+  const s = String(props.status || '').toUpperCase();
+  return props.status === 'EXPIRED';
 });
 
-const lastName = computed(() => {
-    if (!props.student?.name) return '';
-    const parts = props.student.name.split(' ');
-    return parts.slice(1).join(' ') || '';
+watch(
+  () => props.personalInformation,
+  (pi) => {
+    if (!pi) return;
+    email.value = pi.email || '';
+    extraNames.value = Array.isArray(pi.names) ? [...pi.names] : [];
+
+    mainPhoneHasWhatsapp.value = Boolean(pi.is_whatsapp);
+
+    const phones = Array.isArray(pi.phone_numbers) ? pi.phone_numbers : [];
+    extraPhones.value = phones.map((p) => ({
+      phone: p?.phone_number || '',
+      hasWhatsapp: Boolean(p?.is_whatsapp)
+    }));
+  },
+  { immediate: true }
+);
+
+const emitPhoneNumbers = () => {
+  const list = [];
+
+  for (const p of Array.isArray(extraPhones.value) ? extraPhones.value : []) {
+    const phone = String(p?.phone || '').trim();
+    if (!phone) continue;
+    list.push({
+      phone_number: phone,
+      is_whatsapp: Boolean(p?.hasWhatsapp)
+    });
+  }
+
+  emit('field-change', 'phone_numbers', list);
+};
+
+watch(mainPhoneHasWhatsapp, () => {
+  emitPhoneNumbers();
 });
 
-const phoneNumber = computed(() => {
-    return props.student?.phone || '';
+watch(extraPhones, () => {
+  emitPhoneNumbers();
+}, { deep: true });
+
+watch(email, (value) => {
+  emit('field-change', 'email', value ?? '');
 });
 
-const subscriptionStatus = computed(() => {
-    if (props.student?.subscriptionStatus) {
-        return props.student.subscriptionStatus;
-    }
-    if (props.student?.daysToExpire !== undefined) {
-        return `ACTIVE (${props.student.daysToExpire} DAYS TO EXPIRE)`;
-    }
-    return null;
-});
-
-watch(() => props.student, (newStudent) => {
-    if (newStudent) {
-        email.value = newStudent.email || '';
-        // If backend provides arrays later, we can hydrate them here. For now start empty.
-        extraNames.value = Array.isArray(newStudent.extraNames) ? [...newStudent.extraNames] : [];
-        extraPhones.value = Array.isArray(newStudent.extraPhones) ? [...newStudent.extraPhones] : [];
-    }
-}, { immediate: true });
+watch(extraNames, (value) => {
+  const cleaned = Array.isArray(value)
+    ? value.map((v) => String(v ?? '').trim()).filter(Boolean)
+    : [];
+  emit('field-change', 'names', cleaned);
+}, { deep: true });
 
 const handleAddName = () => {
     extraNames.value.push('');
