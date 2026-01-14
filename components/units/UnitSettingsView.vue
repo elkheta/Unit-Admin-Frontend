@@ -69,7 +69,9 @@ const getUnitDataWithDefaults = (selectedUnit) => {
     ...defaultUnitData,
     ...selectedUnit,
     supervisors: selectedUnit.supervisors ?? defaultUnitData.supervisors,
-    educationalSections: selectedUnit.educationalSections ?? defaultUnitData.educationalSections,
+    educationalSections: selectedUnit.educationalSections 
+      ? (Array.isArray(selectedUnit.educationalSections) ? selectedUnit.educationalSections : [selectedUnit.educationalSections])
+      : defaultUnitData.educationalSections,
     products: selectedUnit.products ?? defaultUnitData.products
   };
 };

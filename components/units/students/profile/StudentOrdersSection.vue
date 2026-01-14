@@ -21,7 +21,7 @@
         <!-- Order Header -->
         <div class="flex items-start justify-between mb-5">
           <h4 class="text-base font-semibold text-gray-900 leading-tight">{{ order.productName }}</h4>
-          <span class="text-base font-bold text-blue-600 ml-4">{{ order.price }}</span>
+          <span class="text-base font-bold text-blue-600 ml-4">{{ order.price }} EGP</span>
         </div>
 
         <!-- Order Details Grid -->
@@ -30,8 +30,16 @@
           <div>
             <p class="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">STATUS</p>
             <div class="flex items-center gap-2">
-              <div class="w-2.5 h-2.5 rounded-full bg-green-500 flex-shrink-0"></div>
-              <span class="text-sm font-medium text-green-700">{{ order.status }}</span>
+              <div
+                class="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                :class="order.status === 'EXPIRED' ? 'bg-orange-500' : 'bg-green-500'"
+              ></div>
+              <span
+                class="text-sm font-medium"
+                :class="order.status === 'EXPIRED' ? 'text-orange-700' : 'text-green-700'"
+              >
+                {{ order.status }}
+              </span>
             </div>
           </div>
 
@@ -45,7 +53,11 @@
           <div>
             <p class="text-xs font-medium text-gray-500 mb-2 uppercase tracking-wide">EXPIRES</p>
             <p class="text-sm text-gray-900 font-medium">{{ order.expires }}</p>
-            <p v-if="order.timeLeft" class="text-xs text-orange-600 font-medium mt-1.5">
+            <p
+              v-if="order.timeLeft"
+              class="text-xs font-medium mt-1.5"
+              :class="order.status === 'EXPIRED' ? 'text-orange-600' : 'text-green-600'"
+            >
               {{ order.timeLeft }}
             </p>
           </div>

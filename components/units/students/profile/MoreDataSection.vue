@@ -31,7 +31,7 @@
                     :key="index"
                     class="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-lg flex items-center gap-2"
                 >
-                    {{ hobby }}
+                    {{ hobby.name }}
                     <button
                         class="text-gray-500 hover:text-gray-700"
                         @click="removeHobby(index)"
@@ -57,7 +57,7 @@
                     :key="index"
                     class="px-3 py-1 bg-red-50 text-red-700 text-sm rounded-lg flex items-center gap-2"
                 >
-                    {{ subject }}
+                    {{ subject.name }}
                     <button
                         class="text-red-500 hover:text-red-700"
                         @click="removeWeakestSubject(index)"
@@ -83,7 +83,7 @@
                     :key="index"
                     class="px-3 py-1 bg-green-50 text-green-700 text-sm rounded-lg flex items-center gap-2"
                 >
-                    {{ subject }}
+                    {{ subject.name }}
                     <button
                         class="text-green-500 hover:text-green-700"
                         @click="removePreferredSubject(index)"
@@ -109,7 +109,7 @@
                     :key="index"
                     class="px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-lg flex items-center gap-2"
                 >
-                    {{ label }}
+                    {{ label.name }}
                     <button
                         class="text-blue-500 hover:text-blue-700"
                         @click="removeLabel(index)"
@@ -127,21 +127,23 @@ import { ref, computed, watch } from 'vue';
 import { ChevronUp, X } from 'lucide-vue-next';
 import { BaseSelect } from '../../../ui';
 
-const emit = defineEmits(['update-data']);
+const emit = defineEmits(['field-change']);
 
 const props = defineProps({
-    student: {
-        type: Object,
-        default: null
-    },
-    educationalSections: {
-        type: Array,
-        default: () => []
-    },
-    labels: {
-        type: Array,
-        default: () => []
-    }
+  /**
+   * Backend payload shape (from `studentProfile.more_data`)
+   * {
+   *   governorate: String
+   *   hobbies: [{ id, name, selected }]
+   *   weakest_subjects: [{ id, name, selected }]
+   *   preferred_subjects: [{ id, name, selected }]
+   *   labels: [{ id, name, selected }]
+   * }
+   */
+  moreData: {
+    type: Object,
+    default: null
+  }
 });
 
 const isExpanded = ref(false);
@@ -152,138 +154,145 @@ const selectedWeakestSubject = ref('');
 const selectedPreferredSubject = ref('');
 const selectedLabel = ref('');
 
-const selectedHobbies = ref([]);
-const selectedWeakestSubjects = ref([]);
-const selectedPreferredSubjects = ref([]);
-const selectedLabels = ref([]);
+const selectedHobbies = ref([]); // [{ id, name }]
+const selectedWeakestSubjects = ref([]); // [{ id, name }]
+const selectedPreferredSubjects = ref([]); // [{ id, name }]
+const selectedLabels = ref([]); // [{ id, name }]
 
-// Watch for student changes to load data
-watch(() => props.student, (newStudent) => {
-  if (newStudent) {
-    selectedGovernorate.value = newStudent.governorate || '';
-    selectedHobbies.value = newStudent.hobbies || [];
-    selectedWeakestSubjects.value = newStudent.weakestSubjects || [];
-    selectedPreferredSubjects.value = newStudent.preferredSubjects || [];
-    selectedLabels.value = newStudent.labels || [];
-  }
-}, { immediate: true });
+const normalizeSelectable = (items) => {
+  if (!Array.isArray(items)) return [];
+  return items
+    .filter(Boolean)
+    .map((i) => ({
+      id: i.id != null ? String(i.id) : '',
+      name: i.name ?? ''
+    }))
+    .filter((i) => i.id && i.name);
+};
+
+const selectedFromBackend = (items) => {
+  if (!Array.isArray(items)) return [];
+  return items
+    .filter((i) => i?.selected)
+    .map((i) => ({ id: String(i.id), name: i.name }))
+    .filter((i) => i.id && i.name);
+};
+
+// Watch for backend data changes to load defaults
+watch(
+  () => props.moreData,
+  (md) => {
+    if (!md) return;
+    selectedGovernorate.value = md.governorate || '';
+    selectedHobbies.value = selectedFromBackend(md.hobbies);
+    selectedWeakestSubjects.value = selectedFromBackend(md.weakest_subjects);
+    selectedPreferredSubjects.value = selectedFromBackend(md.preferred_subjects);
+    selectedLabels.value = selectedFromBackend(md.labels);
+  },
+  { immediate: true }
+);
 
 const handleHobbyAdd = (value) => {
-  if (value && !selectedHobbies.value.includes(value)) {
-    const hobbyLabel = hobbyOptions.value.find(h => h.value === value)?.label || value;
-    selectedHobbies.value.push(hobbyLabel);
+  if (value && !selectedHobbies.value.some((h) => h.id === String(value))) {
+    const found = hobbyOptions.value.find((h) => h.value === String(value));
+    if (!found) return;
+    selectedHobbies.value.push({ id: String(found.value), name: found.label });
     selectedHobby.value = '';
-    emit('update-data', { hobbies: selectedHobbies.value });
+    emit('field-change', 'hobbies_ids', selectedHobbies.value.map((h) => h.id));
   }
 };
 
 const removeHobby = (index) => {
   selectedHobbies.value.splice(index, 1);
-  emit('update-data', { hobbies: selectedHobbies.value });
+  emit('field-change', 'hobbies_ids', selectedHobbies.value.map((h) => h.id));
 };
 
 const handleWeakestSubjectAdd = (value) => {
-  if (value && !selectedWeakestSubjects.value.includes(value)) {
-    const subjectLabel = subjectOptions.value.find(s => s.value === value)?.label || value;
-    selectedWeakestSubjects.value.push(subjectLabel);
+  if (value && !selectedWeakestSubjects.value.some((s) => s.id === String(value))) {
+    const found = subjectOptions.value.find((s) => s.value === String(value));
+    if (!found) return;
+    selectedWeakestSubjects.value.push({ id: String(found.value), name: found.label });
     selectedWeakestSubject.value = '';
-    emit('update-data', { weakestSubjects: selectedWeakestSubjects.value });
+    emit('field-change', 'weakest_subject_ids', selectedWeakestSubjects.value.map((s) => s.id));
   }
 };
 
 const removeWeakestSubject = (index) => {
   selectedWeakestSubjects.value.splice(index, 1);
-  emit('update-data', { weakestSubjects: selectedWeakestSubjects.value });
+  emit('field-change', 'weakest_subject_ids', selectedWeakestSubjects.value.map((s) => s.id));
 };
 
 const handlePreferredSubjectAdd = (value) => {
-  if (value && !selectedPreferredSubjects.value.includes(value)) {
-    const subjectLabel = subjectOptions.value.find(s => s.value === value)?.label || value;
-    selectedPreferredSubjects.value.push(subjectLabel);
+  if (value && !selectedPreferredSubjects.value.some((s) => s.id === String(value))) {
+    const found = subjectOptions.value.find((s) => s.value === String(value));
+    if (!found) return;
+    selectedPreferredSubjects.value.push({ id: String(found.value), name: found.label });
     selectedPreferredSubject.value = '';
-    emit('update-data', { preferredSubjects: selectedPreferredSubjects.value });
+    emit('field-change', 'preferred_subject_ids', selectedPreferredSubjects.value.map((s) => s.id));
   }
 };
 
 const removePreferredSubject = (index) => {
   selectedPreferredSubjects.value.splice(index, 1);
-  emit('update-data', { preferredSubjects: selectedPreferredSubjects.value });
+  emit('field-change', 'preferred_subject_ids', selectedPreferredSubjects.value.map((s) => s.id));
 };
 
 const handleLabelAdd = (value) => {
-  if (value && !selectedLabels.value.includes(value)) {
-    const labelName = labelOptions.value.find(l => l.value === value)?.label || value;
-    selectedLabels.value.push(labelName);
+  if (value && !selectedLabels.value.some((l) => l.id === String(value))) {
+    const found = labelOptions.value.find((l) => l.value === String(value));
+    if (!found) return;
+    selectedLabels.value.push({ id: String(found.value), name: found.label });
     selectedLabel.value = '';
-    emit('update-data', { labels: selectedLabels.value });
+    emit('field-change', 'labels_ids', selectedLabels.value.map((l) => l.id));
   }
 };
 
 const removeLabel = (index) => {
   selectedLabels.value.splice(index, 1);
-  emit('update-data', { labels: selectedLabels.value });
+  emit('field-change', 'labels_ids', selectedLabels.value.map((l) => l.id));
 };
 
-const handleGovernorateChange = (value) => {
-  emit('update-data', { governorate: value });
-};
+watch(selectedGovernorate, (value) => {
+  emit('field-change', 'governorate', value ?? '');
+});
 
-// Hard-coded hobbies
 const hobbyOptions = computed(() => {
-    const hobbies = [
-        'Reading',
-        'Sports',
-        'Music',
-        'Art',
-        'Programming',
-        'Gaming',
-        'Photography',
-        'Writing',
-        'Dancing',
-        'Cooking'
-    ];
-    return hobbies.map(hobby => ({ value: hobby.toLowerCase(), label: hobby }));
+  return normalizeSelectable(props.moreData?.hobbies).map((h) => ({
+    value: h.id,
+    label: h.name
+  }));
 });
 
-// Subjects based on educational section
 const subjectOptions = computed(() => {
-    // This would typically come from the student's educational section
-    // For now, using common subjects
-    const subjects = [
-        'Mathematics',
-        'Arabic',
-        'English',
-        'Science',
-        'History',
-        'Geography',
-        'Physics',
-        'Chemistry',
-        'Biology',
-        'French',
-        'German'
-    ];
-    return subjects.map(subject => ({ value: subject.toLowerCase(), label: subject }));
+  // Backend sends subjects lists twice (weakest/preferred) with separate `selected`.
+  // We just need the unique selectable catalog for BaseSelect options.
+  const weak = normalizeSelectable(props.moreData?.weakest_subjects);
+  const pref = normalizeSelectable(props.moreData?.preferred_subjects);
+  const byId = new Map();
+  for (const s of [...weak, ...pref]) {
+    byId.set(s.id, s.name);
+  }
+  return Array.from(byId.entries()).map(([id, name]) => ({ value: id, label: name }));
 });
 
-// Labels from labels page
 const labelOptions = computed(() => {
-    return props.labels.map(label => ({
-        value: label.id,
-        label: label.name
-    }));
+  return normalizeSelectable(props.moreData?.labels).map((l) => ({
+    value: l.id,
+    label: l.name
+  }));
 });
 
 // Governorate options (Egyptian governorates in Arabic)
 const governorateOptions = [
-    { value: 'cairo', label: 'القاهرة' },
-    { value: 'alexandria', label: 'الإسكندرية' },
-    { value: 'giza', label: 'الجيزة' },
-    { value: 'sharqia', label: 'الشرقية' },
-    { value: 'dakahlia', label: 'الدقهلية' },
-    { value: 'beheira', label: 'البحيرة' },
-    { value: 'monufia', label: 'المنوفية' },
-    { value: 'qalyubia', label: 'القليوبية' },
-    { value: 'gharbia', label: 'الغربية' },
-    { value: 'kafr-elsheikh', label: 'كفر الشيخ' }
+    { value: 'القاهرة', label: 'القاهرة' },
+    { value: 'الاسكندرية', label: 'الإسكندرية' },
+    { value: 'الجيزة', label: 'الجيزة' },
+    { value: 'الشرقية', label: 'الشرقية' },
+    { value: 'الدقهلية', label: 'الدقهلية' },
+    { value: 'البحيرة', label: 'البحيرة' },
+    { value: 'المنوفية', label: 'المنوفية' },
+    { value: 'القليوبية', label: 'القليوبية' },
+    { value: 'الغربية', label: 'الغربية' },
+    { value: 'كفر الشيخ', label: 'كفر الشيخ' }
 ];
 </script>

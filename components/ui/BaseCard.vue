@@ -10,7 +10,7 @@
       </div>
       <slot v-else name="header" />
     </div>
-    <div class="flex-1">
+    <div class="flex-1 min-h-0">
       <slot />
     </div>
     <div v-if="$slots.footer" class="mt-4 pt-4 border-t border-gray-100">
