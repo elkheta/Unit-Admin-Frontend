@@ -203,7 +203,7 @@ const { user } = useAuth();
 const { result, loading, error } = useQuery(
   GET_DASHBOARD_UNITS, 
   () => ({
-    kheta_id: user.value?.id
+    elkheta_id: user.value?.id
   })
 );
 
