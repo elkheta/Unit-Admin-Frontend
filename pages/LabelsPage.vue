@@ -1,6 +1,11 @@
 <template>
   <LabelsView
     :labels="labels"
+    :categories="categories"
+    :paginator-info="paginatorInfo"
+    :search-query="searchQuery"
+    @update:search-query="handleSearch"
+    @page-change="handlePageChange"
     @edit="handleEditLabel"
     @delete="handleDeleteLabel"
     @save="handleSaveLabel"
@@ -8,44 +13,132 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { LabelsView } from '../components/labels';
+import { useLabels } from '../composables/useLabels';
+import { useAuth } from '../composables/useAuth';
+import { useToast } from '../composables/useToast';
 
-// Labels state
-const labels = ref([
-  { id: 1, name: "VIP", category: "Status", description: "Very Important Person", creationDate: "2024-01-15" },
-  { id: 2, name: "New", category: "Status", description: "Newly joined student", creationDate: "2024-03-10" },
-  { id: 3, name: "Warning", category: "Behavior", description: "Student has warnings", creationDate: "2024-02-22" },
-  { id: 4, name: "Excellent", category: "Academic", description: "Top performing student", creationDate: "2024-01-20" },
-]);
+const { user, refreshAuth } = useAuth();
+const { 
+  fetchLabels, 
+  fetchCategories, 
+  createLabel, 
+  updateLabel, 
+  deleteLabel 
+} = useLabels();
+
+// Search & Pagination
+const searchQuery = ref('');
+const debouncedSearchQuery = ref('');
+const currentPage = ref(1);
+
+const variables = computed(() => ({
+  page: currentPage.value,
+  first: 10,
+  name: debouncedSearchQuery.value ? `%${debouncedSearchQuery.value}%` : undefined
+}));
+
+// Fetch Data
+const { result: labelsResult, refetch: refetchLabels } = fetchLabels(variables);
+const { result: categoriesResult } = fetchCategories();
+
+// Computed Data
+const labels = computed(() => labelsResult.value?.labels?.data || []);
+const paginatorInfo = computed(() => labelsResult.value?.labels?.paginatorInfo || {});
+const categories = computed(() => categoriesResult.value?.labelCategories || []);
+
+const { success, error, loading, removeToast } = useToast();
+
+const handlePageChange = (page) => {
+  currentPage.value = page;
+};
+
+let debounceTimer = null;
+const handleSearch = (query) => {
+  searchQuery.value = query; // Update config immediately for UI
+  
+  if (debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    debouncedSearchQuery.value = query;
+    currentPage.value = 1; // Reset to page 1 on search
+  }, 300);
+};
 
 const handleEditLabel = (_label) => {
   // Handled by LabelsView component
 };
 
-const handleDeleteLabel = (id) => {
-  if (window.confirm('Are you sure you want to delete this label?')) {
-    labels.value = labels.value.filter(l => l.id !== id);
+const handleDeleteLabel = async (id) => {
+  if (!confirm('Are you sure you want to delete this label?')) return;
+
+  const loadingId = loading('Deleting label...');
+  try {
+    const result = await deleteLabel(id);
+    removeToast(loadingId);
+    
+    if (result.success) {
+      success('Label deleted successfully');
+      refetchLabels();
+    } else {
+      error('Failed to delete label');
+    }
+  } catch (e) {
+    removeToast(loadingId);
+    error('Error deleting label: ' + e.message);
   }
 };
 
-const handleSaveLabel = (labelData) => {
-  if (labelData.id) {
-    // Edit
-    const index = labels.value.findIndex(l => l.id === labelData.id);
-    if (index !== -1) {
-      labels.value[index] = { ...labels.value[index], ...labelData };
+const handleSaveLabel = async (labelData) => {
+  const payload = {
+    name: labelData.name,
+    label_category_id: labelData.category,
+    description: labelData.description,
+    color: labelData.color,
+  };
+
+  const loadingId = loading(labelData.id ? 'Updating label...' : 'Creating label...');
+
+  try {
+    if (labelData.id) {
+      // Edit
+      const result = await updateLabel(labelData.id, payload);
+      removeToast(loadingId); // Clear loading
+      
+      if (result.success) {
+        success('Label updated successfully');
+        refetchLabels();
+      } else {
+        error('Failed to update label');
+      }
+    } else {
+      // Add
+      if (user.value) {
+        payload.created_by = user.value.id;
+      } else {
+         // Refresh and retry check
+         refreshAuth();
+         if (!user.value) {
+           removeToast(loadingId);
+           error('Authentication error: User session missing. Please reload.');
+           return;
+         }
+         payload.created_by = user.value.id;
+      }
+      
+      const result = await createLabel(payload);
+      removeToast(loadingId); // Clear loading
+      
+      if (result.success) {
+        success('Label created successfully');
+        refetchLabels();
+      } else {
+        error('Failed to create label: ' + (result.error?.message || 'Unknown error'));
+      }
     }
-  } else {
-    // Add
-    const newLabel = {
-      id: Math.max(...labels.value.map(l => l.id), 0) + 1,
-      name: labelData.name || 'New Label',
-      category: labelData.category || 'General',
-      description: labelData.description || '',
-      creationDate: new Date().toISOString().split('T')[0]
-    };
-    labels.value.push(newLabel);
+  } catch (e) {
+    removeToast(loadingId);
+    error('An unexpected error occurred: ' + e.message);
   }
 };
 </script>
