@@ -76,7 +76,7 @@ const studentsData = computed(() => {
     lastActive: formatLastSeen(s.last_seen),
     status: 'Active', // Default or derive from expiration
     group: s.group_name || 'No Group',
-    performance: s.missed_lessons_percent > 50 ? 'At Risk' : (s.current_progress > 90 ? 'Excellent' : 'Good'), // Derive performance
+    labels: s.labels || [], // Map labels
     dateAdded: s.added_to_unit_at,
     expirationDate: s.expiration_date,
     

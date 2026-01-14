@@ -66,6 +66,11 @@ export const GET_UNIT_STUDENTS = gql`
         parent_name
         parent_phone
         added_to_unit_at
+        labels {
+          id
+          name
+          color
+        }
       }
       paginatorInfo {
         currentPage
