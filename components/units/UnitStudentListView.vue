@@ -100,9 +100,7 @@
     <StudentNotesModal
       :is-open="isNotesModalOpen"
       :student="currentNotesStudent"
-      :notes="currentStudentNotes"
       @close="closeNotesModal"
-      @update:notes="updateCurrentStudentNotes"
     />
   </div>
 </template>
@@ -212,13 +210,6 @@ const accumulatedLessonsData = computed(() => {
 // Notes modal state
 const isNotesModalOpen = ref(false);
 const currentNotesStudent = ref(null);
-const notesByStudentId = ref({});
-
-const currentStudentNotes = computed(() => {
-  const id = currentNotesStudent.value?.id;
-  if (!id) return [];
-  return notesByStudentId.value[id] || [];
-});
 
 // Sorting options
 const sortOptions = ref({
@@ -1342,14 +1333,7 @@ const closeNotesModal = () => {
   currentNotesStudent.value = null;
 };
 
-const updateCurrentStudentNotes = (nextNotes) => {
-  const id = currentNotesStudent.value?.id;
-  if (!id) return;
-  notesByStudentId.value = {
-    ...notesByStudentId.value,
-    [id]: Array.isArray(nextNotes) ? nextNotes : []
-  };
-};
+
 
 const handleStudentNameClick = (student) => {
   // eslint-disable-next-line no-console
