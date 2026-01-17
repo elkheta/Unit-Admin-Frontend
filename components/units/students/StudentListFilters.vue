@@ -5,7 +5,7 @@
       <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
         <Search :size="20" class="text-gray-400" />
       </div>
-      <input v-model="searchQuery" type="text" placeholder="Search by name or number"
+      <input v-model="searchQuery" type="text" placeholder="Search by name"
         class="w-full pl-12 pr-4 py-3 bg-white border border-gray-300 rounded-lg text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
         @input="$emit('search', $event.target.value)" />
     </div>

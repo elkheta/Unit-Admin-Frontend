@@ -78,9 +78,14 @@
           </button>
         </div>
 
-        <!-- Performance Badge -->
-        <div class="flex-shrink-0">
-          <StudentPerformanceBadge :performance="student.performance" />
+        <!-- Performance Badges -->
+        <div class="flex flex-wrap gap-1 flex-shrink-0">
+          <StudentPerformanceBadge 
+            v-for="label in student.labels" 
+            :key="label.id" 
+            :name="label.name" 
+            :color="label.color" 
+          />
         </div>
       </div>
 
@@ -90,14 +95,8 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-<<<<<<< HEAD
 import { MessageCircle, FileText, Monitor } from 'lucide-vue-next';
 import { DiamondIcon } from '../../ui';
-import StudentScoreBadge from './StudentScoreBadge.vue';
-=======
-import { MessageCircle, FileText } from 'lucide-vue-next';
-import { BaseSelect, DiamondIcon } from '../../ui';
->>>>>>> main
 import StudentStatusBadge from './StudentStatusBadge.vue';
 import StudentPerformanceBadge from './StudentPerformanceBadge.vue';
 import StudentScoreBadge from './StudentScoreBadge.vue';

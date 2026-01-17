@@ -18,6 +18,12 @@ export const GET_DASHBOARD_UNITS = gql`
         current
         capacity
       }
+      education_section {
+        subjects {
+          id
+          name
+        }
+      }
     }
   }
 `;

@@ -100,9 +100,7 @@
     <StudentNotesModal
       :is-open="isNotesModalOpen"
       :student="currentNotesStudent"
-      :notes="currentStudentNotes"
       @close="closeNotesModal"
-      @update:notes="updateCurrentStudentNotes"
     />
   </div>
 </template>
@@ -212,13 +210,6 @@ const accumulatedLessonsData = computed(() => {
 // Notes modal state
 const isNotesModalOpen = ref(false);
 const currentNotesStudent = ref(null);
-const notesByStudentId = ref({});
-
-const currentStudentNotes = computed(() => {
-  const id = currentNotesStudent.value?.id;
-  if (!id) return [];
-  return notesByStudentId.value[id] || [];
-});
 
 // Sorting options
 const sortOptions = ref({
@@ -275,9 +266,13 @@ const groupOptions = computed(() => {
 });
 
 // Subject options placeholder (requires backend support)
-const subjectOptions = computed(() => [
-  { value: '', label: 'All Subjects' }
-]);
+const subjectOptions = computed(() => {
+  const subjects = props.selectedUnit?.education_section?.subjects || [];
+  return [
+    { value: '', label: 'All Subjects' },
+    ...subjects.map(s => ({ value: s.id, label: s.name }))
+  ];
+});
 
 // Helper to map UI filter object to min/max values
 const getFilterValues = (filterObj) => {
@@ -1338,14 +1333,7 @@ const closeNotesModal = () => {
   currentNotesStudent.value = null;
 };
 
-const updateCurrentStudentNotes = (nextNotes) => {
-  const id = currentNotesStudent.value?.id;
-  if (!id) return;
-  notesByStudentId.value = {
-    ...notesByStudentId.value,
-    [id]: Array.isArray(nextNotes) ? nextNotes : []
-  };
-};
+
 
 const handleStudentNameClick = (student) => {
   // eslint-disable-next-line no-console
