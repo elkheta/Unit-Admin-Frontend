@@ -154,7 +154,8 @@
                 v-model="email"
                 type="email"
                 placeholder="Email Address"
-                input-class="bg-gray-50 text-gray-400 italic focus:ring-2 focus:ring-blue-100"
+                disabled
+                input-class="bg-gray-100 text-gray-600 cursor-not-allowed"
             />
         </div>
 
@@ -242,10 +243,6 @@ watch(mainPhoneHasWhatsapp, () => {
 watch(extraPhones, () => {
   emitPhoneNumbers();
 }, { deep: true });
-
-watch(email, (value) => {
-  emit('field-change', 'email', value ?? '');
-});
 
 watch(extraNames, (value) => {
   const cleaned = Array.isArray(value)
