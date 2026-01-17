@@ -9,13 +9,27 @@
         v-model="localLabel.name" 
         label="Label Name" 
         placeholder="e.g. VIP, Urgent"
+        :error="errors.name"
       />
-      <BaseSelect
-        v-model="localLabel.category"
-        label="Linked Category"
-        placeholder="Select Category"
-        :options="categoryOptions"
-      />
+      
+      <div class="grid grid-cols-2 gap-4">
+        <BaseSelect
+          v-model="localLabel.category"
+          label="Linked Category"
+          placeholder="Select Category"
+          :options="categoryOptions"
+          :error="errors.category"
+        />
+        
+        <BaseSelect
+          v-model="localLabel.color"
+          label="Label Color"
+          placeholder="Select Color"
+          :options="colorOptions"
+          :error="errors.color"
+        />
+      </div>
+
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
         <textarea 
@@ -44,15 +58,8 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { BaseModal, BaseButton, BaseInput, BaseSelect } from '../ui';
-
-const categoryOptions = [
-  { value: 'status', label: 'Status' },
-  { value: 'behavior', label: 'Behavior' },
-  { value: 'academic', label: 'Academic' },
-  { value: 'general', label: 'General' }
-];
 
 const props = defineProps({
   isOpen: {
@@ -62,27 +69,83 @@ const props = defineProps({
   label: {
     type: Object,
     default: () => ({})
+  },
+  categories: {
+    type: Array,
+    default: () => []
   }
 });
+
+const categoryOptions = computed(() => {
+  return props.categories.map(cat => ({
+    value: cat.id,
+    label: cat.name
+  }));
+});
+
+const colorOptions = [
+  { value: 'Red', label: 'Red' },
+  { value: 'Yellow', label: 'Yellow' },
+  { value: 'Blue', label: 'Blue' },
+  { value: 'Pink', label: 'Pink' },
+  { value: 'Black', label: 'Black' },
+  { value: 'Orange', label: 'Orange' },
+  { value: 'Green', label: 'Green' },
+  { value: 'Purple', label: 'Purple' },
+  { value: 'Brown', label: 'Brown' },
+  { value: 'White', label: 'White' }
+];
 
 const emit = defineEmits(['close', 'save']);
 
-const localLabel = ref({ name: '', category: '', description: '' });
+const localLabel = ref({ name: '', category: '', color: '', description: '' });
+const errors = ref({});
 
 watch(() => props.label, (newLabel) => {
-  localLabel.value = { ...newLabel };
+  // If editing, category might be an object {id, name}, retrieve id for select
+  const categoryId = newLabel.category?.id || newLabel.category; 
+  localLabel.value = { 
+    ...newLabel,
+    category: categoryId
+  };
 }, { immediate: true, deep: true });
 
 watch(() => props.isOpen, (isOpen) => {
+  errors.value = {}; // Reset errors on open/close
   if (!isOpen) {
-    localLabel.value = { name: '', category: '', description: '' };
+    localLabel.value = { name: '', category: '', color: '', description: '' };
   } else if (props.label && Object.keys(props.label).length > 0) {
-    localLabel.value = { ...props.label };
+     const categoryId = props.label.category?.id || props.label.category;
+    localLabel.value = { ...props.label, category: categoryId };
   }
 });
 
+const validate = () => {
+  errors.value = {};
+  let isValid = true;
+
+  if (!localLabel.value.name?.trim()) {
+    errors.value.name = 'Label Name is required';
+    isValid = false;
+  }
+
+  if (!localLabel.value.category) {
+    errors.value.category = 'Category is required';
+    isValid = false;
+  }
+
+  if (!localLabel.value.color) {
+    errors.value.color = 'Color is required';
+    isValid = false;
+  }
+
+  return isValid;
+};
+
 const handleSave = () => {
-  emit('save', { ...localLabel.value });
+  if (validate()) {
+    emit('save', { ...localLabel.value });
+  }
 };
 </script>
 
