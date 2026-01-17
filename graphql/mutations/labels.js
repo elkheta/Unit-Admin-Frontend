@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client/core';
 
 export const CREATE_LABEL = gql`
-  mutation CreateLabel($input: CreateLabelInput!) {
+  mutation CreateLabel($input: LabelInput!) {
     createLabel(input: $input) {
       id
       name
@@ -21,7 +21,7 @@ export const CREATE_LABEL = gql`
 `;
 
 export const UPDATE_LABEL = gql`
-  mutation UpdateLabel($id: ID!, $input: UpdateLabelInput!) {
+  mutation UpdateLabel($id: ID!, $input: LabelInput!) {
     updateLabel(id: $id, input: $input) {
       id
       name
