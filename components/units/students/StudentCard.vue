@@ -43,7 +43,12 @@
       <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-between md:justify-end">
         <!-- Score Badge -->
         <div class="flex-shrink-0">
-          <StudentScoreBadge :score="student.score" @click="$emit('score-click', student)" />
+          <StudentScoreBadge 
+            :score="student.score" 
+            :accumulated-lessons="student.accumulatedLessons"
+            :accumulated-progress="student.accumulatedProgress"
+            @click="$emit('score-click', student)" 
+          />
         </div>
 
         <!-- Diamond Points -->

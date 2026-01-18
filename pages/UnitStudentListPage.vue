@@ -75,6 +75,8 @@ const studentsData = computed(() => {
     averageProgress: s.current_progress || 0,
     score: s.points || 0,
     diamondPoints: s.diamonds || 0,
+    accumulatedLessons: s.accumulated_lessons_count || 0, // Map from backend
+    accumulatedProgress: s.accumulated_lessons_percentage || 0, // Map from backend
     // Format date to relative time
     lastActive: formatLastSeen(s.last_seen),
     status: 'Active', // Default or derive from expiration
