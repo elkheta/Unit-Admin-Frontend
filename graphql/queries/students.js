@@ -16,6 +16,7 @@ export const GET_UNIT_STUDENTS = gql`
     $lessons_min: Int
     $last_seen_after: DateTime
     $last_seen_before: DateTime
+    $expired: Boolean
     $orderBy: [OrderByClause!]
   ) {
     unit(slug: $slug) {
@@ -50,6 +51,7 @@ export const GET_UNIT_STUDENTS = gql`
       lessons_min: $lessons_min
       last_seen_after: $last_seen_after
       last_seen_before: $last_seen_before
+      expired: $expired
       orderBy: $orderBy
     ) {
       data {

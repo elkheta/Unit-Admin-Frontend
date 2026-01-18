@@ -10,6 +10,7 @@
       :current-filters="filters"
       :group-options="groupOptions"
       :subject-options="subjectOptions"
+      :initial-search="searchQuery"
       @search="handleSearch"
       @apply-sort="handleApplySort"
       @filter-group="handleFilterGroup"
@@ -137,6 +138,14 @@ const props = defineProps({
   error: {
     type: Object,
     default: null
+  },
+  initialSearchQuery: {
+     type: String,
+     default: ''
+  },
+  initialExpired: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -149,13 +158,110 @@ const emit = defineEmits([
   'apply-filter'
 ]);
 
+const handleRemoveFilter = (filterKey) => {
+  if (filterKey === 'diamonds') filters.value.diamonds = null;
+  if (filterKey === 'progress') filters.value.progress = null;
+  if (filterKey === 'lessons') filters.value.lessons = null;
+  if (filterKey === 'last-seen') filters.value['last-seen'] = null;
+  if (filterKey === 'expired') filters.value.expired = false;
+};
+
+const handleClearAllFilters = () => {
+    filters.value = {
+        diamonds: null,
+        progress: null,
+        lessons: null,
+        'last-seen': null,
+        expired: false
+    };
+    searchQuery.value = ''; // Also clear search? Usually yes or no depending on UX. Let's keep search separate for now or clear it too if desired.
+    // Actually typically clear all filters leaves search alone or clears it. Standard is clear filters.
+};
+
+const handleSortClick = () => {
+  isSortModalOpen.value = true;
+};
+
+const handleCloseSidebar = () => {
+  isProfileSidebarOpen.value = false;
+  selectedStudent.value = null;
+};
+
+const handleSaveProfile = (updatedStudent) => {
+  // logic to update student in list
+  console.log('Save profile', updatedStudent);
+  handleCloseSidebar();
+};
+
+const handleCloseScheduleSidebar = () => {
+  isScheduleSidebarOpen.value = false;
+  selectedStudentForSchedule.value = null;
+};
+
+const handleCloseAccumulatedLessonsSidebar = () => {
+  isAccumulatedLessonsSidebarOpen.value = false;
+  selectedStudentForAccumulatedLessons.value = null;
+};
+
+const handleGoToScheduleFromAccumulated = (student) => {
+  handleCloseAccumulatedLessonsSidebar();
+  handleProgressClick(student);
+};
+
+const handleGroupChange = (student, newGroup) => {
+    // update logic
+    console.log('Group changed', student.id, newGroup);
+};
+
+const handleWhatsAppClick = (student) => {
+    window.open(`https://wa.me/${student.phone}`, '_blank');
+};
+
+const handleProgressClick = (student) => {
+  selectedStudentForSchedule.value = student;
+  isScheduleSidebarOpen.value = true;
+};
+
+const handleScoreClick = (student) => {
+    // maybe show score history
+    console.log('Score click', student.name);
+};
+
+const handleNotesClick = (student) => {
+  currentNotesStudent.value = student;
+  isNotesModalOpen.value = true;
+};
+
+const closeNotesModal = () => {
+  isNotesModalOpen.value = false;
+  currentNotesStudent.value = null;
+};
+
+const handleStudentNameClick = (student) => {
+    selectedStudent.value = student;
+    isProfileSidebarOpen.value = true;
+};
+
+const handleAccumulatedLessonsClick = (student) => {
+  selectedStudentForAccumulatedLessons.value = student;
+  isAccumulatedLessonsSidebarOpen.value = true;
+};
+
+const handleFilterGroup = (group) => {
+    selectedGroup.value = group;
+};
+
+const handleFilterSubject = (subject) => {
+    selectedSubject.value = subject;
+};
+
 const unitName = computed(() => {
   return props.selectedUnit?.name || props.selectedUnit?.title || 'Unit';
 });
 
 // Sample students data - in a real app, this would come from an API
 const students = ref([]);
-const searchQuery = ref('');
+const searchQuery = ref(props.initialSearchQuery);
 const selectedGroup = ref('');
 const selectedSubject = ref('');
 const isProfileSidebarOpen = ref(false);
@@ -225,7 +331,8 @@ const filters = ref({
   diamonds: null,
   progress: null,
   lessons: null,
-  'last-seen': null
+  'last-seen': null,
+  expired: props.initialExpired // Initialize with prop
 });
 
 // Determine if we are using backend data
@@ -337,6 +444,7 @@ watch([searchQuery, selectedGroup, selectedSubject, filters, sortOptions], () =>
       lessons_min: filters.value.lessons?.value || filters.value.lessons?.min, // Simple fallback for now
       last_seen_after: lastSeenAfter,
       last_seen_before: lastSeenBefore,
+      expired: filters.value.expired,
       // Map other filters...
       // Sort
       // dateAdded: sortOptions.value.dateAdded
@@ -1256,133 +1364,6 @@ const handleApplySort = (newSortOptions) => {
   currentPage.value = 1;
 };
 
-const handleFilterGroup = (group) => {
-  selectedGroup.value = group;
-  currentPage.value = 1;
-};
 
-const handleFilterSubject = (subject) => {
-  selectedSubject.value = subject;
-  currentPage.value = 1;
-};
-
-const handleApplyFilter = ({ filterType, filterData }) => {
-  if (filterData && (filterData.value !== null || filterData.min !== null)) {
-    filters.value[filterType] = filterData;
-  } else {
-    filters.value[filterType] = null;
-  }
-  currentPage.value = 1;
-};
-
-const handleRemoveFilter = (filterType) => {
-  filters.value[filterType] = null;
-  currentPage.value = 1;
-};
-
-const handleClearAllFilters = () => {
-  filters.value = {
-    diamonds: null,
-    progress: null,
-    lessons: null,
-    'last-seen': null
-  };
-  currentPage.value = 1;
-};
-
-const handleGroupChange = ({ studentId, group }) => {
-  const student = students.value.find(s => s.id === studentId);
-  if (student) {
-    student.group = group;
-  }
-};
-
-const handlePageChange = (page) => {
-  currentPage.value = page;
-  // Scroll to top of list
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
-const handleWhatsAppClick = (student) => {
-  // Already handled in StudentCard component
-  // In a real app, this could trigger analytics or additional actions
-  // eslint-disable-next-line no-console
-  console.log('WhatsApp clicked for:', student.name);
-};
-
-const handleProgressClick = (student) => {
-  selectedStudentForSchedule.value = student;
-  isScheduleSidebarOpen.value = true;
-};
-
-const handleScoreClick = (student) => {
-  // Navigate to student score details or show modal
-  // In a real app, this would navigate to a detailed score page
-  // eslint-disable-next-line no-console
-  console.log('Score clicked for:', student.name);
-};
-
-const handleNotesClick = (student) => {
-  // Match the legacy dashboard behavior: open modal and stop propagation is handled in StudentCard
-  currentNotesStudent.value = student;
-  isNotesModalOpen.value = true;
-};
-
-const closeNotesModal = () => {
-  isNotesModalOpen.value = false;
-  currentNotesStudent.value = null;
-};
-
-
-
-const handleStudentNameClick = (student) => {
-  // eslint-disable-next-line no-console
-  console.log('Student name clicked:', student.name);
-  selectedStudent.value = student;
-  isProfileSidebarOpen.value = true;
-  // eslint-disable-next-line no-console
-  console.log('Sidebar should be open:', isProfileSidebarOpen.value);
-};
-
-const handleCloseSidebar = () => {
-  isProfileSidebarOpen.value = false;
-  selectedStudent.value = null;
-};
-
-const handleCloseScheduleSidebar = () => {
-  isScheduleSidebarOpen.value = false;
-  selectedStudentForSchedule.value = null;
-};
-
-const handleAccumulatedLessonsClick = (student) => {
-  selectedStudentForAccumulatedLessons.value = student;
-  isAccumulatedLessonsSidebarOpen.value = true;
-};
-
-const handleCloseAccumulatedLessonsSidebar = () => {
-  isAccumulatedLessonsSidebarOpen.value = false;
-  selectedStudentForAccumulatedLessons.value = null;
-};
-
-const handleGoToScheduleFromAccumulated = (student) => {
-  // Close accumulated lessons sidebar and open schedule sidebar
-  isAccumulatedLessonsSidebarOpen.value = false;
-  selectedStudentForAccumulatedLessons.value = null;
-  selectedStudentForSchedule.value = student;
-  isScheduleSidebarOpen.value = true;
-};
-
-const handleSaveProfile = (data) => {
-  // Save profile changes
-  if (selectedStudent.value) {
-    // Update student data
-    const student = students.value.find(s => s.id === selectedStudent.value.id);
-    if (student) {
-      student.specialNotes = data.specialNotes;
-    }
-  }
-  // eslint-disable-next-line no-console
-  console.log('Profile saved:', data);
-};
 </script>
 

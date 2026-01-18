@@ -54,6 +54,19 @@
             </button>
         </div>
 
+        <!-- Expired Filter -->
+        <div v-if="filters.expired"
+            class="flex items-center gap-2 px-3 py-1.5 bg-orange-50 border border-orange-200 rounded-lg">
+            <span class="flex items-center gap-1.5 text-sm text-orange-700 font-medium">
+                <AlertCircle :size="14" />
+                Expired Only
+            </span>
+            <button class="text-orange-600 hover:text-orange-800 transition-colors" title="Remove filter"
+                @click="$emit('remove-filter', 'expired')">
+                <X :size="16" />
+            </button>
+        </div>
+
         <!-- Clear All Button -->
         <button
             class="px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
@@ -65,7 +78,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import { X } from 'lucide-vue-next';
+import { X, AlertCircle } from 'lucide-vue-next';
 
 const props = defineProps({
     filters: {

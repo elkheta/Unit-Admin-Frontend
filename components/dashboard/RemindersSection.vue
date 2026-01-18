@@ -15,6 +15,7 @@
         :reminder="reminder"
         @complete="$emit('complete', $event)"
         @dismiss="$emit('dismiss', $event)"
+        @view="$emit('view', $event)"
       />
     </div>
   </BaseCard>
@@ -32,6 +33,6 @@ defineProps({
   }
 });
 
-defineEmits(['complete', 'dismiss']);
+defineEmits(['complete', 'dismiss', 'view']);
 </script>
 

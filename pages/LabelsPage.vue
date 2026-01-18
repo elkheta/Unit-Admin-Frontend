@@ -113,18 +113,7 @@ const handleSaveLabel = async (labelData) => {
       }
     } else {
       // Add
-      if (user.value) {
-        payload.created_by = user.value.id;
-      } else {
-         // Refresh and retry check
-         refreshAuth();
-         if (!user.value) {
-           removeToast(loadingId);
-           error('Authentication error: User session missing. Please reload.');
-           return;
-         }
-         payload.created_by = user.value.id;
-      }
+      // Add
       
       const result = await createLabel(payload);
       removeToast(loadingId); // Clear loading

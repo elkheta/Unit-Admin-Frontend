@@ -4,6 +4,8 @@
     :students-result="studentsData"
     :loading="loading"
     :error="error"
+    :initial-search-query="variables.search"
+    :initial-expired="variables.expired"
     @search="handleSearch"
     @page-change="handlePageChange"
     @filter-change="handleFilterChange"
@@ -28,7 +30,8 @@ const unitSlug = route.params.slug;
 const variables = ref({
   slug: unitSlug,
   page: 1,
-  search: '',
+  search: route.query.search || '',
+  expired: route.query.expired === 'true' || null,
   group_name: null,
   subject_id: null,
   diamonds_min: null,
