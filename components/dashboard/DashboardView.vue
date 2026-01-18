@@ -204,6 +204,9 @@ const { result, loading, error } = useQuery(
   GET_DASHBOARD_UNITS, 
   () => ({
     elkheta_id: user.value?.id
+  }),
+  () => ({
+    enabled: !!user.value?.id
   })
 );
 

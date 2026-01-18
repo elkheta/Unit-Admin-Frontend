@@ -78,9 +78,14 @@
           </button>
         </div>
 
-        <!-- Performance Badge -->
-        <div class="flex-shrink-0">
-          <StudentPerformanceBadge :performance="student.performance" />
+        <!-- Performance Badges -->
+        <div class="flex flex-wrap gap-1 flex-shrink-0">
+          <StudentPerformanceBadge 
+            v-for="label in student.labels" 
+            :key="label.id" 
+            :name="label.name" 
+            :color="label.color" 
+          />
         </div>
       </div>
 

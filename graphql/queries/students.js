@@ -28,6 +28,12 @@ export const GET_UNIT_STUDENTS = gql`
       groups {
         name
       }
+      education_section {
+        subjects {
+          id
+          name
+        }
+      }
     }
     students(
       unit_slug: $slug
@@ -60,6 +66,11 @@ export const GET_UNIT_STUDENTS = gql`
         parent_name
         parent_phone
         added_to_unit_at
+        labels {
+          id
+          name
+          color
+        }
       }
       paginatorInfo {
         currentPage
