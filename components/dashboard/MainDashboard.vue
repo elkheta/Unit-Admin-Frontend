@@ -18,6 +18,7 @@
       :reminders="reminders"
       @complete="$emit('complete-reminder', $event)"
       @dismiss="$emit('dismiss-reminder', $event)"
+      @view="$emit('view-reminder', $event)"
     />
   </div>
 </template>
@@ -37,6 +38,6 @@ defineProps({
   }
 });
 
-defineEmits(['unit-click', 'expired-click', 'complete-reminder', 'dismiss-reminder', 'settings-click']);
+defineEmits(['unit-click', 'expired-click', 'complete-reminder', 'dismiss-reminder', 'settings-click', 'view-reminder']);
 </script>
 

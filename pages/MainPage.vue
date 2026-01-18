@@ -8,6 +8,7 @@
     @complete-reminder="handleCompleteReminder"
 
     @dismiss-reminder="handleDismissReminder"
+    @view-reminder="handleViewReminder"
     @settings-click="handleSettingsClick"
   />
 </template>
@@ -16,8 +17,8 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { MainDashboard } from '../components/dashboard';
-import { useQuery } from '@vue/apollo-composable';
-import { GET_DASHBOARD_UNITS } from '../graphql/queries/dashboard';
+import { useQuery, useMutation } from '@vue/apollo-composable';
+import { GET_DASHBOARD_UNITS, GET_DASHBOARD_REMINDERS, UPDATE_STUDENT_NOTE, DELETE_STUDENT_NOTE } from '../graphql/queries/dashboard';
 import { useAuth } from '../composables/useAuth.js';
 
 const { user } = useAuth();
@@ -29,6 +30,13 @@ const { result, loading, error } = useQuery(
     elkheta_id: user.value?.id
   })
 );
+
+const { result: remindersResult, refetch: refetchReminders } = useQuery(GET_DASHBOARD_REMINDERS, null, {
+  pollInterval: 60000
+});
+
+const { mutate: updateNote } = useMutation(UPDATE_STUDENT_NOTE);
+const { mutate: deleteNote } = useMutation(DELETE_STUDENT_NOTE);
 
 const units = computed(() => {
   if (!result.value?.dashboardUnits) return [];
@@ -43,59 +51,47 @@ const units = computed(() => {
     students: unit.current_capacity || 0,
     outside: unit.outside_count || 0, 
     availableCapacity: (unit.max_capacity || 0) - (unit.current_capacity || 0),
-    reminders: 0,
+    reminders: unit.reminders_count || 0,
     expiredCount: unit.students_expired_at_count || 0,
     groups: unit.groups || [],
   }));
 });
 
+const getStatusIndicator = (dueDate) => {
+  if (!dueDate) return 'Upcoming';
+  const today = new Date();
+  const due = new Date(dueDate);
+  const diffTime = due - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) return 'Overdue';
+  if (diffDays <= 3) return 'Due Soon';
+  return 'Upcoming';
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
 // Reminders state
-const reminders = ref([
-  {
-    id: 1,
-    description: "Contact parent regarding progress",
-    personName: "Dina Sayed",
-    group: "Group A",
-    unit: "S3 - Rania",
-    status: "Pending",
-    dueDate: "Sep 20",
-    statusIndicator: "Overdue",
-    studentId: 12
-  },
-  {
-    id: 2,
-    description: "هكلمها بخصوص",
-    personName: "Rania Farid",
-    group: "Group A",
-    unit: "S3 - Rania",
-    status: "Pending",
-    dueDate: "Sep 25",
-    statusIndicator: "Overdue",
-    studentId: 13
-  },
-  {
-    id: 3,
-    description: "Follow up on homework",
-    personName: "Youssef Ali",
-    group: "Group B",
-    unit: "S3 - Rania",
-    status: "Pending",
-    dueDate: "Sep 28",
-    statusIndicator: "Due Soon",
-    studentId: 5
-  },
-  {
-    id: 4,
-    description: "Schedule meeting with parent",
-    personName: "Karim Adel",
-    group: "Outside",
-    unit: "S3 - Rania",
-    status: "Pending",
-    dueDate: "Oct 1",
-    statusIndicator: "Upcoming",
-    studentId: 9
-  }
-]);
+const reminders = computed(() => {
+  if (!remindersResult.value?.dashboardReminders) return [];
+
+  return remindersResult.value.dashboardReminders.map(reminder => ({
+    id: reminder.id,
+    description: reminder.text,
+    personName: reminder.student?.name || 'Unknown',
+    group: reminder.student?.group_name || 'No Group',
+    unit: reminder.student?.unit?.name || 'No Unit',
+    unitSlug: reminder.student?.unit?.slug,
+    status: reminder.status || 'Pending',
+    dueDate: formatDate(reminder.due_date),
+    statusIndicator: getStatusIndicator(reminder.due_date),
+    studentId: reminder.student?.id
+  }));
+});
 
 // Mock students data for expired count
 const allStudents = [];
@@ -106,9 +102,14 @@ const handleUnitClick = (unit) => {
   }
 };
 
-const handleExpiredClick = (_unit) => {
-  // Navigate to unit details or keep on main page
-  // TODO: Implement expired navigation
+const handleExpiredClick = (unit) => {
+  if (unit.slug) {
+    router.push({ 
+      name: 'UnitStudentList', 
+      params: { slug: unit.slug },
+      query: { expired: 'true' }
+    });
+  }
 };
 
 const handleSettingsClick = (unit) => {
@@ -117,13 +118,40 @@ const handleSettingsClick = (unit) => {
   }
 };
 
-const handleCompleteReminder = (reminderId) => {
-  reminders.value = reminders.value.filter(r => r.id !== reminderId);
+const handleViewReminder = (reminder) => {
+  if (reminder.unitSlug && reminder.personName) {
+    router.push({
+      name: 'UnitStudentList',
+      params: { slug: reminder.unitSlug },
+      query: { search: reminder.personName }
+    });
+  }
 };
 
-const handleDismissReminder = (reminderId) => {
-  if (window.confirm('Are you sure you want to delete this reminder?')) {
-    reminders.value = reminders.value.filter(r => r.id !== reminderId);
+const handleCompleteReminder = async (reminderId) => {
+  // ... existing implementation
+  try {
+    await updateNote({
+      id: reminderId,
+      input: { status: 'completed' }
+    });
+    refetchReminders();
+  } catch (e) {
+    console.error('Error completing reminder:', e);
+  }
+};
+
+const handleDismissReminder = async (reminderId) => {
+  if (window.confirm('Are you sure you want to dismiss this reminder?')) {
+    try {
+      await updateNote({ 
+        id: reminderId,
+        input: { status: 'cancelled' }
+      });
+      refetchReminders();
+    } catch (e) {
+      console.error('Error dismissing reminder:', e);
+    }
   }
 };
 </script>

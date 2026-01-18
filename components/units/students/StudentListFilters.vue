@@ -109,6 +109,10 @@ const props = defineProps({
   subjectOptions: {
     type: Array,
     default: () => []
+  },
+  initialSearch: {
+    type: String,
+    default: ''
   }
 });
 
@@ -120,7 +124,7 @@ const emit = defineEmits([
   'apply-filter'
 ]);
 
-const searchQuery = ref('');
+const searchQuery = ref(props.initialSearch);
 const selectedGroup = ref('');
 const selectedSubject = ref('');
 const isSortModalOpen = ref(false);
