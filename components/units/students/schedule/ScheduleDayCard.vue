@@ -2,17 +2,17 @@
   <div :class="[
     'bg-white rounded-lg border-2 transition-all',
     day.isToday ? 'border-blue-500 bg-blue-50' : 'border-gray-200',
-    day.isHoliday ? 'bg-green-50 border-green-200' : ''
   ]">
     <!-- Day Header -->
-    <div class="flex items-center justify-between mb-4 p-4 pb-3">
+    <div class="flex items-center justify-between p-4 pb-3">
       <!-- Left: Overall Percentage -->
-      <div v-if="!day.isHoliday" :class="[
+      <div v-if="!day.isHoliday && day.subjects.length > 0" :class="[
         'text-2xl font-bold',
         day.dailyProgress >= 80 ? 'text-green-600' : 'text-orange-600'
       ]">
         {{ day.dailyProgress }}%
       </div>
+      <div v-else-if="day.subjects.length === 0" class="text-2xl font-bold text-gray-500"></div>
       <!-- Right: Day Name and Today Badge -->
       <div class="flex items-center gap-3">
         <span v-if="day.isToday" class="px-3 py-1 bg-blue-600 text-white text-xs font-semibold rounded-full">
@@ -26,13 +26,18 @@
     </div>
 
     <!-- Holiday Display -->
-    <div v-if="day.isHoliday" class="flex items-center justify-center py-6">
+    <div v-if="day.isHoliday" class="flex items-center justify-center py-6 bg-gray-50">
       <div class="flex items-center gap-2 px-4 py-2.5 bg-green-100 rounded-lg border border-green-200">
-        <PalmTreeIcon :size="20" class="text-green-700" />
+        <PalmTreeIcon :size="20" class="text-green-700 " />
         <span class="text-green-700 font-semibold text-sm">إجازة</span>
       </div>
     </div>
-
+  <!-- No Subjects Display -->
+    <div v-else-if="day.subjects.length === 0" class="flex items-center justify-center py-6 bg-gray-50">
+      <div class="flex items-center gap-2 px-4 py-2.5 bg-gray-100 rounded-lg border border-gray-200">
+        <span class="text-gray-700 font-semibold text-sm">لا توجد مواد مجدولة        </span>
+      </div>
+    </div>
     <!-- Subjects List -->
     <div v-else class="bg-gray-50">
       <div class="space-y-3 p-3">
@@ -59,4 +64,5 @@ defineProps({
 });
 
 defineEmits(['view-details']);
+
 </script>

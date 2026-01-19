@@ -9,6 +9,7 @@
       />
     </Transition>
 
+    
     <!-- Sidebar -->
     <Transition name="slide">
       <div
@@ -26,7 +27,8 @@
               >
                 <X :size="20" class="text-gray-500" />
               </button>
-              <BaseButton
+              <BaseButton 
+                v-if="!scheduleLoading && !scheduleErrorMessage"
                 variant="primary"
                 size="sm"
                 :icon="Edit"
@@ -34,6 +36,7 @@
               >
                 Edit Schedule
               </BaseButton>
+
               <div class="flex-1">
                 <h2 class="text-xl font-bold text-gray-900 text-right">{{ student?.name || 'Student Schedule' }} - جدول الطالب</h2>
               </div>
@@ -43,10 +46,12 @@
         </div>
 
         <!-- Week Navigation -->
-        <div class="flex-shrink-0 px-6 py-4 border-b border-gray-200 bg-white">
+        <div class="flex-shrink-0 px-6 py-4 border-b border-gray-200 bg-white" v-if="!scheduleLoading && !scheduleErrorMessage">
           <div class="flex items-center justify-between">
             <button
               class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              :disabled="!canGoPrev"
+              :class="!canGoPrev ? 'opacity-40 cursor-not-allowed' : ''"
               @click="handlePreviousWeek"
             >
               <ChevronLeft :size="20" class="text-gray-600" />
@@ -57,6 +62,8 @@
             </div>
             <button
               class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              :disabled="!canGoNext"
+              :class="!canGoNext ? 'opacity-40 cursor-not-allowed' : ''"
               @click="handleNextWeek"
             >
               <ChevronRight :size="20" class="text-gray-600" />
@@ -66,6 +73,13 @@
 
         <!-- Scrollable Content -->
         <div class="flex-1 overflow-y-auto px-6 py-6 space-y-4">
+          <div v-if="scheduleLoading" class="py-10 text-center text-gray-500">
+            Loading...
+          </div>
+          <div v-else-if="scheduleErrorMessage" class="py-10 text-center text-red-600">
+            {{ scheduleErrorMessage }}
+          </div>
+          <template v-else>
           <!-- Daily Cards -->
           <ScheduleDayCard
             v-for="day in weekDays"
@@ -77,6 +91,7 @@
 
           <!-- Weekly Summary -->
           <WeeklySummarySection :summary="weeklySummary" />
+          </template>
         </div>
       </div>
     </Transition>
@@ -84,6 +99,9 @@
     <!-- Subject Part Details Sidebar -->
     <SubjectPartDetailsSidebar
       :is-open="isDetailsOpen"
+      :student-id="studentId"
+      :subject-id="selectedSubjectPart?.subjectId"
+      :subject-part-id="selectedSubjectPart?.subjectPartId"
       :subject-part="selectedSubjectPart"
       :day-info="selectedDayInfo"
       @close="handleCloseDetails"
@@ -94,11 +112,12 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { X, Calendar, Edit, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { useQuery } from '@vue/apollo-composable';
 import { BaseButton } from '../../../ui';
 import ScheduleDayCard from './ScheduleDayCard.vue';
 import WeeklySummarySection from './WeeklySummarySection.vue';
 import SubjectPartDetailsSidebar from './SubjectPartDetailsSidebar.vue';
-import { generateStudentSchedule } from './sampleScheduleData.js';
+import { UNIT_ADMIN_SCHEDULE_WEEKS } from '../../../../graphql/queries/unitAdminScheduleWeeks.js';
 
 const props = defineProps({
   isOpen: {
@@ -113,123 +132,123 @@ const props = defineProps({
 
 const emit = defineEmits(['close']);
 
-// Week navigation
-const currentWeekOffset = ref(0);
+const studentId = computed(() => (props.student?.id ? String(props.student.id) : null));
+const scheduleWeeksCache = ref({});
+const cachedWeeks = computed(() => (studentId.value ? scheduleWeeksCache.value[studentId.value] || null : null));
+const shouldFetchSchedule = computed(() => Boolean(props.isOpen && studentId.value && !cachedWeeks.value));
+
+const {
+  result: scheduleResult,
+  loading: scheduleQueryLoading,
+  error: scheduleQueryError
+} = useQuery(
+  UNIT_ADMIN_SCHEDULE_WEEKS,
+  computed(() => ({ student_id: studentId.value })),
+  computed(() => ({
+    enabled: shouldFetchSchedule.value,
+    fetchPolicy: 'no-cache'
+  }))
+);
+
+watch(
+  () => scheduleResult.value?.unitAdminScheduleWeeks,
+  (ws) => {
+    if (!ws || !studentId.value) return;
+    scheduleWeeksCache.value = { ...scheduleWeeksCache.value, [studentId.value]: ws };
+  }
+);
+
+const weeks = computed(() => cachedWeeks.value || scheduleResult.value?.unitAdminScheduleWeeks || []);
+
+// Week navigation (by index)
+const selectedWeekIndex = ref(0);
 const isDetailsOpen = ref(false);
 const selectedSubjectPart = ref(null);
 const selectedDayInfo = ref(null);
 
-// Get current week dates (Arabic week starts Saturday)
-const getWeekDates = (offset = 0) => {
-  const today = new Date();
-  const currentDay = today.getDay(); // 0 = Sunday, 6 = Saturday
-  const startOfWeek = new Date(today);
-  // Adjust to start from Saturday (Arabic week starts Saturday)
-  // Saturday = 6, so we need to go back (currentDay - 6) days, or forward (7 - currentDay + 6) % 7
-  const daysFromSaturday = (currentDay + 1) % 7; // Saturday = 0
-  startOfWeek.setDate(today.getDate() - daysFromSaturday);
-  startOfWeek.setDate(startOfWeek.getDate() + (offset * 7));
+const selectedWeek = computed(() => weeks.value[selectedWeekIndex.value] || null);
 
-  const weekDays = [];
-  for (let i = 0; i < 7; i++) {
-    const date = new Date(startOfWeek);
-    date.setDate(startOfWeek.getDate() + i);
-    weekDays.push({
-      date: date.toISOString().split('T')[0],
-      dayName: date.toLocaleDateString('ar-EG', { weekday: 'long' }),
-      dayNameShort: date.toLocaleDateString('ar-EG', { weekday: 'short' }),
-      dayNumber: date.getDate(),
-      month: date.toLocaleDateString('ar-EG', { month: 'long' }),
-      isToday: date.toDateString() === today.toDateString()
-    });
-  }
-  return weekDays;
+const scheduleLoading = computed(() => (cachedWeeks.value ? false : scheduleQueryLoading.value));
+const scheduleErrorMessage = computed(() => {
+  const e = cachedWeeks.value ? null : scheduleQueryError.value;
+  if (!e) return '';
+  return (
+    e?.graphQLErrors?.[0]?.message ||
+    e?.networkError?.message ||
+    e.message ||
+    'Unknown error'
+  );
+});
+
+const toArabicNum = (num) => {
+  const arabicNums = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+  return String(num)
+    .split('')
+    .map((d) => arabicNums[Number(d)])
+    .join('');
 };
 
 const weekDays = computed(() => {
-  const days = getWeekDates(currentWeekOffset.value);
-  
-  // Get schedule data from student or generate sample data
-  let scheduleData = props.student?.schedule || [];
-  
-  // If no schedule data exists or it's for a different week, generate sample data
-  if (!scheduleData || scheduleData.length === 0) {
-    scheduleData = generateStudentSchedule(props.student?.id || 1, currentWeekOffset.value);
-  } else {
-    // Check if we have data for the current week
-    const hasCurrentWeekData = days.some(day => 
-      scheduleData.some(s => s.date === day.date)
-    );
-    
-    // If no data for current week, generate it
-    if (!hasCurrentWeekData) {
-      scheduleData = generateStudentSchedule(props.student?.id || 1, currentWeekOffset.value);
-    }
-  }
-  
-  // Map schedule data to days
-  return days.map(day => {
-    const daySchedule = scheduleData.find(s => s.date === day.date) || null;
+  const w = selectedWeek.value;
+  if (!w) return [];
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+
+  return (w.days || []).map((d) => {
+    const dateObj = new Date(d.date);
+    const subjects = (d.subject_parts || []).map((sp) => ({
+      id: String(sp.part_id),
+      subjectId: sp.subject_id,
+      subjectPartId: sp.part_id,
+      subjectName: sp.subject_name,
+      partName: sp.part_name,
+      difficultyLevel: sp.difficulty_level,
+      progress: sp.progress ?? 0,
+      exercises: [],
+      videos: []
+    }));
+
+    const dailyProgress =
+      subjects.length > 0 ? Math.round(subjects.reduce((sum, s) => sum + (s.progress || 0), 0) / subjects.length) : 0;
+
     return {
-      ...day,
-      subjects: daySchedule?.subjects || [],
-      dailyProgress: daySchedule?.dailyProgress || 0,
-      isHoliday: daySchedule?.isHoliday || false
+      date: d.date,
+      dayName: d.name, // already Arabic from backend
+      dayNameShort: d.name,
+      dayNumber: dateObj.getDate(),
+      month: dateObj.toLocaleDateString('ar-EG', { month: 'long' }),
+      isToday: d.date === todayStr,
+      subjects,
+      dailyProgress,
+      isHoliday: !!d.isHoliday
     };
   });
 });
 
-const weekLabel = computed(() => {
-  if (currentWeekOffset.value === 0) {
-    return 'This Week';
-  }
-  return currentWeekOffset.value < 0 ? `${Math.abs(currentWeekOffset.value)} weeks ago` : `In ${currentWeekOffset.value} weeks`;
-});
-
 const weekLabelArabic = computed(() => {
-  if (currentWeekOffset.value === 0) {
-    return 'هذا الأسبوع';
-  }
-  return currentWeekOffset.value < 0 
-    ? `منذ ${Math.abs(currentWeekOffset.value)} أسبوع${Math.abs(currentWeekOffset.value) > 1 ? 'ات' : ''}`
-    : `خلال ${currentWeekOffset.value} أسبوع${currentWeekOffset.value > 1 ? 'ات' : ''}`;
-});
-
-const weekDateRange = computed(() => {
-  if (weekDays.value.length === 0) {
-    return '';
-  }
-  const firstDay = weekDays.value[0];
-  const lastDay = weekDays.value[6];
-  const year = new Date(firstDay.date).getFullYear();
-  // Format: "8 - 14 ديسمبر 2025"
-  return `${firstDay.dayNumber} - ${lastDay.dayNumber} ${lastDay.month} ${year}`;
+  const w = selectedWeek.value;
+  if (!w) return '';
+  return w.isCurrentWeek ? 'هذا الأسبوع' : `الأسبوع ${w.weekNumber}`;
 });
 
 const weekDateRangeArabic = computed(() => {
-  if (weekDays.value.length === 0) {
-    return '';
-  }
+  if (weekDays.value.length === 0) return '';
   const firstDay = weekDays.value[0];
-  const lastDay = weekDays.value[6];
+  const lastDay = weekDays.value[weekDays.value.length - 1];
   const year = new Date(firstDay.date).getFullYear();
-  // Format: "٨ - ١٤ ديسمبر ٢٠٢٥" (Arabic numerals)
-  const toArabicNum = (num) => {
-    const arabicNums = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-    return num.toString().split('').map(d => arabicNums[parseInt(d)]).join('');
-  };
   return `${toArabicNum(firstDay.dayNumber)} - ${toArabicNum(lastDay.dayNumber)} ${lastDay.month} ${toArabicNum(year)}`;
 });
 
 const weeklySummary = computed(() => {
-  const allSubjects = weekDays.value.flatMap(day => day.subjects || []);
-  const completed = allSubjects.filter(s => s.progress >= 100).length;
+  const w = selectedWeek.value;
+  const allSubjects = weekDays.value.flatMap((day) => day.subjects || []);
   const total = allSubjects.length;
-  const averageProgress = total > 0
-    ? Math.round(allSubjects.reduce((sum, s) => sum + s.progress, 0) / total)
-    : 0;
-  // Use accumulated lessons from student or calculate from schedule
-  const accumulated = props.student?.accumulatedLessons || allSubjects.length;
+  // "completedLessons" = subject parts progress >= 60
+  const completed = allSubjects.filter((s) => (s.progress ?? 0) >= 60).length;
+  // averageProgress comes from week-level progress returned by backend
+  const averageProgress = w?.progress ?? 0;
+  // accumulated comes from week-level accumulated_subject_parts_count
+  const accumulated = w?.accumulated_subject_parts_count ?? 0;
 
   return {
     averageProgress,
@@ -239,11 +258,13 @@ const weeklySummary = computed(() => {
 });
 
 const handlePreviousWeek = () => {
-  currentWeekOffset.value -= 1;
+  if (!canGoPrev.value) return;
+  selectedWeekIndex.value -= 1;
 };
 
 const handleNextWeek = () => {
-  currentWeekOffset.value += 1;
+  if (!canGoNext.value) return;
+  selectedWeekIndex.value += 1;
 };
 
 const handleClose = () => {
@@ -252,7 +273,7 @@ const handleClose = () => {
 
 const handleEditSchedule = () => {
   if (props.student?.id) {
-    window.open(`https://elkheta.org/students/${props.student.id}/schedule/edit`, '_blank');
+    window.open(`https://elkheta.org/admin/resources/students/${props.student.id}/edit-schedule`, '_blank');
   }
 };
 
@@ -271,9 +292,25 @@ const handleCloseDetails = () => {
 // Reset week offset when sidebar opens
 watch(() => props.isOpen, (isOpen) => {
   if (isOpen) {
-    currentWeekOffset.value = 0;
+    // Prefer current week from backend
+    const idx = weeks.value.findIndex((w) => w.isCurrentWeek);
+    selectedWeekIndex.value = idx >= 0 ? idx : 0;
   }
 });
+
+watch(
+  () => weeks.value,
+  (ws) => {
+    if (!props.isOpen) return;
+    if (!Array.isArray(ws) || ws.length === 0) return;
+    const idx = ws.findIndex((w) => w.isCurrentWeek);
+    selectedWeekIndex.value = idx >= 0 ? idx : 0;
+  },
+  { immediate: true }
+);
+
+const canGoPrev = computed(() => selectedWeekIndex.value > 0);
+const canGoNext = computed(() => selectedWeekIndex.value < weeks.value.length - 1);
 </script>
 
 <style scoped>

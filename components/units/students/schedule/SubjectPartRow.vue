@@ -15,6 +15,10 @@
         <div class="flex items-center gap-2">
           <div class="flex items-center gap-1.5 flex-shrink-0">
             <!-- First Diamond (30% threshold) -->
+            <div class="flex flex-col items-end">
+            <h2 class="text-sm font-semibold text-gray-900">{{ subjectPart.subjectName }} - {{ subjectPart.partName }}</h2>
+            
+          </div>
             <div :class="subjectPart.progress >= 30 ? 'opacity-100' : 'opacity-30'">
               <DiamondIcon :size="18" :color="subjectPart.progress >= 30 ? '#16B3E1' : '#d1d5db'" />
             </div>
@@ -23,10 +27,7 @@
               <DiamondIcon :size="18" :color="subjectPart.progress >= 80 ? '#16B3E1' : '#d1d5db'" />
             </div>
           </div>
-          <div class="flex flex-col items-end">
-            <h4 class="text-sm font-semibold text-gray-900">{{ subjectPart.subjectName }}</h4>
-            <p class="text-xs text-gray-500">{{ subjectPart.partName }}</p>
-          </div>
+       
         </div>
       </div>
 
