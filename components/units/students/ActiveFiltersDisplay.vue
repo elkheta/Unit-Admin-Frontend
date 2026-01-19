@@ -41,6 +41,19 @@
             </button>
         </div>
 
+        <!-- Score Filter -->
+        <div v-if="filters.score"
+            class="flex items-center gap-2 px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-lg">
+            <span class="text-sm text-purple-700">
+                <strong>Score:</strong>
+                {{ formatFilterValue(filters.score) }}
+            </span>
+            <button class="text-purple-600 hover:text-purple-800 transition-colors" title="Remove filter"
+                @click="$emit('remove-filter', 'score')">
+                <X :size="16" />
+            </button>
+        </div>
+
         <!-- Last Seen Filter -->
         <div v-if="filters['last-seen']"
             class="flex items-center gap-2 px-3 py-1.5 bg-purple-50 border border-purple-200 rounded-lg">
@@ -87,6 +100,7 @@ const props = defineProps({
         default: () => ({
             diamonds: null,
             progress: null,
+            score: null,
             lessons: null,
             'last-seen': null
         })
@@ -98,6 +112,7 @@ const emit = defineEmits(['remove-filter', 'clear-all-filters']);
 const hasActiveFilters = computed(() => {
     return props.filters.diamonds ||
         props.filters.progress ||
+        props.filters.score ||
         props.filters.lessons ||
         props.filters['last-seen'];
 });

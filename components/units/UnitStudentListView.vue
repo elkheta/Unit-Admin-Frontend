@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full animate-fade-in max-w-7xl mx-auto">
+  <div class="flex flex-col h-full animate-fade-in max-w-7xl mx-auto p-4 md:p-6">
     <!-- Page Header -->
     <StudentListHeader :unit-name="unitName" />
 
@@ -381,7 +381,6 @@ const pageSize = computed(() => isBackendMode.value ? props.studentsResult?.pagi
 const groupOptions = computed(() => {
   const groups = props.selectedUnit?.groups || [];
   return [
-    { value: '', label: 'All Groups' },
     ...groups.map(g => ({ value: g.name, label: g.name })),
     { value: 'Outside Group', label: 'Outside' }
   ];
@@ -390,10 +389,7 @@ const groupOptions = computed(() => {
 // Subject options placeholder (requires backend support)
 const subjectOptions = computed(() => {
   const subjects = props.selectedUnit?.education_section?.subjects || [];
-  return [
-    { value: '', label: 'All Subjects' },
-    ...subjects.map(s => ({ value: s.id, label: s.name }))
-  ];
+  return subjects.map(s => ({ value: s.id, label: s.name }));
 });
 
 // Helper to map UI filter object to min/max values
@@ -454,8 +450,8 @@ watch([searchQuery, selectedGroup, selectedSubject, filters, sortOptions], () =>
       diamonds_max: diamonds.max,
       progress_min: progress.min,
       progress_max: progress.max,
-      points_min: score.min,
-      points_max: score.max,
+      score_min: score.min,
+      score_max: score.max,
       lessons_min: filters.value.lessons?.value || filters.value.lessons?.min, // Simple fallback for now
       last_seen_after: lastSeenAfter,
       last_seen_before: lastSeenBefore,

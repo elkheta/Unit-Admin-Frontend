@@ -14,9 +14,9 @@
     <div class="flex items-center gap-3 flex-wrap relative">
       <!-- Sort Button -->
       <button ref="sortButtonRef"
-        class="w-10 h-10 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 transition-colors flex items-center justify-center"
+        class="w-10 h-10 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 transition-colors flex items-center justify-center"
         :title="'Sort Students'" @click="handleSortClick">
-        <ArrowUpDown :size="18" class="text-gray-600" />
+        <Eye :size="18" class="text-blue-600" />
       </button>
 
       <!-- Groups Dropdown -->
@@ -60,6 +60,7 @@
 
     <!-- Sort Modal -->
     <SortStudentsModal :is-open="isSortModalOpen" :current-sort-options="currentSortOptions"
+      :position="sortButtonPosition"
       @close="isSortModalOpen = false" @apply-sort="handleApplySort" />
 
     <!-- Filter Modals -->
@@ -72,7 +73,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-import { Search, ArrowUpDown, BarChart3, BookOpen, Monitor } from 'lucide-vue-next';
+import { Search, Eye, BarChart3, BookOpen, Monitor } from 'lucide-vue-next';
 import { BaseInput, BaseSelect } from '../../ui';
 import { DiamondIcon } from '../../ui';
 import SortStudentsModal from './SortStudentsModal.vue';
@@ -137,6 +138,8 @@ const progressButtonRef = ref(null);
 const scoreButtonRef = ref(null);
 const lastSeenButtonRef = ref(null);
 
+const sortButtonPosition = ref({ top: 0, left: 0 });
+
 const filterButtonPositions = reactive({
   diamonds: { top: 0, left: 0 },
   progress: { top: 0, left: 0 },
@@ -145,6 +148,13 @@ const filterButtonPositions = reactive({
 });
 
 const handleSortClick = () => {
+  if (sortButtonRef.value) {
+    const rect = sortButtonRef.value.getBoundingClientRect();
+    sortButtonPosition.value = {
+      top: rect.bottom + 8,
+      left: rect.left
+    };
+  }
   isSortModalOpen.value = true;
 };
 
