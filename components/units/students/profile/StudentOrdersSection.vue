@@ -32,13 +32,13 @@
             <div class="flex items-center gap-2">
               <div
                 class="w-2.5 h-2.5 rounded-full flex-shrink-0"
-                :class="order.status === 'EXPIRED' ? 'bg-orange-500' : 'bg-green-500'"
+                :class="isGreenStatus(order.status) ? 'bg-green-500' : 'bg-orange-500'"
               ></div>
               <span
                 class="text-sm font-medium"
-                :class="order.status === 'EXPIRED' ? 'text-orange-700' : 'text-green-700'"
+                :class="isGreenStatus(order.status) ? 'text-green-700' : 'text-orange-700'"
               >
-                {{ order.status }}
+                {{ formatStatus(order.status) }}
               </span>
             </div>
           </div>
@@ -56,7 +56,7 @@
             <p
               v-if="order.timeLeft"
               class="text-xs font-medium mt-1.5"
-              :class="order.status === 'EXPIRED' ? 'text-orange-600' : 'text-green-600'"
+              :class="isGreenStatus(order.status) ? 'text-green-600' : 'text-orange-600'"
             >
               {{ order.timeLeft }}
             </p>
@@ -98,4 +98,13 @@ defineProps({
 });
 
 defineEmits(['view-order']);
+
+const GREEN_STATUSES = new Set(['completed', 'completed_r']);
+
+const formatStatus = (status) => {
+  if (!status) return '';
+  return status === 'completed_r' ? 'completed (refunded)' : status;
+};
+
+const isGreenStatus = (status) => GREEN_STATUSES.has(status);
 </script>
