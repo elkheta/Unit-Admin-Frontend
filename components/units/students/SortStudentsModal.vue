@@ -1,145 +1,142 @@
 <template>
-    <BaseModal :is-open="isOpen" @close="$emit('close')">
-        <template #header>
-            <h3 class="text-lg font-semibold text-gray-900">Sort Students By</h3>
-        </template>
-
-        <template #default>
-            <div class="space-y-6">
-                <!-- Progress Sorting -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Progress</label>
-                    <div class="flex gap-2">
-                        <button :class="[
-                            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                            sortOptions.progress === 'high-to-low'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="setSort('progress', 'high-to-low')">
-                            High to Low
-                        </button>
-                        <button :class="[
-                            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                            sortOptions.progress === 'low-to-high'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="setSort('progress', 'low-to-high')">
-                            Low to High
-                        </button>
+    <Teleport to="body">
+        <div v-if="isOpen" class="fixed inset-0 z-50" @click.self="$emit('close')">
+            <div class="bg-white rounded-lg shadow-xl border border-gray-200 p-4 min-w-[280px] absolute"
+                :style="positionStyle">
+                <h3 class="text-base font-semibold text-gray-900 mb-3">Sort Students By:</h3>
+                
+                <div class="space-y-4">
+                    <!-- Progress Sorting -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-2">Progress</label>
+                        <div class="flex gap-2">
+                            <button :class="[
+                                'flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors border',
+                                sortOptions.progress === 'high-to-low'
+                                    ? 'bg-blue-50 border-blue-200 text-blue-600'
+                                    : 'bg-white border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-200'
+                            ]" @click="setSort('progress', 'high-to-low')">
+                                High to Low
+                            </button>
+                            <button :class="[
+                                'flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors border',
+                                sortOptions.progress === 'low-to-high'
+                                    ? 'bg-blue-50 border-blue-200 text-blue-600'
+                                    : 'bg-white border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-200'
+                            ]" @click="setSort('progress', 'low-to-high')">
+                                Low to High
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Diamonds Sorting -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Diamonds</label>
-                    <div class="flex gap-2">
-                        <button :class="[
-                            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                            sortOptions.diamonds === 'high-to-low'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="setSort('diamonds', 'high-to-low')">
-                            High to Low
-                        </button>
-                        <button :class="[
-                            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                            sortOptions.diamonds === 'low-to-high'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="setSort('diamonds', 'low-to-high')">
-                            Low to High
-                        </button>
+                    <!-- Diamonds Sorting -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-2">Diamonds</label>
+                        <div class="flex gap-2">
+                            <button :class="[
+                                'flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors border',
+                                sortOptions.diamonds === 'high-to-low'
+                                    ? 'bg-blue-50 border-blue-200 text-blue-600'
+                                    : 'bg-white border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-200'
+                            ]" @click="setSort('diamonds', 'high-to-low')">
+                                High to Low
+                            </button>
+                            <button :class="[
+                                'flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors border',
+                                sortOptions.diamonds === 'low-to-high'
+                                    ? 'bg-blue-50 border-blue-200 text-blue-600'
+                                    : 'bg-white border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-200'
+                            ]" @click="setSort('diamonds', 'low-to-high')">
+                                Low to High
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Last Seen on Site Sorting -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Last Seen on Site</label>
-                    <div class="flex gap-2">
-                        <button :class="[
-                            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                            sortOptions.lastSeen === 'most-recent'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="setSort('lastSeen', 'most-recent')">
-                            Most Recent
-                        </button>
-                        <button :class="[
-                            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                            sortOptions.lastSeen === 'oldest'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="setSort('lastSeen', 'oldest')">
-                            Oldest
-                        </button>
+                    <!-- Last Seen on Site Sorting -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-2">Last Seen on Site</label>
+                        <div class="flex gap-2">
+                            <button :class="[
+                                'flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors border',
+                                sortOptions.lastSeen === 'most-recent'
+                                    ? 'bg-blue-50 border-blue-200 text-blue-600'
+                                    : 'bg-white border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-200'
+                            ]" @click="setSort('lastSeen', 'most-recent')">
+                                Most Recent
+                            </button>
+                            <button :class="[
+                                'flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors border',
+                                sortOptions.lastSeen === 'oldest'
+                                    ? 'bg-blue-50 border-blue-200 text-blue-600'
+                                    : 'bg-white border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-200'
+                            ]" @click="setSort('lastSeen', 'oldest')">
+                                Oldest
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Date Added Sorting -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Date Added</label>
-                    <div class="flex gap-2">
-                        <button :class="[
-                            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                            sortOptions.dateAdded === 'newest-first'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="setSort('dateAdded', 'newest-first')">
-                            Newest First
-                        </button>
-                        <button :class="[
-                            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                            sortOptions.dateAdded === 'oldest-first'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="setSort('dateAdded', 'oldest-first')">
-                            Oldest First
-                        </button>
+                    <!-- Date Added Sorting -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-2">Date Added</label>
+                        <div class="flex gap-2">
+                            <button :class="[
+                                'flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors border',
+                                sortOptions.dateAdded === 'newest-first'
+                                    ? 'bg-blue-50 border-blue-200 text-blue-600'
+                                    : 'bg-white border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-200'
+                            ]" @click="setSort('dateAdded', 'newest-first')">
+                                Newest First
+                            </button>
+                            <button :class="[
+                                'flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors border',
+                                sortOptions.dateAdded === 'oldest-first'
+                                    ? 'bg-blue-50 border-blue-200 text-blue-600'
+                                    : 'bg-white border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-200'
+                            ]" @click="setSort('dateAdded', 'oldest-first')">
+                                Oldest First
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                <!-- Expiration Date Sorting -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Expiration Date</label>
-                    <div class="flex gap-2">
-                        <button :class="[
-                            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                            sortOptions.expirationDate === 'newest-expired'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="setSort('expirationDate', 'newest-expired')">
-                            Newest Expired
-                        </button>
-                        <button :class="[
-                            'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                            sortOptions.expirationDate === 'oldest-expired'
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        ]" @click="setSort('expirationDate', 'oldest-expired')">
-                            Oldest Expired
-                        </button>
+                    <!-- Expiration Date Sorting -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-2">Expiration Date</label>
+                        <div class="flex gap-2">
+                            <button :class="[
+                                'flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors border',
+                                sortOptions.expirationDate === 'newest-expired'
+                                    ? 'bg-blue-50 border-blue-200 text-blue-600'
+                                    : 'bg-white border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-200'
+                            ]" @click="setSort('expirationDate', 'newest-expired')">
+                                Soonest
+                            </button>
+                            <button :class="[
+                                'flex-1 px-3 py-1.5 rounded-md text-xs font-medium transition-colors border',
+                                sortOptions.expirationDate === 'oldest-expired'
+                                    ? 'bg-blue-50 border-blue-200 text-blue-600'
+                                    : 'bg-white border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-200'
+                            ]" @click="setSort('expirationDate', 'oldest-expired')">
+                                Latest
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </template>
-
-        <template #footer>
-            <div class="flex justify-end gap-3">
-                <BaseButton variant="secondary" @click="handleCancel">Cancel</BaseButton>
-                <BaseButton variant="primary" @click="handleApply">Apply Sort</BaseButton>
-            </div>
-        </template>
-    </BaseModal>
+        </div>
+    </Teleport>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
-import { BaseModal, BaseButton } from '../../ui';
+import { ref, watch, computed } from 'vue';
 
 const props = defineProps({
     isOpen: {
         type: Boolean,
         default: false
+    },
+    position: {
+        type: Object,
+        default: () => ({ top: 0, left: 0 })
     },
     currentSortOptions: {
         type: Object,
@@ -163,6 +160,17 @@ const sortOptions = ref({
     expirationDate: null
 });
 
+const positionStyle = computed(() => {
+    if (props.position.top && props.position.left) {
+        return {
+            position: 'absolute',
+            top: `${props.position.top}px`,
+            left: `${props.position.left}px`
+        };
+    }
+    return {};
+});
+
 // Helper to set a single sort option and clear others
 const setSort = (key, value) => {
     // Reset all options
@@ -172,6 +180,10 @@ const setSort = (key, value) => {
     
     // Set the selected option
     sortOptions.value[key] = value;
+    
+    // Auto-apply logic
+    emit('apply-sort', { ...sortOptions.value });
+    emit('close');
 };
 
 // Watch for prop changes to update local state
@@ -187,15 +199,4 @@ watch(() => props.isOpen, (isOpen) => {
         sortOptions.value = { ...props.currentSortOptions };
     }
 });
-
-const handleApply = () => {
-    emit('apply-sort', { ...sortOptions.value });
-    emit('close');
-};
-
-const handleCancel = () => {
-    // Reset to current options
-    sortOptions.value = { ...props.currentSortOptions };
-    emit('close');
-};
 </script>

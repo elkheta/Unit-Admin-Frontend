@@ -11,8 +11,8 @@ export const GET_UNIT_STUDENTS = gql`
     $diamonds_max: Int
     $progress_min: Int
     $progress_max: Int
-    $points_min: Int
-    $points_max: Int
+    $score_min: Int
+    $score_max: Int
     $lessons_min: Int
     $last_seen_after: DateTime
     $last_seen_before: DateTime
@@ -46,8 +46,8 @@ export const GET_UNIT_STUDENTS = gql`
       diamonds_max: $diamonds_max
       progress_min: $progress_min
       progress_max: $progress_max
-      points_min: $points_min
-      points_max: $points_max
+      score_min: $score_min
+      score_max: $score_max
       lessons_min: $lessons_min
       last_seen_after: $last_seen_after
       last_seen_before: $last_seen_before
@@ -62,8 +62,8 @@ export const GET_UNIT_STUDENTS = gql`
         diamonds
         last_seen
         current_progress
-        missed_lessons_count
-        missed_lessons_percent
+        accumulated_lessons_count
+        accumulated_lessons_percentage
         group_name
         parent_name
         parent_phone
