@@ -34,7 +34,7 @@
           <div class="flex items-center gap-3 mb-3" dir="rtl">
             <div class="flex-shrink-0 w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
               <span class="text-2xl font-bold text-orange-600">
-                {{ student?.accumulatedLessons || 0 }}
+                {{ totalAccumulated }}
               </span>
             </div>
             <div class="flex-1">
@@ -44,27 +44,35 @@
           </div>
           
           <!-- Go to Schedule Button -->
-          <button 
+          <!-- Go to Schedule Button -->
+          <a
+            v-if="student?.elkheta_id"
+            :href="`http://elkheta.org/admin/resources/students/${student.elkheta_id}/edit-schedule`"
+            target="_blank"
             class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg text-sm transition-colors shadow-sm flex items-center justify-center gap-2" 
             dir="rtl"
-            @click="$emit('go-to-schedule', student)"
           >
             <Calendar :size="16" />
             <span>الذهاب لجدول الطالب</span>
-          </button>
+          </a>
+        </div>
+
+        <!-- Loading State -->
+        <div v-if="loading" class="flex justify-center p-8">
+          <span class="text-gray-500">Loading...</span>
         </div>
 
         <!-- Accumulated Lessons -->
-        <div 
-          v-for="(lesson, index) in accumulatedLessons" 
+        <div v-else
+          v-for="(part, index) in accumulatedParts" 
           :key="index" 
           class="bg-gradient-to-br from-gray-50 to-orange-50 rounded-xl border border-orange-200 overflow-hidden shadow-sm"
         >
           <!-- Lesson Header -->
           <div class="bg-white border-b border-orange-100 px-4 py-3">
             <div class="text-right">
-              <h5 class="text-sm font-bold text-gray-900" dir="rtl">{{ lesson.subject }}</h5>
-              <p class="text-xs text-gray-500" dir="rtl">{{ lesson.day }} - {{ lesson.date }}</p>
+              <h5 class="text-sm font-bold text-gray-900" dir="rtl">{{ part.subject_name }} - {{ part.part_name }}</h5>
+              <p class="text-xs text-gray-500" dir="rtl">{{ formatDate(part.created_at) }}</p>
             </div>
           </div>
 
@@ -76,23 +84,23 @@
                 <span 
                   class="font-bold"
                   :class="{
-                    'text-green-600': lesson.progress >= 70,
-                    'text-orange-600': lesson.progress >= 40 && lesson.progress < 70,
-                    'text-red-600': lesson.progress < 40
+                    'text-green-600': part.progress >= 70,
+                    'text-orange-600': part.progress >= 40 && part.progress < 70,
+                    'text-red-600': part.progress < 40
                   }"
                 >
-                  {{ lesson.progress }}%
+                  {{ part.progress }}%
                 </span>
               </div>
               <div class="h-2.5 bg-gray-200 rounded-full overflow-hidden flex justify-end">
                 <div 
                   class="h-full rounded-full transition-all"
                   :class="{
-                    'bg-green-500': lesson.progress >= 70,
-                    'bg-orange-500': lesson.progress >= 40 && lesson.progress < 70,
-                    'bg-red-500': lesson.progress < 40
+                    'bg-green-500': part.progress >= 70,
+                    'bg-orange-500': part.progress >= 40 && part.progress < 70,
+                    'bg-red-500': part.progress < 40
                   }"
-                  :style="{ width: `${lesson.progress}%` }"
+                  :style="{ width: `${part.progress}%` }"
                 ></div>
               </div>
             </div>
@@ -107,7 +115,10 @@
 </template>
 
 <script setup>
+import { computed, watch } from 'vue';
+import { useQuery } from '@vue/apollo-composable';
 import { X, AlertCircle, Calendar } from 'lucide-vue-next';
+import { GET_ACCUMULATED_PARTS } from '../../../graphql/queries/accumulatedParts';
 
 const props = defineProps({
   isVisible: {
@@ -118,13 +129,47 @@ const props = defineProps({
     type: Object,
     default: null
   },
-  accumulatedLessons: {
-    type: Array,
-    default: () => []
+  // accumulatedLessons prop is no longer primary source, but we keep it or remove it. 
+  // Let's rely on the query since we are implementing backend integration.
+});
+
+const emit = defineEmits(['close']);
+
+// Apollo Query
+const { result, loading, refetch } = useQuery(GET_ACCUMULATED_PARTS, () => ({
+  elkheta_id: props.student?.elkheta_id
+}), {
+  enabled: computed(() => !!props.student?.elkheta_id && props.isVisible),
+  fetchPolicy: 'network-only' // Ensure fresh data on open
+});
+
+// Watch visibility to refetch if needed
+watch(() => props.isVisible, (newVal) => {
+  if (newVal && props.student?.elkheta_id) {
+    refetch();
   }
 });
 
-defineEmits(['close', 'go-to-schedule']);
+const accumulatedParts = computed(() => {
+  return result.value?.unitAdminAccumulatedParts || [];
+});
+
+const totalAccumulated = computed(() => accumulatedParts.value.length);
+
+// Helper to format date in Arabic: "الخميس - 13 ديسمبر"
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  try {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('ar-EG', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    }).format(date).replace('،', ' -'); // Replace default separator if needed
+  } catch (e) {
+    return dateString;
+  }
+};
 </script>
 
 <style scoped>

@@ -56,6 +56,7 @@ export const GET_UNIT_STUDENTS = gql`
     ) {
       data {
         id
+        elkheta_id
         name
         phone_number
         points
