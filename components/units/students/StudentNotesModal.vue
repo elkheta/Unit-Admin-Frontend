@@ -45,7 +45,7 @@
                         class="w-full appearance-none border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                     >
                         <option value="">Select Category</option>
-                        <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
+                        <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ formatCategoryName(cat.name) }}</option>
                     </select>
                     <ChevronDown :size="14" class="absolute right-3 top-3 text-gray-400 pointer-events-none" />
                     </div>
@@ -208,7 +208,7 @@
                         v-if="item.category"
                         class="inline-block text-[10px] font-medium px-2 py-0.5 rounded bg-gray-100 text-gray-600 mb-2"
                     >
-                        {{ item.category.name }}
+                        {{ formatCategoryName(item.category.name) }}
                     </span>
 
                     <div v-if="item.due_date" class="text-[10px] text-orange-600 font-medium mb-2">
@@ -614,6 +614,12 @@ const toggleArchive = async (item) => {
     } catch (e) { console.error(e); }
 };
 
+
+const formatCategoryName = (name) => {
+  if (!name) return '';
+  return name.toLowerCase().replace(/[_-]/g, ' ');
+};
+
 const deleteItem = async (id) => {
   if (!confirm('Are you sure?')) return;
   try {
@@ -623,6 +629,7 @@ const deleteItem = async (id) => {
       console.error(e);
   }
 };
+
 </script>
 
 <style scoped>
