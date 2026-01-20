@@ -43,7 +43,7 @@
               @group-change="handleGroupChange"
               @whatsapp-click="handleWhatsAppClick"
               @progress-click="handleProgressClick"
-              @score-click="handleScoreClick"
+              @score-click="handleAccumulatedLessonsClick"
               @notes-click="handleNotesClick"
               @name-click="handleStudentNameClick"
               @accumulated-lessons-click="handleAccumulatedLessonsClick"
@@ -93,9 +93,7 @@
     <AccumulatedLessonsSidebar
       :is-visible="isAccumulatedLessonsSidebarOpen"
       :student="selectedStudentForAccumulatedLessons"
-      :accumulated-lessons="accumulatedLessonsData"
       @close="handleCloseAccumulatedLessonsSidebar"
-      @go-to-schedule="handleGoToScheduleFromAccumulated"
       @accumulated-lessons-click="handleAccumulatedLessonsClick"
     />
 
@@ -217,10 +215,7 @@ const handleCloseAccumulatedLessonsSidebar = () => {
   selectedStudentForAccumulatedLessons.value = null;
 };
 
-const handleGoToScheduleFromAccumulated = (student) => {
-  handleCloseAccumulatedLessonsSidebar();
-  handleProgressClick(student);
-};
+
 
 const handleGroupChange = (student, newGroup) => {
     // update logic
@@ -285,47 +280,7 @@ const selectedStudentForSchedule = ref(null);
 const isAccumulatedLessonsSidebarOpen = ref(false);
 const selectedStudentForAccumulatedLessons = ref(null);
 
-// Accumulated lessons data for each student
-const accumulatedLessonsData = computed(() => {
-  if (!selectedStudentForAccumulatedLessons.value) return [];
-  
-  const studentId = selectedStudentForAccumulatedLessons.value.id;
-  
-  // Sample accumulated lessons data - in a real app, this would come from an API
-  const lessonsMap = {
-    1: [ // Ahmed Hassan
-      {
-        subject: 'الرياضيات - التفاضل',
-        day: 'الخميس',
-        date: '13 ديسمبر',
-        progress: 32
-      },
-      {
-        subject: 'اللغة العربية - البلاغة',
-        day: 'الثلاثاء',
-        date: '11 ديسمبر',
-        progress: 15
-      },
-      {
-        subject: 'الفيزياء - الكهرباء',
-        day: 'الاثنين',
-        date: '10 ديسمبر',
-        progress: 80
-      }
-    ],
-    2: [ // Sara Ahmed
-      {
-        subject: 'الكيمياء - العضوية',
-        day: 'الأربعاء',
-        date: '12 ديسمبر',
-        progress: 90
-      }
-    ],
-    // Add more students as needed
-  };
-  
-  return lessonsMap[studentId] || [];
-});
+
 
 // Notes modal state
 const isNotesModalOpen = ref(false);
