@@ -14,9 +14,9 @@
     <div class="flex items-center gap-3 flex-wrap relative">
       <!-- Sort Button -->
       <button ref="sortButtonRef"
-        class="w-10 h-10 rounded-lg border border-blue-200 bg-blue-50 hover:bg-blue-100 transition-colors flex items-center justify-center"
-        :title="'Sort Students'" @click="handleSortClick">
-        <Eye :size="18" class="text-blue-600" />
+        class="w-10 h-10 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 transition-colors flex items-center justify-center"
+        title="Sort Students" @click="handleSortClick">
+        <Eye :size="18" class="text-gray-700" />
       </button>
 
       <!-- Groups Dropdown -->

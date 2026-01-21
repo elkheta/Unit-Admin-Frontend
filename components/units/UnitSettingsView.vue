@@ -24,20 +24,7 @@ import {
 const props = defineProps({
   selectedUnit: {
     type: Object,
-    default: () => ({
-      id: 2,
-      name: 'S3 - Rania',
-      adminName: 'Rania Farid',
-      supervisors: ['Mona Ali', 'Sara Mahmoud'],
-      currentCapacity: 90,
-      maxCapacity: 150,
-      totalGroups: 2,
-      educationalSections: ['الأول الثانوي عام', 'الثالث الثانوي علمي علوم عام'],
-      products: [
-        { name: 's1- ar - bundle', status: 'Active' },
-        { name: 's3- ar - single - arabic', status: 'Active' }
-      ]
-    })
+    default: null
   }
 });
 
@@ -45,18 +32,15 @@ const emit = defineEmits(['back-to-unit']);
 
 // Default unit data values
 const defaultUnitData = {
-  id: 2,
-  name: 'S3 - Rania',
-  adminName: 'Rania Farid',
-  supervisors: ['Mona Ali', 'Sara Mahmoud'],
-  currentCapacity: 90,
-  maxCapacity: 150,
-  totalGroups: 2,
-  educationalSections: ['الأول الثانوي عام', 'الثالث الثانوي علمي علوم عام'],
-  products: [
-    { name: 's1- ar - bundle', status: 'Active' },
-    { name: 's3- ar - single - arabic', status: 'Active' }
-  ]
+  id: null,
+  name: null,
+  adminName: null,
+  supervisors: null,
+  currentCapacity: null,
+  maxCapacity: null,
+  totalGroups: null,
+  educationalSections: null,
+  products: null
 };
 
 // Helper function to get unit data with defaults

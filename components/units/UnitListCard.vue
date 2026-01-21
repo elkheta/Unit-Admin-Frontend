@@ -1,101 +1,80 @@
 <template>
-  <div class="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100 p-5">
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden flex flex-col">
     
-    <!-- 1. Header: Title and ID -->
-    <div class="flex justify-between items-start mb-4">
-      <div>
-        <h3 class="text-lg font-bold text-gray-900 leading-tight mb-1">{{ unit.title }}</h3>
-        <span class="text-xs text-gray-400 font-medium tracking-wide">ID: {{ unit.id }}</span>
-      </div>
-      <!-- Optional: Menu or status icon could go here -->
+    <!-- Card Header -->
+    <div class="p-4 border-b border-gray-100">
+      <h3 class="text-lg font-bold text-gray-900 leading-tight mb-1">{{ unit.title }}</h3>
+      <p class="text-xs text-gray-400 font-mono">ID: {{ unit.id }}</p>
     </div>
 
-    <!-- Separator -->
-    <hr class="border-gray-50 mb-4" />
-
-    <!-- 2. Stats Grid -->
-    <div class="grid grid-cols-4 gap-2 text-center mb-5">
-      <div class="flex flex-col">
-        <span class="text-lg font-bold text-green-600">{{ unit.students }}</span>
-        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">ACTIVE</span>
-      </div>
-      <div class="flex flex-col">
-        <span class="text-lg font-bold text-gray-700">{{ unit.outside }}</span>
-        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">OUTSIDE</span>
-      </div>
-      <div class="flex flex-col">
-        <span class="text-lg font-bold text-orange-500">{{ unit.expiredCount }}</span>
-        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">EXPIRED</span>
-      </div>
-      <div class="flex flex-col">
-         <!-- Assuming lost count is passed or defaulted -->
-        <span class="text-lg font-bold text-red-500">{{ unit.lost || 0 }}</span>
-        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">LOST</span>
-      </div>
-    </div>
-
-    <!-- Separator -->
-    <hr class="border-gray-50 mb-4" />
-
-    <!-- 3. Admin Info -->
-    <div class="flex items-center gap-3 mb-5">
-      <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 flex-shrink-0">
-         <User :size="20" />
-      </div>
-      <div class="flex flex-col min-w-0">
-        <span 
-          class="text-sm font-bold text-gray-900 truncate" 
-          :title="unit.admin"
-        >
-          {{ unit.admin }}
-        </span>
-        <span class="text-xs text-gray-400 font-medium truncate">
-          {{ unit.adminPhone || 'No Phone' }}
-        </span>
-      </div>
-    </div>
-
-    <!-- 4. Capacity Bar -->
-    <div class="mb-6">
-      <div class="flex justify-between items-center mb-1.5">
-        <span class="text-xs font-semibold text-gray-400">Capacity</span>
-        <div class="flex items-baseline gap-1">
-          <span class="text-sm font-bold text-gray-900">{{ unit.students }}</span>
-          <span class="text-xs text-gray-400">/{{ unit.maxCapacity || 150 }}</span>
+    <!-- Content -->
+    <div class="p-4 flex-1 flex flex-col gap-6">
+      
+      <!-- Key Metrics Row -->
+      <div class="grid grid-cols-4 gap-15 text-center">
+        <div class="flex flex-col items-center">
+          <span class="text-lg font-bold text-green-600">{{ unit.students }}</span>
+          <span class="text-[10px] font-medium text-gray-500 uppercase tracking-tight">Active</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <span class="text-lg font-bold text-yellow-600">{{ unit.outside }}</span>
+          <span class="text-[10px] font-medium text-gray-500 uppercase tracking-tight">Outside</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <span class="text-lg font-bold text-orange-500">{{ unit.expiredCount }}</span>
+          <span class="text-[10px] font-medium text-gray-500 uppercase tracking-tight">Expired</span>
+        </div>
+        <div class="flex flex-col items-center">
+          <span class="text-lg font-bold text-red-600">{{ unit.lost || 0 }}</span>
+          <span class="text-[10px] font-medium text-gray-500 uppercase tracking-tight">Lost</span>
         </div>
       </div>
-      
-      <!-- Progress Bar -->
-      <div class="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden mb-1">
-        <div 
-          class="h-full bg-blue-600 rounded-full transition-all duration-500"
-          :style="{ width: `${capacityPercentage}%` }"
-        ></div>
+
+      <!-- Admin Info -->
+      <div class="bg-gray-50 rounded-lg p-3 flex items-center gap-3">
+        <div class="w-9 h-9 p-1 bg-white rounded-full flex items-center justify-center text-gray-400 border border-gray-200 shadow-sm">
+          <User :size="20" />
+        </div>
+        <div class="flex flex-col min-w-0">
+          <span class="text-sm font-bold text-gray-800 truncate" :title="unit.admin">{{ unit.admin }}</span>
+          <span class="text-xs text-gray-500 font-mono truncate">{{ unit.adminPhone || 'No Phone' }}</span>
+        </div>
       </div>
-      
-      <div class="text-right">
-        <span class="text-[10px] text-gray-400 font-medium">{{ unit.availableCapacity }} available</span>
+
+      <!-- Detailed Stats -->
+      <div class="space-y-3">
+        <div class="flex justify-between items-center text-sm">
+          <span class="text-gray-600">Capacity</span>
+          <div class="flex flex-col items-end gap-1">
+            <div class="flex items-center gap-2">
+              <div class="w-20 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                <div 
+                  class="h-full bg-blue-500 rounded-full transition-all" 
+                  :style="{ width: `${capacityPercentage}%` }"
+                ></div>
+              </div>
+              <span class="font-bold text-gray-900">{{ unit.students }}/{{ unit.maxCapacity || 150 }}</span>
+            </div>
+            <span class="text-xs text-gray-500">{{ unit.availableCapacity }} available</span>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- 5. Actions -->
-    <div class="flex flex-col gap-2.5">
-      <BaseButton
-        variant="primary" 
-        size="md" 
-        class="w-full shadow-md shadow-blue-100 hover:shadow-lg transition-all"
+    <!-- Footer Buttons -->
+    <div class="p-3 bg-gray-50 border-t border-gray-100 grid grid-cols-1 gap-2">
+      <button 
         @click="$emit('unit-click', unit)"
+        class="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700 transition-all shadow-sm shadow-blue-200"
       >
         View Student List
-      </BaseButton>
-      <BaseButton
-        variant="secondary" 
-        size="md" 
-        class="w-full bg-white hover:bg-gray-50 border border-gray-200 text-gray-600 shadow-sm"
+      </button>
+      <button 
         @click="$emit('settings-click', unit)"
+        class="flex items-center justify-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-xs font-bold hover:bg-white hover:border-gray-400 transition-all bg-white shadow-sm"
       >
         Unit Setting
-      </BaseButton>
+      </button>
     </div>
     
   </div>
@@ -104,7 +83,6 @@
 <script setup>
 import { computed } from 'vue';
 import { User } from 'lucide-vue-next';
-import { BaseButton } from '../ui';
 
 const props = defineProps({
   unit: {

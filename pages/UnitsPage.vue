@@ -1,30 +1,28 @@
 
 <template>
   <div class="p-6">
-    <div class="mb-6 flex flex-col gap-4">
-      <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-gray-900">All Units</h1>
-        <BaseButton
-          variant="secondary"
-          size="sm"
-          class="bg-white hover:bg-gray-50 text-gray-700 border-gray-200 shadow-sm !px-2.5"
-          @click="handleSync"
-        >
-          <span class="flex items-center gap-2">
-            <RefreshCw :size="16" class="text-gray-500" />
-            <span>Sync Data</span>
-          </span>
-        </BaseButton>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+      <div class="flex-1 w-full sm:w-auto">
+        <h2 class="text-2xl font-bold text-gray-900 mb-3">Units Overview</h2>
+        
+        <!-- Search Bar -->
+        <div class="relative max-w-md">
+          <Search :size="18" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input 
+            type="text" 
+            placeholder="Search by unit name..." 
+            v-model="unitSearchQuery"
+            class="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-all"
+          />
+        </div>
       </div>
-      
-      <div class="flex items-center gap-4 w-full md:w-96">
-        <BaseInput
-          v-model="searchInput"
-          placeholder="Search units..."
-          :icon="Search"
-          class="w-full"
-        />
-      </div>
+      <button 
+        @click="handleSync"
+        class="flex items-center gap-2 bg-white border border-gray-200 text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-50 hover:text-blue-600 transition-colors shadow-sm whitespace-nowrap"
+      >
+        <RefreshCw :size="18" />
+        <span class="font-medium text-sm">Sync Data</span>
+      </button>
     </div>
 
     <!-- Loading State -->
@@ -91,7 +89,7 @@ import debounce from 'lodash.debounce';
 
 const page = ref(1);
 const perPage = ref(10);
-const searchInput = ref('');
+const unitSearchQuery = ref('');
 const searchQuery = ref('');
 const router = useRouter();
 
@@ -101,7 +99,7 @@ const updateSearch = debounce((value) => {
   page.value = 1; // Reset to first page on search
 }, 300);
 
-watch(searchInput, (value) => {
+watch(unitSearchQuery, (value) => {
   updateSearch(value);
 });
 

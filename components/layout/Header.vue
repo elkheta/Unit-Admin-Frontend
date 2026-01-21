@@ -24,7 +24,7 @@
       <Divider orientation="vertical" spacing="md" />
 
       <BaseButton 
-        variant="danger" 
+        variant="outline-danger" 
         :icon="LogOut" 
         size="md"
         @click="handleLogout"
