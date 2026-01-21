@@ -291,7 +291,7 @@ const sortOptions = ref({
   progress: null,
   diamonds: null,
   lastSeen: null,
-  dateAdded: 'newest-first', // Default
+  dateAdded: null, // No default sorting
   expirationDate: null
 });
 

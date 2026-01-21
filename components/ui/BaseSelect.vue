@@ -7,7 +7,7 @@
             <select
 :value="modelValue" :disabled="disabled" :class="computedSelectClasses"
                 @change="$emit('update:modelValue', $event.target.value)">
-                <option v-if="placeholder" value="" disabled>{{ placeholder }}</option>
+                <option v-if="placeholder" value="">{{ placeholder }}</option>
                 <option v-for="option in options" :key="option.value" :value="option.value">
                     {{ option.label }}
                 </option>

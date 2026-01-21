@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center gap-3 bg-gray-50 rounded-lg p-4 border border-gray-200">
+  <div class="flex items-center gap-3 bg-white rounded-lg p-3 border border-gray-200">
     <ProductIcon />
     <ProductName :name="product.name" />
     <ProductStatus :status="product.status" />

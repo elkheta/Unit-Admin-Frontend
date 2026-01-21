@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center gap-3" :class="direction === 'rtl' ? 'text-right' : 'text-left'">
+  <div class="flex items-center gap-3" :class="direction === 'rtl' ? 'text-right flex-row-reverse' : 'text-left'">
     <UserAvatar :icon="icon" :initials="initials" :size="avatarSize" :variant="avatarVariant" :custom-size="avatarCustomSize" />
     <div class="flex flex-col">
       <span class="text-sm font-semibold text-gray-900">{{ name }}</span>

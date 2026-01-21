@@ -1,15 +1,15 @@
 <template>
   <div class="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
-    <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+    <div class="flex flex-col lg:flex-row lg:items-center gap-3">
       
       <!-- Identity Section: Icon + Name (Fixed Width) -->
-      <div class="flex items-center gap-3 w-full lg:w-[280px] flex-shrink-0">
+      <div class="flex items-center gap-2 w-full lg:w-[240px] flex-shrink-0">
         <!-- WhatsApp Chat Icon -->
         <div class="flex-shrink-0">
           <button
-            class="w-12 h-12 rounded-full border-2 border-green-200 flex items-center justify-center bg-green-50 hover:bg-green-100 transition-colors cursor-pointer"
+            class="w-10 h-10 rounded-full border-2 border-green-200 flex items-center justify-center bg-green-50 hover:bg-green-100 transition-colors cursor-pointer"
             title="Open WhatsApp chat" @click="handleWhatsAppClick">
-            <MessageCircle :size="24" class="text-green-600" />
+            <MessageCircle :size="18" class="text-green-600" />
           </button>
         </div>
 
@@ -27,11 +27,11 @@
       </div>
 
       <!-- Progress Section (Fixed Width) -->
-      <div class="w-full lg:w-[320px] flex-shrink-0">
+      <div class="w-full lg:w-[280px] flex-shrink-0">
         <button class="w-full text-left" @click="$emit('progress-click', student)">
           <div class="flex items-center justify-between mb-1.5">
-            <span class="text-xs font-medium text-gray-600 cursor-pointer hover:text-gray-900 truncate pr-2">{{ progressLabel }}</span>
-            <span class="text-xs font-semibold text-gray-900 flex-shrink-0">{{ student.averageProgress }}%</span>
+            <span class="text-xs font-medium text-blue-600 cursor-pointer hover:text-blue-700 truncate pr-2">{{ progressLabel }}</span>
+            <span class="text-xs font-semibold text-green-600 flex-shrink-0">{{ student.averageProgress }}%</span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2 cursor-pointer">
             <div class="bg-green-500 h-2 rounded-full transition-all" :style="{ width: `${student.averageProgress}%` }">
@@ -41,7 +41,7 @@
       </div>
 
       <!-- Stats & Actions Grid (Flexible but with fixed children) -->
-      <div class="flex flex-wrap lg:flex-nowrap items-center gap-2 lg:gap-6 w-full lg:flex-1 justify-start">
+      <div class="flex flex-wrap lg:flex-nowrap items-center gap-2 lg:gap-3 w-full lg:flex-1 justify-start">
         
         <!-- Score Badge (Fixed column) -->
         <div class="flex-shrink-0 w-[50px]">

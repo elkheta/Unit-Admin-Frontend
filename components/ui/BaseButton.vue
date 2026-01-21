@@ -23,7 +23,7 @@ const props = defineProps({
   variant: {
     type: String,
     default: 'primary',
-    validator: (value) => ['primary', 'secondary', 'danger', 'success', 'warning'].includes(value)
+    validator: (value) => ['primary', 'secondary', 'danger', 'success', 'warning', 'outline-danger', 'text-primary', 'text-danger'].includes(value)
   },
   disabled: {
     type: Boolean,
@@ -62,7 +62,10 @@ const buttonClasses = computed(() => {
     secondary: 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300',
     danger: 'bg-red-600 text-white hover:bg-red-700 shadow-sm hover:shadow-md',
     success: 'bg-green-600 text-white hover:bg-green-700 shadow-sm hover:shadow-md',
-    warning: 'bg-orange-600 text-white hover:bg-orange-700 shadow-sm hover:shadow-md'
+    warning: 'bg-orange-600 text-white hover:bg-orange-700 shadow-sm hover:shadow-md',
+    'outline-danger': 'bg-white text-red-600 border border-red-600 hover:bg-red-50',
+    'text-primary': 'bg-transparent text-blue-600 hover:bg-blue-50',
+    'text-danger': 'bg-transparent text-red-600 hover:bg-red-50'
   };
   
   const sizes = {

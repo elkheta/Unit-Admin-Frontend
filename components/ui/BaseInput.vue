@@ -4,7 +4,7 @@
       {{ label }}
     </label>
     <div class="relative">
-      <div v-if="icon" class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+      <div v-if="icon" class="absolute inset-y-0 flex items-center pointer-events-none" :class="iconWrapperClass">
         <component :is="icon" class="h-5 w-5" :class="iconClass" />
       </div>
       <input
@@ -51,7 +51,7 @@ const props = defineProps({
     default: ''
   },
   icon: {
-    type: Object,
+    type: [Object, String],
     default: null
   },
   disabled: {
@@ -88,10 +88,19 @@ defineEmits(['update:modelValue']);
 
 const computedInputClasses = computed(() => {
   const base = 'w-full rounded-xl text-sm focus:outline-none focus:ring-2 transition-all border';
-  const padding = props.icon ? 'pl-12 pr-4' : 'px-4';
+  
+  let padding = 'px-4';
+  if (props.icon) {
+    padding = props.dir === 'rtl' ? 'pr-12 pl-4' : 'pl-12 pr-4';
+  }
+  
   const errorState = props.error ? 'border-red-500' : 'border-gray-300';
   const disabledState = props.disabled ? 'opacity-50 cursor-not-allowed' : '';
   
   return `${base} ${padding} py-3.5 ${errorState} bg-white ${disabledState} ${props.inputClass}`;
+});
+
+const iconWrapperClass = computed(() => {
+  return props.dir === 'rtl' ? 'right-0 pr-4' : 'left-0 pl-4';
 });
 </script>

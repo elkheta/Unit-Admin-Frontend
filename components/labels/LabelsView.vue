@@ -7,15 +7,15 @@
         <p class="text-gray-500 mt-1">Manage labels and their assigned categories</p>
       </div>
       <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-        <div class="relative w-full sm:w-64">
+        <!-- <div class="relative w-full sm:w-64">
           <BaseInput 
             :model-value="searchQuery"
             @update:model-value="$emit('update:searchQuery', $event)"
             placeholder="Search labels..." 
             :icon="Search"
           />
-        </div>
-        <BaseButton variant="primary" :icon="PlusCircle" size="md" @click="openModal">
+        </div> -->
+        <BaseButton variant="primary" :icon="PlusCircle" size="sm" @click="openModal">
           Add New Label
         </BaseButton>
       </div>
@@ -45,10 +45,12 @@
               <td class="px-6 py-4">
                 <div class="flex items-center gap-3">
                   <div 
-                    class="w-3 h-3 rounded-full shadow-sm ring-2 ring-white"
-                    :style="{ backgroundColor: label.color || '#ccc' }"
+                    class="h-9 w-9 rounded-full flex items-center justify-center p-2"
+                    :class="getColorClasses(label.color).bg"
                     :title="label.color"
-                  ></div>
+                  >
+                    <Tag class="w-full h-full" :class="getColorClasses(label.color).text" />
+                  </div>
                   <span class="text-sm font-bold text-gray-900">{{ label.name }}</span>
                 </div>
               </td>
@@ -60,18 +62,18 @@
               <td class="px-6 py-4 text-right">
                 <div class="flex items-center justify-end gap-2">
                   <BaseButton 
-                    variant="primary" 
+                    variant="text-primary" 
                     size="sm" 
                     :icon="Edit3" 
-                    custom-class="p-1.5 !text-white"
+                    custom-class="p-1.5"
                     title="Edit" 
                     @click="handleEdit(label)" 
                   />
                   <BaseButton 
-                    variant="danger" 
+                    variant="text-danger" 
                     size="sm" 
                     :icon="Trash2" 
-                    custom-class="p-1.5 !text-white"
+                    custom-class="p-1.5"
                     title="Delete" 
                     @click="handleDelete(label.id)" 
                   />
@@ -188,7 +190,7 @@
 
 <script setup>
 import { ref } from 'vue';
-import { PlusCircle, Edit3, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import { PlusCircle, Edit3, Trash2, Search, ChevronLeft, ChevronRight, Tag } from 'lucide-vue-next';
 import { BaseButton, BaseModal, Badge, BaseInput } from '../ui';
 import { LabelModal } from './index.js';
 
@@ -270,6 +272,25 @@ const formatDate = (dateString) => {
   } catch (e) {
     return dateString;
   }
+};
+const getColorClasses = (color) => {
+  const map = {
+    'Red': { bg: 'bg-red-50', text: 'text-red-500' },
+    'Yellow': { bg: 'bg-yellow-50', text: 'text-yellow-500' },
+    'Blue': { bg: 'bg-blue-50', text: 'text-blue-500' },
+    'Pink': { bg: 'bg-pink-50', text: 'text-pink-500' },
+    'Black': { bg: 'bg-gray-50', text: 'text-gray-500' },
+    'Orange': { bg: 'bg-orange-50', text: 'text-orange-500' },
+    'Green': { bg: 'bg-emerald-50', text: 'text-emerald-500' },
+    'Purple': { bg: 'bg-purple-50', text: 'text-purple-500' },
+    'Brown': { bg: 'bg-amber-50', text: 'text-amber-500' },
+    'White': { bg: 'bg-gray-50', text: 'text-gray-500' },
+    'Default': { bg: 'bg-green-50', text: 'text-green-500' },
+  };
+
+  return map['Default'];
+  // if we want tag icon take label color un comment the following line
+  // return map[color] || map['White'];
 };
 </script>
 

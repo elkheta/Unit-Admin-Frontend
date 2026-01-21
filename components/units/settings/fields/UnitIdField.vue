@@ -1,17 +1,14 @@
 <template>
   <div>
     <FormLabel text="UNIT ID" />
-    <BaseInput 
-      :model-value="String(unitId)" 
-      placeholder="Unit ID" 
-      input-class="bg-gray-50" 
-      :disabled="true" 
-    />
+    <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 font-medium text-sm">
+      {{ unitId }}
+    </div>
   </div>
 </template>
 
 <script setup>
-import { BaseInput, FormLabel } from '../../../ui';
+import { FormLabel } from '../../../ui';
 
 defineProps({
   unitId: {
