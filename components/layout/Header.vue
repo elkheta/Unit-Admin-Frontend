@@ -15,8 +15,8 @@
     <!-- Right side: User Profile & Actions -->
     <div class="flex items-center gap-6">
       <UserProfile 
-        name="Supervisor User" 
-        role="Supervisor" 
+        :name="userName" 
+        :role="userRole" 
         :icon="User" 
         direction="rtl"
       />
@@ -36,8 +36,10 @@
 </template>
 
 <script setup>
+import { computed } from 'vue';
 import { LogOut, User, Layout } from 'lucide-vue-next';
 import { BaseButton, UserProfile, Divider, IconBadge } from '../ui';
+import { useAuth } from '../../composables/useAuth';
 
 defineProps({
   activeTabLabel: {
@@ -47,6 +49,11 @@ defineProps({
 });
 
 const emit = defineEmits(['logout']);
+const { user } = useAuth();
+// If needed, we can compute a display role from the user.roles array
+// For now, we defaults to 'Supervisor' if no role is present or logic is complex.
+const userRole = computed(() => user.value?.roles?.[0] || 'Supervisor');
+const userName = computed(() => user.value?.name || 'Supervisor User');
 
 const handleLogout = () => {
   emit('logout');
