@@ -76,22 +76,32 @@ const formatDate = (dateString) => {
 };
 
 // Reminders state
+const removedReminderIds = ref([]);
+
 const reminders = computed(() => {
   if (!remindersResult.value?.dashboardReminders) return [];
 
-  return remindersResult.value.dashboardReminders.map(reminder => ({
-    id: reminder.id,
-    description: reminder.text,
-    personName: reminder.student?.name || 'Unknown',
-    group: reminder.student?.group_name || 'No Group',
-    unit: reminder.student?.unit?.name || 'No Unit',
-    unitSlug: reminder.student?.unit?.slug,
-    status: reminder.status || 'Pending',
-    dueDate: formatDate(reminder.due_date),
-    statusIndicator: getStatusIndicator(reminder.due_date),
-    studentId: reminder.student?.id
-  }));
+  return remindersResult.value.dashboardReminders
+    .filter(reminder => !removedReminderIds.value.includes(reminder.id))
+    .map(reminder => ({
+      id: reminder.id,
+      description: reminder.text,
+      personName: reminder.student?.name || 'Unknown',
+      group: reminder.student?.group_name || 'No Group',
+      unit: reminder.student?.unit?.name || 'No Unit',
+      unitSlug: reminder.student?.unit?.slug,
+      status: reminder.status || 'Pending',
+      dueDate: formatDate(reminder.due_date),
+      statusIndicator: getStatusIndicator(reminder.due_date),
+      studentId: reminder.student?.id
+    }));
 });
+
+const removeReminder= (reminderId) => {
+  if (!reminderId) return;
+  if (removedReminderIds.value.includes(reminderId)) return;
+  removedReminderIds.value = [...removedReminderIds.value, reminderId];
+};
 
 // Mock students data for expired count
 const allStudents = [];
@@ -133,9 +143,9 @@ const handleCompleteReminder = async (reminderId) => {
   try {
     await updateNote({
       id: reminderId,
-      input: { status: 'completed' }
+      input: { status: 'approved' }
     });
-    refetchReminders();
+    removeReminder(reminderId);
   } catch (e) {
     console.error('Error completing reminder:', e);
   }
@@ -148,7 +158,7 @@ const handleDismissReminder = async (reminderId) => {
         id: reminderId,
         input: { status: 'cancelled' }
       });
-      refetchReminders();
+      removeReminder(reminderId);
     } catch (e) {
       console.error('Error dismissing reminder:', e);
     }
