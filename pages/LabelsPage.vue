@@ -14,10 +14,12 @@
 
 <script setup>
 import { computed, ref } from 'vue';
+import { PlusCircle, Edit3, Trash2, Search, ChevronLeft, ChevronRight, Tag } from 'lucide-vue-next';
 import { LabelsView } from '../components/labels';
 import { useLabels } from '../composables/useLabels';
 import { useAuth } from '../composables/useAuth';
 import { useToast } from '../composables/useToast';
+import { BaseButton, BaseModal, Badge, BaseInput } from '../components/ui';
 
 const { user, refreshAuth } = useAuth();
 const { 
@@ -40,7 +42,7 @@ const variables = computed(() => ({
 }));
 
 // Fetch Data
-const { result: labelsResult, refetch: refetchLabels } = fetchLabels(variables);
+const { result: labelsResult, loading: labelsLoading, refetch: refetchLabels } = fetchLabels(variables);
 const { result: categoriesResult } = fetchCategories();
 
 // Computed Data

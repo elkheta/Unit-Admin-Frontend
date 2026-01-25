@@ -23,12 +23,16 @@
     
     <!-- Global Toast Notifications -->
     <ToastContainer />
+    
+    <!-- Global Loader -->
+    <AppLoader />
   </div>
 </template>
 
 <script setup>
 import { Sidebar, Header } from './components/layout';
 import ToastContainer from './components/ui/ToastContainer.vue';
+import AppLoader from './components/ui/AppLoader.vue';
 import { usePageLayout } from './composables/usePageLayout';
 import { useNavigation } from './composables/useNavigation';
 import { useAuth } from './composables/useAuth';

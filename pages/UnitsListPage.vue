@@ -28,10 +28,7 @@ const handleUnitSettings = (unit) => {
 };
 
 const handleSync = () => {
-  // Handle data synchronization with backend
-  // eslint-disable-next-line no-console
-  console.log('Syncing data...');
-  // In a real app, this would call an API to sync data
+  // TODO: Implement sync with backend API
 };
 </script>
 

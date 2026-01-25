@@ -6,13 +6,13 @@ export { default as BaseModal } from './BaseModal.vue';
 export { default as BaseSelect } from './BaseSelect.vue';
 export { default as DiamondIcon } from './DiamondIcon.vue';
 export { default as Divider } from './Divider.vue';
-export { default as PalmTreeIcon } from './PalmTreeIcon.vue';
 export { default as EmptyState } from './EmptyState.vue';
+export { default as AppLoader } from './AppLoader.vue';
 export { default as FormLabel } from './FormLabel.vue';
 export { default as IconBadge } from './IconBadge.vue';
 export { default as NavItem } from './NavItem.vue';
+export { default as PalmTreeIcon } from './PalmTreeIcon.vue';
 export { default as StatDisplay } from './StatDisplay.vue';
 export { default as ToastContainer } from './ToastContainer.vue';
 export { default as UserAvatar } from './UserAvatar.vue';
 export { default as UserProfile } from './UserProfile.vue';
-

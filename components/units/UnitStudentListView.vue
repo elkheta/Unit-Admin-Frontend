@@ -200,8 +200,7 @@ const handleCloseSidebar = () => {
 };
 
 const handleSaveProfile = (updatedStudent) => {
-  // logic to update student in list
-  console.log('Save profile', updatedStudent);
+  // TODO: Implement save profile logic
   handleCloseSidebar();
 };
 
@@ -218,8 +217,7 @@ const handleCloseAccumulatedLessonsSidebar = () => {
 
 
 const handleGroupChange = (student, newGroup) => {
-    // update logic
-    console.log('Group changed', student.id, newGroup);
+    // TODO: Implement group change logic
 };
 
 const handleWhatsAppClick = (student) => {
@@ -232,8 +230,7 @@ const handleProgressClick = (student) => {
 };
 
 const handleScoreClick = (student) => {
-    // maybe show score history
-    console.log('Score click', student.name);
+    // TODO: Show score history
 };
 
 const handleNotesClick = (student) => {
@@ -590,7 +587,6 @@ const handleApplySort = (newSortOptions) => {
 };
 
 const handleApplyFilter = ({ filterType, filterData }) => {
-  console.log('Applying filter:', filterType, filterData);
   if (filterType && filterData !== undefined) {
     filters.value[filterType] = filterData;
     currentPage.value = 1;
