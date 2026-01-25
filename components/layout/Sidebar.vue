@@ -65,8 +65,7 @@ const mainNavItems = computed(() => {
   ];
 
   // Debugging: Log user to see actual structure
-  console.log('Current User:', user.value);
-  console.log(user.value.roles);
+
 
   // Filter based on role
   // Check if user has "Unit Supervisor" role or permissions
