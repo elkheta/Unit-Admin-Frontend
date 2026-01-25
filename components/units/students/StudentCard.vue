@@ -27,14 +27,18 @@
       </div>
 
       <!-- Progress Section (Fixed Width) -->
-      <div class="w-full lg:w-[280px] flex-shrink-0">
-        <button class="w-full text-left" @click="$emit('progress-click', student)">
+      <div class="w-full lg:w-[280px] flex-shrink-0"  :class="{ 'opacity-40 blur-[1px]': isProgressMissing }" >
+        <button
+          class="w-full text-left"
+         
+          @click="$emit('progress-click', student)"
+        >
           <div class="flex items-center justify-between mb-1.5">
             <span class="text-xs font-medium text-blue-600 cursor-pointer hover:text-blue-700 truncate pr-2">{{ progressLabel }}</span>
-            <span class="text-xs font-semibold text-green-600 flex-shrink-0">{{ student.averageProgress }}%</span>
+            <span class="text-xs font-semibold text-green-600 flex-shrink-0">{{ progressDisplay }}</span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2 cursor-pointer">
-            <div class="bg-green-500 h-2 rounded-full transition-all" :style="{ width: `${student.averageProgress}%` }">
+            <div class="bg-green-500 h-2 rounded-full transition-all" :style="{ width: progressWidth }">
             </div>
           </div>
         </button>
@@ -130,6 +134,24 @@ const selectedGroup = ref(props.student.group);
 const selectedGroupLabel = computed(() => {
   const option = props.groupOptions?.find(o => o.value === selectedGroup.value);
   return option ? option.label : selectedGroup.value;
+});
+
+const progressValue = computed(() => {
+  if (props.student?.averageProgress === null) {
+    return null;
+  }
+  const value = Number(props.student?.averageProgress);
+  return value;
+});
+
+const isProgressMissing = computed(() => progressValue.value === null);
+
+const progressDisplay = computed(() => {
+  return progressValue.value === null ? '--' : `${progressValue.value}%`;
+});
+
+const progressWidth = computed(() => {
+  return `${progressValue.value ?? 0}%`;
 });
 
 

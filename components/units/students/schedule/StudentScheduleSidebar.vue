@@ -246,7 +246,8 @@ const weeklySummary = computed(() => {
   // "completedLessons" = subject parts progress >= 60
   const completed = allSubjects.filter((s) => (s.progress ?? 0) >= 60).length;
   // averageProgress comes from week-level progress returned by backend
-  const averageProgress = w?.progress ?? 0;
+  const averageProgress = w?.progress;
+  
   // accumulated comes from week-level accumulated_subject_parts_count
   const accumulated = w?.accumulated_subject_parts_count ?? 0;
 

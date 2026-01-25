@@ -1,7 +1,7 @@
 <template>
   <div
     class="relative flex flex-col items-center justify-center w-11 h-11 rounded-full border-2 shrink-0 transition-all group cursor-pointer hover:shadow-lg"
-    :class="badgeClasses"
+    :class="[badgeClasses, { 'opacity-40 blur-[1px]': displayValue === null }]"
     @click="$emit('click')"
     :title="tooltipText"
   >
@@ -46,14 +46,10 @@ const hasAccumulatedLessons = computed(() => {
 });
 
 const displayValue = computed(() => {
-  if (props.accumulatedLessons === 0) {
-    return null;
+ if (hasAccumulatedLessons.value) {
+    return props.accumulatedProgress;
   }
-  // Check for 0 loosely to handle string/number or small floats
-  if (Math.abs(props.accumulatedProgress) < 0.01) {
-    return null;
-  }
-  return props.accumulatedProgress;
+  return null;
 });
 
 const isPercentage = computed(() => Math.abs(props.accumulatedProgress) >= 0.01);

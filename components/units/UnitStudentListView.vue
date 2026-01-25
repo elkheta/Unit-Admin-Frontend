@@ -227,6 +227,9 @@ const handleWhatsAppClick = (student) => {
 };
 
 const handleProgressClick = (student) => {
+  if (student.averageProgress === null) {
+    return;
+  }
   selectedStudentForSchedule.value = student;
   isScheduleSidebarOpen.value = true;
 };
@@ -252,6 +255,9 @@ const handleStudentNameClick = (student) => {
 };
 
 const handleAccumulatedLessonsClick = (student) => {
+  if (student.accumulatedLessons === 0) {
+    return;
+  }
   selectedStudentForAccumulatedLessons.value = student;
   isAccumulatedLessonsSidebarOpen.value = true;
 };
@@ -499,7 +505,7 @@ const filteredStudents = computed(() => {
     result = result.filter(student => matchesFilter(student.diamondPoints, filters.value.diamonds));
   }
   if (filters.value.progress) {
-    result = result.filter(student => matchesFilter(student.averageProgress, filters.value.progress));
+    result = result.filter(student => matchesFilter(student.averageProgress || 0, filters.value.progress));
   }
   if (filters.value.lessons) {
     result = result.filter(student => matchesFilter(student.accumulatedLessons || 0, filters.value.lessons));
@@ -516,7 +522,7 @@ const filteredStudents = computed(() => {
   result.sort((a, b) => {
     // Priority 1: Progress
     if (sortOptions.value.progress) {
-      const comparison = a.averageProgress - b.averageProgress;
+      const comparison = (a.averageProgress || 0) - (b.averageProgress || 0);
       if (comparison !== 0) {
         return sortOptions.value.progress === 'high-to-low' ? -comparison : comparison;
       }
