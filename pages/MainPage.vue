@@ -20,6 +20,7 @@ import { MainDashboard } from '../components/dashboard';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import { GET_DASHBOARD_UNITS, GET_DASHBOARD_REMINDERS, UPDATE_STUDENT_NOTE, DELETE_STUDENT_NOTE } from '../graphql/queries/dashboard';
 import { useAuth } from '../composables/useAuth.js';
+import { useToast } from '../composables/useToast';
 
 const { user } = useAuth();
 const router = useRouter();
@@ -77,6 +78,7 @@ const formatDate = (dateString) => {
 
 // Reminders state
 const removedReminderIds = ref([]);
+const { error: toastError, success: toastSuccess } = useToast();
 
 const reminders = computed(() => {
   if (!remindersResult.value?.dashboardReminders) return [];
@@ -146,6 +148,8 @@ const handleCompleteReminder = async (reminderId) => {
       input: { status: 'approved' }
     });
     removeReminder(reminderId);
+
+    toastSuccess('Reminder approved successfully');
   } catch (e) {
     console.error('Error completing reminder:', e);
   }
@@ -159,6 +163,7 @@ const handleDismissReminder = async (reminderId) => {
         input: { status: 'cancelled' }
       });
       removeReminder(reminderId);
+      toastSuccess('Reminder dismissed successfully');
     } catch (e) {
       console.error('Error dismissing reminder:', e);
     }
