@@ -16,7 +16,7 @@
           <div class="flex-1 min-w-0">
             <h3 
               class="text-lg font-bold text-gray-900 leading-tight mb-1"
-              style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
+              style="display: -webkit-box; -webkit-line-clamp: 2; "
               :title="unit.title"
             >
               {{ unit.title }}
@@ -25,7 +25,7 @@
               <User :size="14" class="flex-shrink-0 mt-0.5" />
               <span 
                 class="text-sm" 
-                style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
+                style="display: -webkit-box; -webkit-line-clamp: 2; "
                 :title="unit.admin"
               >
                 {{ unit.admin }}
@@ -51,7 +51,7 @@
           <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Groups</span>
           <span class="text-xs text-gray-400">({{ activeGroupsCount }})</span>
         </div>
-        <div class="space-y-1.5 max-h-[80px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200">
+        <div class="space-y-1.5  overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200">
           <GroupItem v-for="(group, idx) in activeGroups" :key="idx" :group="group" />
         </div>
       </div>
