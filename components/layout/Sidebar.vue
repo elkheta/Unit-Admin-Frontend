@@ -86,9 +86,19 @@ const unitName = computed(() => {
   return unitData.value?.name || unitSlug.value;
 });
 
-const isActive = (routePath) => {
-  return route.path === routePath;
+const safeDecode = (value) => {
+  try {
+    return decodeURIComponent(String(value || ''));
+  } catch {
+    return String(value || '');
+  }
 };
+
+const isActive = (routePath) => {
+  // Handle encoded slugs (spaces/arabic) in URL vs decoded route strings
+  return safeDecode(route.path) === safeDecode(routePath);
+};
+
 
 const handleNavigation = (routePath) => {
   router.push(routePath);
