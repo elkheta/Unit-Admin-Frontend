@@ -41,6 +41,7 @@ export const GET_STUDENT_PROFILE = gql`
       }
       parent_info {
         parent {
+          id
           name
           phone_number
         }

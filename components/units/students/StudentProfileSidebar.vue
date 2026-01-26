@@ -296,15 +296,16 @@ const handleSave = () => {
 
 const handleGoToStudentProfile = () => {
     if (props.student?.id) {
-        window.open(`https://elkheta.org/students/${props.student.id}`, '_blank');
+        window.open(`https://elkheta.org/admin/resources/students/${props.student.id}`, '_blank');
         emit('go-to-student-profile', props.student);
     }
 };
 
 const handleGoToParentProfile = () => {
-    if (props.parent?.id) {
-        window.open(`https://elkheta.org/parents/${props.parent.id}`, '_blank');
-        emit('go-to-parent-profile', props.parent);
+  const parentId = profile.value?.parent_info?.parent?.id;
+    if (parentId) {
+        window.open(`https://elkheta.org/admin/resources/students/${parentId}`, '_blank');
+        emit('go-to-parent-profile', profile.value?.parent_info?.parent);
     }
 };
 
