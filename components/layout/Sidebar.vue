@@ -58,25 +58,12 @@ const { user } = useAuth();
 
 // Main navigation items
 const mainNavItems = computed(() => {
-  const items = [
+  return [
     { id: 'main', label: 'Main', icon: LayoutDashboard, route: '/dashboard/main' },
     { id: 'units-list', label: 'Unit List', icon: ClipboardList, route: '/dashboard/units' },
     { id: 'labels', label: 'Labels', icon: Tag, route: '/dashboard/labels' },
   ];
 
-  // Debugging: Log user to see actual structure
-
-
-  // Filter based on role
-  // Check if user has "Unit Supervisor" role or permissions
-  const isUnitSupervisor = user.value?.roles?.includes('Unit Supervisor')
-
-  return items.filter(item => {
-    if (item.id === 'units-list') {
-      return isUnitSupervisor;
-    }
-    return true;
-  });
 });
 
 // Unit navigation items

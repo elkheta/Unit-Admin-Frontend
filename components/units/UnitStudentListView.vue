@@ -107,7 +107,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, unref } from 'vue';
 import { User } from 'lucide-vue-next';
 import {
   StudentCard,
@@ -310,11 +310,12 @@ const filters = ref({
 });
 
 // Determine if we are using backend data
-const isBackendMode = computed(() => !props.error && props.studentsResult?.data);
+const hasError = computed(() => Boolean(unref(props.error)));
+const isBackendMode = computed(() => !hasError.value && Array.isArray(props.studentsResult?.data));
 
 // Pagination Helpers
 const totalStudents = computed(() => {
-   if (isBackendMode.value) return props.studentsResult?.paginatorInfo?.total || 0;
+   if (isBackendMode.value) return Number(props.studentsResult?.paginatorInfo?.total) || 0;
    return filteredStudents.value.length; 
 });
 
@@ -600,6 +601,9 @@ const handleApplyFilter = ({ filterType, filterData }) => {
   }
 };
 
+const handlePageChange = (page) => {
+  currentPage.value = page;
+};
 
 </script>
 
