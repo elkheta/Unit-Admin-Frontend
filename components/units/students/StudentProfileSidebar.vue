@@ -143,8 +143,7 @@ const specialNotes = ref('');
 const parentNote = ref('');
 
 const studentId = computed(() => props.student?.id ? String(props.student.id) : null);
-const cachedProfile = computed(() => (studentId.value ? (studentProfileCache.value[studentId.value] || null) : null));
-const shouldFetchProfile = computed(() => Boolean(props.isOpen && studentId.value && !cachedProfile.value));
+const isQueryEnabled = computed(() => Boolean(props.isOpen && studentId.value));
 
 const { error: toastError, success: toastSuccess } = useToast();
 
@@ -152,19 +151,18 @@ const {
   result: profileResult,
   loading: profileLoading,
   error: profileError,
+  refetch: refetchProfile
 } = useQuery(
   GET_STUDENT_PROFILE,
   computed(() => ({ studentId: studentId.value })),
   computed(() => ({
-    enabled: shouldFetchProfile.value,
-    fetchPolicy: 'no-cache', 
+    enabled: isQueryEnabled.value,
+    fetchPolicy: 'network-only'
   }))
 );
 
-// Prefer cached profile when available (avoid network).
-const profile = computed(() => cachedProfile.value || profileResult.value?.studentProfile || null);
-const effectiveProfileLoading = computed(() => (cachedProfile.value ? false : profileLoading.value));
-const effectiveProfileError = computed(() => (cachedProfile.value ? null : profileError.value));
+
+const profile = computed(() => profileResult.value?.studentProfile || null);
 
 const personalInformation = computed(() => {
   const pi = profile.value?.personal_information;
@@ -284,6 +282,8 @@ const handleSave = () => {
       
       // Clear changed fields after successful save
       changedFields.value = {};
+
+      refetchProfile?.({ studentId: studentId.value });
 
       // Keep legacy event for any parent-side state updates
       emit('save', input);

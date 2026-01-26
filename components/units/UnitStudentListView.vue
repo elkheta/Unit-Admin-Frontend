@@ -202,7 +202,7 @@ const handleCloseSidebar = () => {
 const handleSaveProfile = (updatedStudent) => {
   // logic to update student in list
   console.log('Save profile', updatedStudent);
-  handleCloseSidebar();
+  // handleCloseSidebar();
 };
 
 const handleCloseScheduleSidebar = () => {
