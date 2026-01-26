@@ -84,8 +84,8 @@
                 <span 
                   class="font-bold"
                   :class="{
-                    'text-green-600': part.progress >= 70,
-                    'text-orange-600': part.progress >= 40 && part.progress < 70,
+                    'text-green-600': part.progress >= 80,
+                    'text-orange-600': part.progress >= 40 && part.progress < 80,
                     'text-red-600': part.progress < 40
                   }"
                 >
@@ -96,8 +96,8 @@
                 <div 
                   class="h-full rounded-full transition-all"
                   :class="{
-                    'bg-green-500': part.progress >= 70,
-                    'bg-orange-500': part.progress >= 40 && part.progress < 70,
+                    'bg-green-500': part.progress >= 80,
+                    'bg-orange-500': part.progress >= 40 && part.progress < 80,
                     'bg-red-500': part.progress < 40
                   }"
                   :style="{ width: `${part.progress}%` }"
