@@ -37,8 +37,11 @@
         <!-- Expired Badge -->
         <div class="flex justify-end mt-auto">
           <span
-            class="text-xs px-3 py-1.5 rounded-lg font-semibold bg-orange-50 text-orange-600 cursor-pointer hover:bg-orange-100 transition-colors"
-            @click="$emit('expired-click', unit)"
+            class="text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors"
+            :class="expiredCount > 0 
+              ? 'bg-orange-50 text-orange-600 cursor-pointer hover:bg-orange-100' 
+              : 'bg-gray-50 text-gray-400 cursor-not-allowed opacity-75'"
+            @click="expiredCount > 0 && $emit('expired-click', unit)"
           >
             {{ expiredCount }} Expired
           </span>

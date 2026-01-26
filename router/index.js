@@ -1,11 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import SignInPage from '../pages/auth/SignInPage.vue';
-import RegisterPage from '../pages/auth/RegisterPage.vue';
-import MainPage from '../pages/MainPage.vue';
-import UnitsPage from '../pages/UnitsPage.vue';
-import UnitSettingsPage from '../pages/UnitSettingsPage.vue';
-import UnitStudentListPage from '../pages/UnitStudentListPage.vue';
-import LabelsPage from '../pages/LabelsPage.vue';
+
+// Lazy-loaded pages for code splitting
+const SignInPage = () => import('../pages/auth/SignInPage.vue');
+const RegisterPage = () => import('../pages/auth/RegisterPage.vue');
+const MainPage = () => import('../pages/MainPage.vue');
+const UnitsPage = () => import('../pages/UnitsPage.vue');
+const UnitSettingsPage = () => import('../pages/UnitSettingsPage.vue');
+const UnitStudentListPage = () => import('../pages/UnitStudentListPage.vue');
+const LabelsPage = () => import('../pages/LabelsPage.vue');
 
 const routes = [
   {
