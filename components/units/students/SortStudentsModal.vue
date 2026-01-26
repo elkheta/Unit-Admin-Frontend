@@ -171,15 +171,20 @@ const positionStyle = computed(() => {
     return {};
 });
 
-// Helper to set a single sort option and clear others
+// Helper to set a single sort option and clear others (toggle if same)
 const setSort = (key, value) => {
+    // If clicking the same option that's already selected, toggle it off
+    const isToggleOff = sortOptions.value[key] === value;
+    
     // Reset all options
     Object.keys(sortOptions.value).forEach(k => {
         sortOptions.value[k] = null;
     });
     
-    // Set the selected option
-    sortOptions.value[key] = value;
+    // Set the selected option (unless toggling off)
+    if (!isToggleOff) {
+        sortOptions.value[key] = value;
+    }
     
     // Auto-apply logic
     emit('apply-sort', { ...sortOptions.value });
