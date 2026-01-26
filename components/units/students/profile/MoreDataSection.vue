@@ -107,11 +107,11 @@
                 <span
                     v-for="(label, index) in selectedLabels"
                     :key="index"
-                    class="px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-lg flex items-center gap-2"
+                    class="px-3 py-1 bg-gray-50 text-gray-700 text-sm rounded-lg flex items-center gap-2"
                 >
                     {{ label.name }}
                     <button
-                        class="text-blue-500 hover:text-blue-700"
+                        class="text-gray-500 hover:text-gray-700"
                         @click="removeLabel(index)"
                     >
                         <X :size="14" />
