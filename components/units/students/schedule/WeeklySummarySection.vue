@@ -1,6 +1,6 @@
 <template>
   <div class="bg-blue-50 rounded-lg border border-blue-200 p-6 mt-6">
-    <div class="flex items-center gap-2 mb-4">
+    <div class="flex items-center justify-start gap-2 mb-4 flex-row-reverse">
       <BarChart3 :size="20" class="text-blue-600" />
       <h3 class="text-lg font-bold text-gray-900">ملخص الأسبوع</h3>
     </div>
