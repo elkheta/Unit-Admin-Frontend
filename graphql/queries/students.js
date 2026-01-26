@@ -63,8 +63,8 @@ export const GET_UNIT_STUDENTS = gql`
         diamonds
         last_seen
         current_progress
-        accumulated_lessons_count
-        accumulated_lessons_percentage
+        accumulated_subject_parts_count
+        accumulated_subject_parts_percentage
         group_name
         parent_name
         parent_phone

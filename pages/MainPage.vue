@@ -20,6 +20,7 @@ import { MainDashboard } from '../components/dashboard';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import { GET_DASHBOARD_UNITS, GET_DASHBOARD_REMINDERS, UPDATE_STUDENT_NOTE, DELETE_STUDENT_NOTE } from '../graphql/queries/dashboard';
 import { useAuth } from '../composables/useAuth.js';
+import { useToast } from '../composables/useToast';
 
 const { user } = useAuth();
 const router = useRouter();
@@ -76,22 +77,33 @@ const formatDate = (dateString) => {
 };
 
 // Reminders state
+const removedReminderIds = ref([]);
+const { error: toastError, success: toastSuccess } = useToast();
+
 const reminders = computed(() => {
   if (!remindersResult.value?.dashboardReminders) return [];
 
-  return remindersResult.value.dashboardReminders.map(reminder => ({
-    id: reminder.id,
-    description: reminder.text,
-    personName: reminder.student?.name || 'Unknown',
-    group: reminder.student?.group_name || 'No Group',
-    unit: reminder.student?.unit?.name || 'No Unit',
-    unitSlug: reminder.student?.unit?.slug,
-    status: reminder.status || 'Pending',
-    dueDate: formatDate(reminder.due_date),
-    statusIndicator: getStatusIndicator(reminder.due_date),
-    studentId: reminder.student?.id
-  }));
+  return remindersResult.value.dashboardReminders
+    .filter(reminder => !removedReminderIds.value.includes(reminder.id))
+    .map(reminder => ({
+      id: reminder.id,
+      description: reminder.text,
+      personName: reminder.student?.name || 'Unknown',
+      group: reminder.student?.group_name || 'No Group',
+      unit: reminder.student?.unit?.name || 'No Unit',
+      unitSlug: reminder.student?.unit?.slug,
+      status: reminder.status || 'Pending',
+      dueDate: formatDate(reminder.due_date),
+      statusIndicator: getStatusIndicator(reminder.due_date),
+      studentId: reminder.student?.id
+    }));
 });
+
+const removeReminder= (reminderId) => {
+  if (!reminderId) return;
+  if (removedReminderIds.value.includes(reminderId)) return;
+  removedReminderIds.value = [...removedReminderIds.value, reminderId];
+};
 
 // Mock students data for expired count
 const allStudents = [];
@@ -133,9 +145,11 @@ const handleCompleteReminder = async (reminderId) => {
   try {
     await updateNote({
       id: reminderId,
-      input: { status: 'completed' }
+      input: { status: 'approved' }
     });
-    refetchReminders();
+    removeReminder(reminderId);
+
+    toastSuccess('Reminder approved successfully');
   } catch (e) {
     console.error('Error completing reminder:', e);
   }
@@ -148,7 +162,8 @@ const handleDismissReminder = async (reminderId) => {
         id: reminderId,
         input: { status: 'cancelled' }
       });
-      refetchReminders();
+      removeReminder(reminderId);
+      toastSuccess('Reminder dismissed successfully');
     } catch (e) {
       console.error('Error dismissing reminder:', e);
     }

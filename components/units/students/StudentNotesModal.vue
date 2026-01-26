@@ -208,7 +208,7 @@
                         v-if="item.category"
                         class="inline-block text-[10px] font-medium px-2 py-0.5 rounded bg-gray-100 text-gray-600 mb-2"
                     >
-                        {{ item.category.name }}
+                        {{ formatCategoryName(item.category.name) }}
                     </span>
 
                     <div v-if="item.due_date" class="text-[10px] text-orange-600 font-medium mb-2">
@@ -477,6 +477,11 @@ function formatDateDisplay(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
   return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' });
+}
+
+function formatCategoryName(name) {
+  if (!name) return '';
+  return String(name).toLowerCase().replace(/_/g, ' ');
 }
 
 const handleAddNote = async () => {

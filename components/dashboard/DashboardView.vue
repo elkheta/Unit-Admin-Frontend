@@ -220,10 +220,10 @@ const units = computed(() => {
     badge: unit.educational_sections,
     admin: unit.admin_name,
     students: unit.current_capacity || 0,
-    outside: 0, // Not implemented yet
+    outside: unit.outside_count || 0,
     availableCapacity: (unit.max_capacity || 0) - (unit.current_capacity || 0),
-    reminders: 0, // Not implemented yet
-    groups: [], // Not implemented yet
+    reminders:  unit.reminders_count || 0,
+    groups: unit.groups || [], // Not implemented yet
   }));
 });
 

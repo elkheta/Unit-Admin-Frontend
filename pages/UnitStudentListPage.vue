@@ -73,11 +73,11 @@ const studentsData = computed(() => {
     ...s,
     // Map backend fields to frontend component props
     phone: s.phone_number,
-    averageProgress: s.current_progress || 0,
+    averageProgress: s.current_progress,
     score: s.points || 0,
     diamondPoints: s.diamonds || 0,
-    accumulatedLessons: s.accumulated_lessons_count || 0, // Map from backend
-    accumulatedProgress: s.accumulated_lessons_percentage || 0, // Map from backend
+    accumulatedLessons: s.accumulated_subject_parts_count || 0, // Map from backend
+    accumulatedProgress: s.accumulated_subject_parts_percentage || 0, // Map from backend
     // Format date to relative time
     lastActive: formatLastSeen(s.last_seen),
     status: 'Active', // Default or derive from expiration
@@ -92,7 +92,6 @@ const studentsData = computed(() => {
     },
     orders: [] // Set to empty array as backend order logic is removed for now
   }));
-  
   return {
     data: transformedData,
     paginatorInfo: result.value?.students?.paginatorInfo || {}

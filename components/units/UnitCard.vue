@@ -3,8 +3,8 @@
     <div class="flex flex-col p-5 gap-3">
       
       <!-- 1. Header (Fixed) -->
-      <div class="flex-none">
-        <div class="flex items-start gap-3">
+      <div class="flex-none min-h-[128px] flex flex-col">
+        <div class="flex items-start gap-3 min-h-[72px]">
           <IconBadge
             :icon="Package" 
             :size="20" 
@@ -16,7 +16,7 @@
           <div class="flex-1 min-w-0">
             <h3 
               class="text-lg font-bold text-gray-900 leading-tight mb-1"
-              style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
+              style="display: -webkit-box; -webkit-line-clamp: 2; "
               :title="unit.title"
             >
               {{ unit.title }}
@@ -25,7 +25,7 @@
               <User :size="14" class="flex-shrink-0 mt-0.5" />
               <span 
                 class="text-sm" 
-                style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
+                style="display: -webkit-box; -webkit-line-clamp: 2; "
                 :title="unit.admin"
               >
                 {{ unit.admin }}
@@ -35,7 +35,7 @@
         </div>
         
         <!-- Expired Badge -->
-        <div class="flex justify-end mt-3">
+        <div class="flex justify-end mt-auto">
           <span
             class="text-xs px-3 py-1.5 rounded-lg font-semibold transition-colors"
             :class="expiredCount > 0 
@@ -49,12 +49,12 @@
       </div>
 
       <!-- 2. Groups -->
-      <div class="flex flex-col gap-2 min-h-[120px]">
+      <div class="flex flex-col gap-2 h-[160px]">
         <div class="flex items-center gap-2">
           <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Groups</span>
           <span class="text-xs text-gray-400">({{ activeGroupsCount }})</span>
         </div>
-        <div class="space-y-1.5 max-h-[80px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200">
+        <div class="flex-1 space-y-1.5 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200">
           <GroupItem v-for="(group, idx) in activeGroups" :key="idx" :group="group" />
         </div>
       </div>

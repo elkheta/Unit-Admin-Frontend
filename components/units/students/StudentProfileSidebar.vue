@@ -157,11 +157,11 @@ const {
   computed(() => ({ studentId: studentId.value })),
   computed(() => ({
     enabled: shouldFetchProfile.value,
-    fetchPolicy: 'no-cache', 
+    fetchPolicy: 'no-cache',
   }))
 );
 
-// Prefer cached profile when available (avoid network).
+// Prefer cached profile when available (avoid network on reopen).
 const profile = computed(() => cachedProfile.value || profileResult.value?.studentProfile || null);
 const effectiveProfileLoading = computed(() => (cachedProfile.value ? false : profileLoading.value));
 const effectiveProfileError = computed(() => (cachedProfile.value ? null : profileError.value));
@@ -274,16 +274,16 @@ const handleSave = () => {
 
   updateProfile({ input })
     ?.then((res) => {
-      const ok = Boolean(res?.data?.updateProfile?.status);
-      if (!ok) {
-        toastError('Failed to save profile.');
-        return;
-      }
+      const payload = res?.data?.updateProfile;
+
 
       toastSuccess('Profile updated.');
       
       // Clear changed fields after successful save
       changedFields.value = {};
+
+      const updatedProfile = payload?.studentProfile ?? payload;
+      setCachedProfile(studentId.value, updatedProfile);
 
       // Keep legacy event for any parent-side state updates
       emit('save', input);

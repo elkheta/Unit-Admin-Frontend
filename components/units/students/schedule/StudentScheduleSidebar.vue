@@ -58,7 +58,7 @@
             </button>
             <div class="flex flex-col items-center">
               <span class="text-sm font-medium text-gray-700">{{ weekLabelArabic }}</span>
-              <span class="text-xs text-gray-500 mt-1">{{ weekDateRangeArabic }}</span>
+              <span class="text-sm text-gray-500 mt-1">{{ weekDateRangeArabic }}</span>
             </div>
             <button
               class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -99,7 +99,7 @@
     <!-- Subject Part Details Sidebar -->
     <SubjectPartDetailsSidebar
       :is-open="isDetailsOpen"
-      :student-id="studentId"
+      :student-id="studentElkhetaId"
       :subject-id="selectedSubjectPart?.subjectId"
       :subject-part-id="selectedSubjectPart?.subjectPartId"
       :subject-part="selectedSubjectPart"
@@ -133,6 +133,7 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 
 const studentId = computed(() => (props.student?.id ? String(props.student.id) : null));
+const studentElkhetaId = computed(() => (props.student?.elkheta_id ? String(props.student.elkheta_id) : null));
 const scheduleWeeksCache = ref({});
 const cachedWeeks = computed(() => (studentId.value ? scheduleWeeksCache.value[studentId.value] || null : null));
 const shouldFetchSchedule = computed(() => Boolean(props.isOpen && studentId.value && !cachedWeeks.value));
@@ -143,7 +144,7 @@ const {
   error: scheduleQueryError
 } = useQuery(
   UNIT_ADMIN_SCHEDULE_WEEKS,
-  computed(() => ({ student_id: studentId.value })),
+  computed(() => ({ student_id: studentElkhetaId.value })),
   computed(() => ({
     enabled: shouldFetchSchedule.value,
     fetchPolicy: 'no-cache'
@@ -246,7 +247,8 @@ const weeklySummary = computed(() => {
   // "completedLessons" = subject parts progress >= 60
   const completed = allSubjects.filter((s) => (s.progress ?? 0) >= 60).length;
   // averageProgress comes from week-level progress returned by backend
-  const averageProgress = w?.progress ?? 0;
+  const averageProgress = w?.progress;
+  
   // accumulated comes from week-level accumulated_subject_parts_count
   const accumulated = w?.accumulated_subject_parts_count ?? 0;
 
@@ -273,7 +275,7 @@ const handleClose = () => {
 
 const handleEditSchedule = () => {
   if (props.student?.id) {
-    window.open(`https://elkheta.org/admin/resources/students/${props.student.id}/edit-schedule`, '_blank');
+    window.open(`https://elkheta.org/admin/resources/students/${props.student.elkheta_id}/edit-schedule`, '_blank');
   }
 };
 
