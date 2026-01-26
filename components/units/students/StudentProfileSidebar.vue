@@ -321,7 +321,7 @@ const handleWhatsAppContact = () => {
 
 const handleViewOrder = (order) => {
     if (order?.id) {
-        window.open(`https://elkheta.org/orders/${order.id}`, '_blank');
+        window.open(`https://elkheta.org/admin/resources/orders/${order.id}`, '_blank');
         emit('view-order', order);
     }
 };
