@@ -58,7 +58,7 @@
             </button>
             <div class="flex flex-col items-center">
               <span class="text-sm font-medium text-gray-700">{{ weekLabelArabic }}</span>
-              <span class="text-xs text-gray-500 mt-1">{{ weekDateRangeArabic }}</span>
+              <span class="text-sm text-gray-500 mt-1">{{ weekDateRangeArabic }}</span>
             </div>
             <button
               class="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -99,7 +99,7 @@
     <!-- Subject Part Details Sidebar -->
     <SubjectPartDetailsSidebar
       :is-open="isDetailsOpen"
-      :student-id="studentId"
+      :student-id="studentElkhetaId"
       :subject-id="selectedSubjectPart?.subjectId"
       :subject-part-id="selectedSubjectPart?.subjectPartId"
       :subject-part="selectedSubjectPart"
@@ -275,7 +275,7 @@ const handleClose = () => {
 
 const handleEditSchedule = () => {
   if (props.student?.id) {
-    window.open(`https://elkheta.org/admin/resources/students/${props.student.id}/edit-schedule`, '_blank');
+    window.open(`https://elkheta.org/admin/resources/students/${props.student.elkheta_id}/edit-schedule`, '_blank');
   }
 };
 
