@@ -133,6 +133,7 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 
 const studentId = computed(() => (props.student?.id ? String(props.student.id) : null));
+const studentElkhetaId = computed(() => (props.student?.elkheta_id ? String(props.student.elkheta_id) : null));
 const scheduleWeeksCache = ref({});
 const cachedWeeks = computed(() => (studentId.value ? scheduleWeeksCache.value[studentId.value] || null : null));
 const shouldFetchSchedule = computed(() => Boolean(props.isOpen && studentId.value && !cachedWeeks.value));
@@ -143,7 +144,7 @@ const {
   error: scheduleQueryError
 } = useQuery(
   UNIT_ADMIN_SCHEDULE_WEEKS,
-  computed(() => ({ student_id: studentId.value })),
+  computed(() => ({ student_id: studentElkhetaId.value })),
   computed(() => ({
     enabled: shouldFetchSchedule.value,
     fetchPolicy: 'no-cache'

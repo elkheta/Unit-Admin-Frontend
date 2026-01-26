@@ -9,6 +9,9 @@
       <span class="text-[10px] font-bold">{{ displayValue }}<span v-if="isPercentage">%</span></span>
       <span class="text-[7px] leading-none">Score</span>
     </template>
+    <template v-else>
+      <span class="text-[10px] font-bold">--</span>
+    </template>
     
     <!-- Tooltip on hover -->
     <div 
