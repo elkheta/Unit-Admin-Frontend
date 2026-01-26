@@ -244,8 +244,8 @@ const weeklySummary = computed(() => {
   const w = selectedWeek.value;
   const allSubjects = weekDays.value.flatMap((day) => day.subjects || []);
   const total = allSubjects.length;
-  // "completedLessons" = subject parts progress >= 60
-  const completed = allSubjects.filter((s) => (s.progress ?? 0) >= 60).length;
+  // "completedLessons" = subject parts progress >=80
+  const completed = allSubjects.filter((s) => (s.progress ?? 0) >= 80).length;
   // averageProgress comes from week-level progress returned by backend
   const averageProgress = w?.progress;
   
