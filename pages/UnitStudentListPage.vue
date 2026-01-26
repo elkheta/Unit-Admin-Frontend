@@ -80,7 +80,7 @@ const studentsData = computed(() => {
     accumulatedProgress: s.accumulated_subject_parts_percentage || 0, // Map from backend
     // Format date to relative time
     lastActive: formatLastSeen(s.last_seen),
-    status: 'Active', // Default or derive from expiration
+    status: s.expiration_date && new Date(s.expiration_date) < new Date() ? 'Inactive' : 'Active',
     group: s.group_name || 'No Group',
     labels: s.labels || [], // Map labels
     dateAdded: s.added_to_unit_at,
