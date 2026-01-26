@@ -35,10 +35,10 @@
         >
           <div class="flex items-center justify-between mb-1.5">
             <span class="text-xs font-medium text-blue-600 cursor-pointer hover:text-blue-700 truncate pr-2">{{ progressLabel }}</span>
-            <span class="text-xs font-semibold text-green-600 flex-shrink-0">{{ progressDisplay }}</span>
+            <span class="text-xs font-semibold flex-shrink-0" :class="progressColorClass">{{ progressDisplay }}</span>
           </div>
           <div class="w-full bg-gray-200 rounded-full h-2 cursor-pointer">
-            <div class="bg-green-500 h-2 rounded-full transition-all" :style="{ width: progressWidth }">
+            <div class="h-2 rounded-full transition-all" :class="progressBarColorClass" :style="{ width: progressWidth }">
             </div>
           </div>
         </button>
@@ -152,6 +152,16 @@ const progressDisplay = computed(() => {
 
 const progressWidth = computed(() => {
   return `${progressValue.value ?? 0}%`;
+});
+
+const progressColorClass = computed(() => {
+  const value = progressValue.value ?? 0;
+  return value >= 80 ? 'text-green-600' : 'text-red-500';
+});
+
+const progressBarColorClass = computed(() => {
+  const value = progressValue.value ?? 0;
+  return value >= 80 ? 'bg-green-500' : 'bg-red-500';
 });
 
 
