@@ -1,7 +1,7 @@
 <template>
   <div :class="[
-    'bg-white rounded-lg border-2 transition-all',
-    day.isToday ? 'border-blue-500 bg-blue-50' : 'border-gray-200',
+    'rounded-xl border overflow-hidden shadow-sm',
+    day.isToday ? 'bg-blue-50 border-blue-300 ring-2 ring-blue-200' : 'bg-gray-50  border-gray-200',
   ]">
     <!-- Day Header -->
     <div class="flex items-center justify-between p-4 pb-3">
@@ -20,7 +20,7 @@
         </span>
         <div class="flex flex-col items-end">
           <h3 class="text-lg font-bold text-gray-900">{{ day.dayName }}</h3>
-          <p class="text-sm text-gray-500">{{ day.dayNumber }} {{ day.month }}</p>
+          <p class="text-sm text-gray-500" dir="rtl">{{ day.dayNumber }} {{ day.month }} </p>
         </div>
       </div>
     </div>

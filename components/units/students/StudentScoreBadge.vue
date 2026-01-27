@@ -63,11 +63,11 @@ const badgeClasses = computed(() => {
   if (progress < 0.01 || props.accumulatedLessons === 0) {
     // Neural/Gray for 0% and no accumulated lessons
     return 'border-gray-200 text-gray-500 hover:border-gray-300';
-  } else if (progress < 60) {
-    // Red for < 60%
+  } else if (progress < 80) {
+    // Red for < 80%
     return 'border-red-200 text-red-500 hover:border-red-300';
   } else {
-    // Green otherwise (>= 60%)
+    // Green otherwise (>= 80%)
     return 'border-green-200 text-green-600 hover:border-green-300';
   }
 });

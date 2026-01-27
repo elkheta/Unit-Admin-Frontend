@@ -56,7 +56,7 @@
             <p
               v-if="order.timeLeft"
               class="text-xs font-medium mt-1.5"
-              :class="isGreenStatus(order.status) ? 'text-green-600' : 'text-orange-600'"
+              :class="isNotExpired(order.expires) ? 'text-green-600' : 'text-orange-600'"
             >
               {{ order.timeLeft }}
             </p>
@@ -107,4 +107,12 @@ const formatStatus = (status) => {
 };
 
 const isGreenStatus = (status) => GREEN_STATUSES.has(status);
+
+const isNotExpired = (expires) => {
+  if (!expires) return false;
+  const expiresDate = new Date(expires);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Compare dates only, ignore time
+  return expiresDate < today;
+};
 </script>

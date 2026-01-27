@@ -95,7 +95,7 @@
             >
                 Contact Main Parent via WhatsApp
             </BaseButton>
-            <BaseButton variant="primary" class="w-full" :icon="UserRound" @click="$emit('go-to-parent-profile')">
+            <BaseButton variant="primary" class="w-full" :icon="UserRound" :disabled="!hasParentId" @click="$emit('go-to-parent-profile')">
                 Go to Parent Profile
             </BaseButton>
         </div>
@@ -127,6 +127,10 @@ const mainParentName = computed(() => {
 
 const mainParentPhone = computed(() => {
   return props.parentInfo?.parent?.phone_number || '';
+});
+
+const hasParentId = computed(() => {
+  return Boolean(props.parentInfo?.parent?.id);
 });
 
 const normalizeExtraParents = (parents) => {
